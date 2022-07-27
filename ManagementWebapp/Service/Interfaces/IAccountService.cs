@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using API.Entities;
-using Domain.Shared;
+using Domain.Entities;
+using Service.DTOS.Requests;
+using Service.DTOS.Responses;
 
-namespace Domain.Intefaces.Services
+namespace Service.Interfaces
 {
     public interface IAccountService
     {
@@ -22,5 +23,4 @@ namespace Domain.Intefaces.Services
         // User to create new project
         Task<UserManagerResponse> CreateUserProject(ProjectRequest model, string userId);
     }
-
 }

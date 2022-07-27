@@ -2579,7 +2579,10 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
-          "Infrastructure": "1.0.0"
+          "Domain": "1.0.0",
+          "Infrastructure": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "5.0.17",
+          "System.IdentityModel.Tokens.Jwt": "5.6.0"
         },
         "compile": {
           "bin/placeholder/Service.dll": {}
@@ -8325,11 +8328,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\API\\API.csproj",
+      "projectUniqueName": "D:\\Enlab\\my-github\\ManagementWebapp\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\API\\API.csproj",
+      "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\API\\API.csproj",
       "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-      "outputPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\API\\obj\\",
+      "outputPath": "D:\\Enlab\\my-github\\ManagementWebapp\\API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -8346,11 +8349,11 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj"
+            "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj"
             },
-            "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Service\\Service.csproj": {
-              "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Service\\Service.csproj"
+            "D:\\Enlab\\my-github\\ManagementWebapp\\Service\\Service.csproj": {
+              "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Service\\Service.csproj"
             }
           }
         }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 #nullable disable
 
-namespace API.Entities
+namespace Domain.Entities
 {
     public partial class Task
     {

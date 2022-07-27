@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace Domain.Shared
+namespace Service.DTOS.Responses
 {
     public class UserManagerResponse
     {

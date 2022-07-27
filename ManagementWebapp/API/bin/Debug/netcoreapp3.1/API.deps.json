@@ -2008,7 +2008,10 @@
       },
       "Service/1.0.0": {
         "dependencies": {
-          "Infrastructure": "1.0.0"
+          "Domain": "1.0.0",
+          "Infrastructure": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "5.0.17",
+          "System.IdentityModel.Tokens.Jwt": "5.6.0"
         },
         "runtime": {
           "Service.dll": {}

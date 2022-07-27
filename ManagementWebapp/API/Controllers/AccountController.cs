@@ -1,10 +1,9 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using API.Entities;
-using Domain.Intefaces.Services;
-using Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Service.DTOS.Requests;
+using Service.Interfaces;
 
 namespace API.Controllers
 {

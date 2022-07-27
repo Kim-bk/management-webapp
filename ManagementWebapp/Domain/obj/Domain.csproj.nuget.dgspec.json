@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj": {}
+    "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj": {}
   },
   "projects": {
-    "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj": {
+    "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj",
+        "projectUniqueName": "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj",
+        "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-        "outputPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\obj\\",
+        "outputPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",

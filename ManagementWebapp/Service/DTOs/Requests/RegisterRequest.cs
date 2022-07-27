@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Shared
+namespace Service.DTOS.Requests
 {
     public class RegisterRequest
     {

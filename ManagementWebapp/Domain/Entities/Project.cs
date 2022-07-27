@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 #nullable disable
 
-namespace API.Entities
+namespace Domain.Entities
 {
     public partial class Project
     {

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Domain.Interfaces.Repositories;
 
 namespace Infrastructure.Repositories
 {
-    class RefreshTokenRepository
+    public class RefreshTokenRepository : IRefreshTokenRepository
     {
     }
 }

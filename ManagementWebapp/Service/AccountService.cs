@@ -2,28 +2,32 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
-using API.Entities;
 using Domain;
 using Domain.Accounts;
-using Domain.Intefaces.Services;
-using Domain.Shared;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Service.DTOS.Requests;
+using Service.DTOS.Responses;
+using Service.Interfaces;
 using Service.TokenGenratorServices;
 
 namespace Service
 {
     public class AccountService : IAccountService
     {
+        private UserManager<IdentityUser> _userManager;
         private IAccountRepository _accountRepository;
         private IUnitOfWork _unitOfWork;
         private AccessTokenGenerator _genAccessToken;
         private RefreshTokenGenerator _genRefreshToken;
-        public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, 
-                            AccessTokenGenerator genAccessToken, RefreshTokenGenerator genRefreshToken)
+        public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, AccessTokenGenerator genAccessToken, 
+                            RefreshTokenGenerator genRefreshToken, UserManager<IdentityUser> userManager)
         {
             _accountRepository = accountRepository;
             _unitOfWork = uniOfWork;
             _genAccessToken = genAccessToken;
             _genRefreshToken = genRefreshToken;
+            _userManager = userManager;
         }
         public async Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model)
         {
@@ -37,15 +41,21 @@ namespace Service
             {
                 return new UserManagerResponse
                 {
-                    Message = "Confirm password not macth!",
+                    Message = "Confirm password not match!",
                     IsSuccess = false,
                 };
             }
-   
+           
             // Begin a transaction
             await _unitOfWork.BeginTransaction();
 
-            var rs = await _accountRepository.RegisterUser(model);
+            var user = new IdentityUser
+            {
+                Email = model.Email,
+                UserName = model.UserName,
+            };
+
+            var rs = await _userManager.CreateAsync(user, model.Password);
 
             if (rs.Succeeded)
             {
@@ -78,7 +88,7 @@ namespace Service
                 throw new NullReferenceException("Login Model is null");
             }
             
-            var user = await _accountRepository.FindUserByName(model.UserName);
+            var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
             {
                 return new UserManagerResponse
@@ -88,7 +98,7 @@ namespace Service
                 };
             }
 
-            var rs = await _accountRepository.CheckPassword(user, model.Password);
+            var rs = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!rs)
             {
                 return new UserManagerResponse
@@ -102,7 +112,7 @@ namespace Service
             var accessToken = _genAccessToken.Generate(user);
 
             // create refresh token for user
-            var refreshToken = _genRefreshToken.Generate();
+           // var refreshToken = _genRefreshToken.Generate();
        
             return new UserManagerResponse
             {
@@ -116,7 +126,7 @@ namespace Service
         {
             try
             {
-                var rs = _accountRepository.GetUserProjects(userId);
+                var rs =  _accountRepository.GetUserProjects(userId);
                 return rs;
             }
             catch(Exception)
@@ -127,32 +137,45 @@ namespace Service
 
         public async Task<UserManagerResponse> CreateUserProject(ProjectRequest model, string userId)
         {
-            await _unitOfWork.BeginTransaction();
-            var rs = _accountRepository.CreateUserProject(model);
-            if (rs != null)
+            try
             {
-                if (_accountRepository.AssignUserToProject(rs, userId))
+                await _unitOfWork.BeginTransaction();
+                var rs = _accountRepository.CreateUserProject(model.Name);
+                if (rs != null)
                 {
-                    await _unitOfWork.CommitTransaction();
-                    return new UserManagerResponse
+                    if (_accountRepository.AddUserToProject(rs, userId))
                     {
-                        Message = "Create new project success!",
-                        IsSuccess = true
-                    };
+                        await _unitOfWork.CommitTransaction();
+                        return new UserManagerResponse
+                        {
+                            Message = "Create new project success!",
+                            IsSuccess = true
+                        };
+                    }
                 }
+
+                await _unitOfWork.RollbackTransaction();
+                return new UserManagerResponse
+                {
+                    IsSuccess = false,
+                };
             }
 
-            await _unitOfWork.RollbackTransaction();
-            return new UserManagerResponse
+            catch(Exception)
             {
-                IsSuccess = false,
-            };
-            
+                await _unitOfWork.RollbackTransaction();
+                return new UserManagerResponse
+                {
+                    IsSuccess = false,
+                };
+            }
         }
 
         public async Task<UserManagerResponse> UserLogout()
         {
-            var rs = await _accountRepository.UserLogout();
+            return null;
+
+           /* var rs = await _accountRepository.UserLogout();
             if (rs)
             {
                 return new UserManagerResponse
@@ -165,7 +188,7 @@ namespace Service
             {
                 Message = "Log out fail!",
                 IsSuccess = false,
-            };
+            };*/
         }
     }
 }

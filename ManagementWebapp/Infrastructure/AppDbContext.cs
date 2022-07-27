@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using API.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Domain.Entities;
 
 namespace API.Context
 {
@@ -149,7 +149,6 @@ namespace API.Context
 
             OnModelCreatingPartial(modelBuilder);
         }
-
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

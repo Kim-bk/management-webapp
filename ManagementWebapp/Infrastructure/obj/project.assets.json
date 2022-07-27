@@ -6603,11 +6603,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
+      "projectUniqueName": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
       "projectName": "Infrastructure",
-      "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
+      "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
       "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-      "outputPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\obj\\",
+      "outputPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -6624,8 +6624,8 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj": {
-              "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj"
+            "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj": {
+              "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj"
             }
           }
         }

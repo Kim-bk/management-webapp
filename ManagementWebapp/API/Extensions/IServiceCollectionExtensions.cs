@@ -2,7 +2,6 @@
 using API.Context;
 using Domain;
 using Domain.Accounts;
-using Domain.Intefaces.Services;
 using Domain.Interfaces.Repositories;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -10,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service;
+using Service.Interfaces;
+using Service.TokenGenratorServices;
 
 namespace API.Extensions
 {
@@ -37,14 +38,16 @@ namespace API.Extensions
         {
             return services
                 .AddScoped(typeof(IRepository<>), typeof(Repository<>))
-                .AddScoped<IAccountRepository, AccountRepository>();
+                .AddScoped<IAccountRepository, AccountRepository>()
+                .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             return services
                 .AddScoped<IAccountService, AccountService>()
-                .AddScoped<AccessTokenGenerator>();
+                .AddScoped<AccessTokenGenerator>()
+                .AddScoped<RefreshTokenGenerator>();
         }
     }
 }

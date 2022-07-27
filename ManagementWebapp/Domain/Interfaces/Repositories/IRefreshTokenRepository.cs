@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Domain.Interfaces.Repositories
 {
-    class IRefreshTokenRepository
+    public interface IRefreshTokenRepository
     {
     }
 }

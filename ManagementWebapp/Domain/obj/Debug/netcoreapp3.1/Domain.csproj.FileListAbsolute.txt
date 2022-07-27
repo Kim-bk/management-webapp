@@ -24,3 +24,16 @@ C:\Users\ASUS\OneDrive\Desktop\kim.nguyen\ManagementWebapp\Domain\obj\Debug\netc
 C:\Users\ASUS\OneDrive\Desktop\kim.nguyen\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.dll
 C:\Users\ASUS\OneDrive\Desktop\kim.nguyen\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.pdb
 C:\Users\ASUS\OneDrive\Desktop\kim.nguyen\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.genruntimeconfig.cache
+D:\Enlab\my-github\ManagementWebapp\Domain\bin\Debug\netcoreapp3.1\Domain.deps.json
+D:\Enlab\my-github\ManagementWebapp\Domain\bin\Debug\netcoreapp3.1\Domain.runtimeconfig.json
+D:\Enlab\my-github\ManagementWebapp\Domain\bin\Debug\netcoreapp3.1\Domain.runtimeconfig.dev.json
+D:\Enlab\my-github\ManagementWebapp\Domain\bin\Debug\netcoreapp3.1\Domain.dll
+D:\Enlab\my-github\ManagementWebapp\Domain\bin\Debug\netcoreapp3.1\Domain.pdb
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.csprojAssemblyReference.cache
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.AssemblyInfoInputs.cache
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.AssemblyInfo.cs
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.csproj.CoreCompileInputs.cache
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.dll
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.pdb
+D:\Enlab\my-github\ManagementWebapp\Domain\obj\Debug\netcoreapp3.1\Domain.genruntimeconfig.cache

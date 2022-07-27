@@ -10,7 +10,6 @@ namespace API.Context
             : base(options)
         {
         }
-        public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Label> Labels { get; set; }
         public virtual DbSet<LabelTask> LabelTasks { get; set; }
@@ -19,6 +18,7 @@ namespace API.Context
         public virtual DbSet<ProjectMember> ProjectMembers { get; set; }
         public virtual DbSet<Task> Tasks { get; set; }
         public virtual DbSet<Todo> Todos { get; set; }
+        public virtual DbSet<TaskMember> TaskMember { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -33,18 +33,6 @@ namespace API.Context
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
-            modelBuilder.Entity<Account>(entity =>
-            {
-                entity.ToTable("Account");
-
-                entity.Property(e => e.Email).HasMaxLength(256);
-
-                entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
-
-                entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
-
-                entity.Property(e => e.UserName).HasMaxLength(256);
-            });
 
             modelBuilder.Entity<History>(entity =>
             {

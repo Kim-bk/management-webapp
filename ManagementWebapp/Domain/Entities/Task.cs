@@ -21,7 +21,7 @@ namespace Domain.Entities
         public string UserId { get; set; }
 
         public virtual ListTask ListTask { get; set; }
-        public virtual Account User { get; set; }
+        public virtual ApplicationUser User { get; set; }
         public virtual ICollection<Todo> Todos { get; set; }
     }
 }

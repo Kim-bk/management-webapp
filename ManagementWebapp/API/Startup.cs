@@ -19,6 +19,7 @@ namespace API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+          
         }
 
         public IConfiguration Configuration { get; }
@@ -37,6 +38,7 @@ namespace API
         
             services.AddControllers();
             services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 
             services

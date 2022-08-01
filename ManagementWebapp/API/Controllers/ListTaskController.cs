@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.DTOs.Requests;
@@ -17,13 +18,14 @@ namespace API.Controllers
         }
         
         [Authorize]
-        [HttpPost("task")]
-        // api/listtask-management/task?listTaskId
+        [HttpPost]
+        // api/listtask-management?listTaskId
         public async Task<IActionResult> CreateTask(int listTaskId, [FromBody] TitleRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _listTaskService.AddTaskToList(model.Title, listTaskId);
+                string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var rs = await _listTaskService.AddTaskToList(model.Title, listTaskId, userId);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -40,6 +42,22 @@ namespace API.Controllers
             if (ModelState.IsValid)
             {
                 var rs = await _listTaskService.GetAllTasks(listTaskId);
+                if (rs.IsSuccess)
+                {
+                    return Ok(rs);
+                }
+            }
+            return BadRequest("Some properties is not valid!");
+        }
+
+        [Authorize]
+        [HttpPost("task")]
+        // api/listtask-management/task
+        public async Task<IActionResult> MoveTask([FromBody] TaskRequest model)
+        {
+            if (ModelState.IsValid)
+            {
+                var rs = await _listTaskService.MoveTask(model);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);

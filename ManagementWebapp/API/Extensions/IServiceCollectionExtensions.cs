@@ -41,7 +41,8 @@ namespace API.Extensions
                 .AddScoped<IAccountRepository, AccountRepository>()
                 .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
                 .AddScoped<IProjectRepository, ProjectRepository>()
-                .AddScoped<IListTaskRepository, ListTaskRepository>();
+                .AddScoped<IListTaskRepository, ListTaskRepository>()
+                .AddScoped<ITaskRepository, TaskRepository>();
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)

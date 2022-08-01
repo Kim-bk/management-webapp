@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
+using API.Context;
 using Domain;
+using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -20,9 +23,9 @@ namespace Infrastructure
             Repositories = new Dictionary<string, dynamic>();
         }
 
-        public async Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            return await DbContext.SaveChangesAsync();
+            return await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         private async Task StartNewTransactionIfNeeded()
@@ -65,7 +68,8 @@ namespace Infrastructure
             await _transaction.DisposeAsync();
             _transaction = null;
         }
-       
+
+
         public void Dispose()
         {
             if (DbContext == null)

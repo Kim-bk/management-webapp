@@ -12,12 +12,12 @@ namespace Infrastructure
     {
         private readonly DbFactory _dbFactory;
         private DbSet<T> _dbSet;
-        private DbContext dbContext;
 
         protected DbSet<T> DbSet
         {
             get => _dbSet ?? (_dbSet = _dbFactory.DbContext.Set<T>());
         }
+        public DbContext DbContext { get; }
 
         public Repository( DbFactory dbFactory)
         {
@@ -26,7 +26,7 @@ namespace Infrastructure
 
         public Repository(DbContext dbContext)
         {
-            this.dbContext = dbContext;
+            DbContext = dbContext;
         }
 
         public void Add(T entity)

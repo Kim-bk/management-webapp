@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Service.DTOs.Responses;
 using Service.DTOS.Requests;
 using Service.DTOS.Responses;
 
@@ -15,12 +16,9 @@ namespace Service.Interfaces
         Task<UserManagerResponse> UserLoginAsync(LoginRequest model);
 
         // Get all projects of User login
-        Task<IList<Project>> GetUserProjects(string userId);
+        Task<ProjectManagerResponse> GetUserProjects(string userId);
 
         // User to logout
         Task<UserManagerResponse> UserLogout();
-
-        // User to create new project
-        Task<UserManagerResponse> CreateUserProject(ProjectRequest model, string userId);
     }
 }

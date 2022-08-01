@@ -4,7 +4,7 @@ using Domain.Entities;
 
 namespace API.Context
 {
-    public partial class AppDbContext : IdentityDbContext
+    public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -15,7 +15,6 @@ namespace API.Context
         public virtual DbSet<LabelTask> LabelTasks { get; set; }
         public virtual DbSet<ListTask> ListTasks { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
-        public virtual DbSet<ProjectMember> ProjectMembers { get; set; }
         public virtual DbSet<Task> Tasks { get; set; }
         public virtual DbSet<Todo> Todos { get; set; }
         public virtual DbSet<TaskMember> TaskMember { get; set; }
@@ -24,13 +23,14 @@ namespace API.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS14;Database=ManagementWebappTest;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS14;Database=ManagementWebapp;Trusted_Connection=True;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
 
@@ -84,25 +84,6 @@ namespace API.Context
                 entity.ToTable("Project");
             });
 
-            modelBuilder.Entity<ProjectMember>(entity =>
-            {
-               /* entity.HasNoKey();*/
-                entity.ToTable("ProjectMember");
-
-                entity.HasIndex(e => e.ProjectId, "IX_ProjectMember_ProjectId");
-
-                entity.HasIndex(e => e.UserId, "IX_ProjectMember_UserId");
-
-                entity.HasOne(d => d.Project)
-                    .WithMany()
-                    .HasForeignKey(d => d.ProjectId)
-                    .HasConstraintName("FK__ProjectMe__Proje__0E6E26BF");
-
-                entity.HasOne(d => d.User)
-                    .WithMany()
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__ProjectMe__UserI__0F624AF8");
-            });
 
             modelBuilder.Entity<Task>(entity =>
             {

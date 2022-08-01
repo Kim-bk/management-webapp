@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using API.Context;
 using API.Extensions;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,14 +27,17 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             // Requirements in Password
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 5;
                 options.Password.RequireLowercase = true;
-            }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+            }).AddEntityFrameworkStores<AppDbContext>();
 
+        
             services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
+
 
             services
                .AddDatabase(Configuration)

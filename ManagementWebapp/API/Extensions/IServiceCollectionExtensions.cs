@@ -2,6 +2,7 @@
 using API.Context;
 using Domain;
 using Domain.Accounts;
+using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -22,7 +23,6 @@ namespace API.Extensions
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("API"));
-            
                 options.UseLazyLoadingProxies();
             }
             );
@@ -39,7 +39,9 @@ namespace API.Extensions
             return services
                 .AddScoped(typeof(IRepository<>), typeof(Repository<>))
                 .AddScoped<IAccountRepository, AccountRepository>()
-                .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+                .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
+                .AddScoped<IProjectRepository, ProjectRepository>()
+                .AddScoped<IListTaskRepository, ListTaskRepository>();
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -47,7 +49,9 @@ namespace API.Extensions
             return services
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<AccessTokenGenerator>()
-                .AddScoped<RefreshTokenGenerator>();
+                .AddScoped<RefreshTokenGenerator>()
+                .AddScoped<IProjectService, ProjectService>()
+                .AddScoped<IListTaskService, ListTaskService>();
         }
     }
 }

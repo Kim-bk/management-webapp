@@ -9,7 +9,6 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
     public class AccountController : ControllerBase
     {
         private IAccountService _accountService;
@@ -20,10 +19,10 @@ namespace API.Controllers
         }
 
         // api/account/register
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var res = await _accountService.RegisterUserAsync(model);
                 if (res.IsSuccess)
@@ -36,13 +35,13 @@ namespace API.Controllers
         }
 
         // api/account/login 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var res = await _accountService.UserLoginAsync(model);
-                if(res.IsSuccess)
+                if (res != null)
                 {
                     return Ok(res);
                 }
@@ -52,42 +51,29 @@ namespace API.Controllers
 
         // api/account/project
         [Authorize]
-        [HttpGet("Project")]
+        [HttpGet("project")]
         public async Task<IActionResult> GetUserProjects()
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var res = await _accountService.GetUserProjects(userId);
-            if(res != null)
+            if (res.IsSuccess)
             {
-                return Ok(res);
-            }
-            return BadRequest("Some properties is not valid!"); // error code 400
-        }
-
-        // api/account/project
-        [Authorize]
-        [HttpPost("Project")]
-        public async Task<IActionResult> CreateUserProject([FromBody] ProjectRequest model)
-        {
-            if(ModelState.IsValid)
-            {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var res = await _accountService.CreateUserProject(model, userId);
-                if (res.IsSuccess)
+                return new OkObjectResult(new
                 {
-                    return Ok(res);
-                }
+                    res.Message,
+                    res.Project
+                });
             }
             return BadRequest("Some properties is not valid!"); // error code 400
         }
 
         // api/account/logout
         [Authorize]
-        [HttpPost("Logout")]
+        [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
             var res = await _accountService.UserLogout();
-            if(res.IsSuccess)
+            if (res.IsSuccess)
             {
                 return Ok(res);
             }

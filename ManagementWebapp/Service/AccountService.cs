@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Domain;
 using Domain.Accounts;
 using Domain.Entities;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Service.DTOs.Responses;
 using Service.DTOS.Requests;
 using Service.DTOS.Responses;
 using Service.Interfaces;
@@ -15,13 +17,13 @@ namespace Service
 {
     public class AccountService : IAccountService
     {
-        private UserManager<IdentityUser> _userManager;
+        private UserManager<ApplicationUser> _userManager;
         private IAccountRepository _accountRepository;
         private IUnitOfWork _unitOfWork;
         private AccessTokenGenerator _genAccessToken;
         private RefreshTokenGenerator _genRefreshToken;
-        public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, AccessTokenGenerator genAccessToken, 
-                            RefreshTokenGenerator genRefreshToken, UserManager<IdentityUser> userManager)
+        public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, 
+            AccessTokenGenerator genAccessToken, RefreshTokenGenerator genRefreshToken, UserManager<ApplicationUser> userManager)
         {
             _accountRepository = accountRepository;
             _unitOfWork = uniOfWork;
@@ -31,7 +33,7 @@ namespace Service
         }
         public async Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model)
         {
-            // validate input
+            // 1. Validate input
             if (model == null)
             {
                 throw new NullReferenceException("Register Model is null");
@@ -46,15 +48,17 @@ namespace Service
                 };
             }
            
-            // Begin a transaction
+            // 2. Begin a transaction
             await _unitOfWork.BeginTransaction();
 
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 Email = model.Email,
                 UserName = model.UserName,
             };
 
+            // 3. Assign GUID to Id user
+            user.Id = Guid.NewGuid().ToString();
             var rs = await _userManager.CreateAsync(user, model.Password);
 
             if (rs.Succeeded)
@@ -82,12 +86,12 @@ namespace Service
 
         public async Task<UserManagerResponse> UserLoginAsync(LoginRequest model)
         {
-            // validate input
+            // 1. Validate input
             if (model == null)
             {
                 throw new NullReferenceException("Login Model is null");
             }
-            
+
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
             {
@@ -108,10 +112,10 @@ namespace Service
                 };
             }
 
-            // create access token for user
+            // 2. create access token for user
             var accessToken = _genAccessToken.Generate(user);
 
-            // create refresh token for user
+            // 3. create refresh token for user
            // var refreshToken = _genRefreshToken.Generate();
        
             return new UserManagerResponse
@@ -122,73 +126,49 @@ namespace Service
             };
         }
 
-        public async Task<IList<Project>> GetUserProjects(string userId)
+        public async Task<ProjectManagerResponse> GetUserProjects(string userId)
         {
             try
             {
-                var rs =  _accountRepository.GetUserProjects(userId);
-                return rs;
-            }
-            catch(Exception)
-            {
-                return null;
-            }
-        }
+                // 1. Get all projects of user
+                var getCollectionProjects = _accountRepository.GetUserProjects(userId);
 
-        public async Task<UserManagerResponse> CreateUserProject(ProjectRequest model, string userId)
-        {
-            try
-            {
-                await _unitOfWork.BeginTransaction();
-                var rs = _accountRepository.CreateUserProject(model.Name);
-                if (rs != null)
+                // 2. Init list project (name, id) to store and return to client
+                var storeProjects = new List<Project>();
+                foreach (var listProject in getCollectionProjects)
                 {
-                    if (_accountRepository.AddUserToProject(rs, userId))
+                    foreach (var project in listProject)
                     {
-                        await _unitOfWork.CommitTransaction();
-                        return new UserManagerResponse
+                        var p = new Project
                         {
-                            Message = "Create new project success!",
-                            IsSuccess = true
+                            Id = project.Id,
+                            Name = project.Name,
                         };
+                        storeProjects.Add(p);
                     }
                 }
 
-                await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
+                // 3. Return message
+                return new ProjectManagerResponse
                 {
-                    IsSuccess = false,
+                    Message = "Get user projects success!",
+                    Project = storeProjects,
+                    IsSuccess = true
                 };
             }
-
-            catch(Exception)
+            catch (Exception e)
             {
-                await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
+                return new ProjectManagerResponse
                 {
-                    IsSuccess = false,
+                    Message = e.ToString(),
+                    IsSuccess = false
                 };
             }
         }
 
-        public async Task<UserManagerResponse> UserLogout()
+        public Task<UserManagerResponse> UserLogout()
         {
-            return null;
-
-           /* var rs = await _accountRepository.UserLogout();
-            if (rs)
-            {
-                return new UserManagerResponse
-                {
-                    Message = "Log out success!",
-                    IsSuccess = true,
-                };
-            }
-            return new UserManagerResponse
-            {
-                Message = "Log out fail!",
-                IsSuccess = false,
-            };*/
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Domain.Entities;
 
 namespace Service.DTOS.Responses
 {
@@ -9,7 +9,7 @@ namespace Service.DTOS.Responses
         public string Message { get; set; }
         public bool IsSuccess { get; set; }
         public IEnumerable<string> Errors {get;set;}
-
         public DateTime? ExpireDate { get; set; }
+        public List<Project> Project { get; set; }
     }
 }

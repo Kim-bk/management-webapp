@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +17,7 @@ namespace Service
             _configuration = configuration;
         }
 
-        public JwtSecurityToken Generate(IdentityUser user)
+        public JwtSecurityToken Generate(ApplicationUser user)
         {
            var claims = new[]
            {
@@ -30,7 +31,7 @@ namespace Service
                 issuer: _configuration["AuthSettings:Issuer"],
                 audience: _configuration["AuthSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30), // expire in 30 minutes later
+                expires: DateTime.UtcNow.AddHours(4), // expire in 4 hours later
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));;
 
             return token;

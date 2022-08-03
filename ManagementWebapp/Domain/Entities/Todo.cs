@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-#nullable disable
-
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
     public partial class Todo
     {

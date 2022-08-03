@@ -7,7 +7,7 @@ using Service.Interfaces;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]-management")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ListTaskController : ControllerBase
     {
@@ -18,14 +18,14 @@ namespace API.Controllers
         }
         
         [Authorize]
-        [HttpPost]
-        // api/listtask-management?listTaskId
-        public async Task<IActionResult> CreateTask(int listTaskId, [FromBody] TitleRequest model)
+        [HttpPost("task")]
+        // api/listtask-management/task
+        public async Task<IActionResult> CreateTask([FromBody] CommonRequest model)
         {
             if (ModelState.IsValid)
             {
                 string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var rs = await _listTaskService.AddTaskToList(model.Title, listTaskId, userId);
+                var rs = await _listTaskService.AddTaskToList(model, userId);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -36,12 +36,12 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet("task")]
-        // api/listtask-management/task/?listTaskId
-        public async Task<IActionResult> GetAll(int listTaskId)
+        // api/listtask-management/task
+        public async Task<IActionResult> GetAllTasks([FromBody] CommonRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _listTaskService.GetAllTasks(listTaskId);
+                var rs = await _listTaskService.GetAllTasks(model.Id);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -51,8 +51,8 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpPost("task")]
-        // api/listtask-management/task
+        [HttpPost("managed-task")]
+        // api/listtask-management/managed-task
         public async Task<IActionResult> MoveTask([FromBody] TaskRequest model)
         {
             if (ModelState.IsValid)

@@ -42,7 +42,9 @@ namespace API.Extensions
                 .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
                 .AddScoped<IProjectRepository, ProjectRepository>()
                 .AddScoped<IListTaskRepository, ListTaskRepository>()
-                .AddScoped<ITaskRepository, TaskRepository>();
+                .AddScoped<ITaskRepository, TaskRepository>()
+                .AddScoped<ILabelRepository, LabelRepostiory>()
+                .AddScoped<IToDoRepository, ToDoRepository>();
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -52,7 +54,8 @@ namespace API.Extensions
                 .AddScoped<AccessTokenGenerator>()
                 .AddScoped<RefreshTokenGenerator>()
                 .AddScoped<IProjectService, ProjectService>()
-                .AddScoped<IListTaskService, ListTaskService>();
+                .AddScoped<IListTaskService, ListTaskService>()
+                .AddScoped<ITaskService, TaskService>();
         }
     }
 }

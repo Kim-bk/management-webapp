@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Domain.Entities;
+using Castle.Core.Configuration;
 
 namespace API.Context
 {
@@ -12,20 +13,10 @@ namespace API.Context
         }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Label> Labels { get; set; }
-        public virtual DbSet<LabelTask> LabelTasks { get; set; }
         public virtual DbSet<ListTask> ListTasks { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Task> Tasks { get; set; }
         public virtual DbSet<Todo> Todos { get; set; }
-        public virtual DbSet<TaskMember> TaskMember { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS14;Database=ManagementWebapp;Trusted_Connection=True;");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,27 +37,6 @@ namespace API.Context
                 entity.ToTable("Label");
             });
 
-            modelBuilder.Entity<LabelTask>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("LabelTask");
-
-                entity.HasIndex(e => e.LabelId, "IX_LabelTask_LabelId");
-
-                entity.HasIndex(e => e.TaskId, "IX_LabelTask_TaskId");
-
-                entity.HasOne(d => d.Label)
-                    .WithMany()
-                    .HasForeignKey(d => d.LabelId)
-                    .HasConstraintName("FK__LabelTask__Label__1DB06A4F");
-
-                entity.HasOne(d => d.Task)
-                    .WithMany()
-                    .HasForeignKey(d => d.TaskId)
-                    .HasConstraintName("FK__LabelTask__TaskI__32E0915F");
-            });
-
             modelBuilder.Entity<ListTask>(entity =>
             {
                 entity.ToTable("ListTask");
@@ -84,24 +54,18 @@ namespace API.Context
                 entity.ToTable("Project");
             });
 
-
             modelBuilder.Entity<Task>(entity =>
             {
                 entity.ToTable("Task");
 
                 entity.HasIndex(e => e.ListTaskId, "IX_Task_ListTaskId");
 
-                entity.HasIndex(e => e.UserId, "IX_Task_UserId");
+                entity.HasIndex(e => e.DoingId, "IX_Task_UserId");
 
                 entity.HasOne(d => d.ListTask)
                     .WithMany(p => p.Tasks)
                     .HasForeignKey(d => d.ListTaskId)
                     .HasConstraintName("FK__Task__ListTaskId__151B244E");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Tasks)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__Task__UserId__160F4887");
             });
 
             modelBuilder.Entity<Todo>(entity =>

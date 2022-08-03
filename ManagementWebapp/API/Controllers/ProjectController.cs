@@ -12,7 +12,7 @@ using Service.Interfaces;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]-management")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
     {
@@ -41,13 +41,13 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpPost("user/{userId}/project/{projectId:int}")]
-        // api/project/create
-        public async Task<IActionResult> AddMemberToProject(string userId, int projectId)
+        [HttpPost("user")]
+        // api/project/user
+        public async Task<IActionResult> AddMemberToProject([FromBody] ProjectRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _projectService.AddMemberToProject(userId, projectId);
+                var rs = await _projectService.AddMemberToProject(model);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -59,11 +59,12 @@ namespace API.Controllers
 
         [Authorize]
         [HttpPost("list-task")]
-        public async Task<IActionResult> CreateListTask(int projectId, [FromBody] TitleRequest model)
+        // api/project/list-task
+        public async Task<IActionResult> CreateListTask([FromBody] CommonRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _projectService.CreateListTask(model.Title, projectId);
+                var rs = await _projectService.CreateListTask(model);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);

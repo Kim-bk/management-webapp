@@ -27,7 +27,7 @@ namespace Service
         {
             if (list.Count == 0)
             {
-                throw new InvalidOperationException("Empty list");
+                return 0;
             }
             int maxPos = int.MinValue;
             foreach (var type in list)
@@ -40,14 +40,14 @@ namespace Service
             return maxPos;
         }
 
-        public async Task<UserManagerResponse> AddTaskToList(string titleTask, int listTaskId, string userId)
+        public async Task<UserManagerResponse> AddTaskToList(CommonRequest model, string userId)
         {
             try
             {
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find list task by ID
-                var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
+                var listTask = await _listTaskRepository.FindListTaskByIdAsync(model.Id);
 
                 // 2. Set max position for task in list
                 var positon = FindMaxPosition(listTask.Tasks) + 1;
@@ -55,9 +55,8 @@ namespace Service
                 // 3. Init object Task
                 var task = new Domain.Entities.Task
                 {
-                    Title = titleTask,
+                    Title = model.Title,
                     ListTask = listTask,
-                    UserId = userId,         // user create  
                     Position = positon
                 };
 
@@ -70,7 +69,7 @@ namespace Service
                 // 6. Return message 
                 return new UserManagerResponse
                 {
-                    Message = "Add task " + task.Id.ToString() + " to " + "list task " + listTaskId.ToString(),
+                    Message = "Add task " + task.Title.ToString() + " to " + "list task " + task.ListTask.Title.ToString(),
                     IsSuccess = true,
                 };
             }
@@ -80,7 +79,7 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = e.ToString(),
-                    IsSuccess = false,
+                    IsSuccess = true,
                 };
             }
         }
@@ -109,11 +108,11 @@ namespace Service
             }
 
             // 2. Get all tasks in list task by ID
-            var getCollectionTasks = _listTaskRepository.GetAllTasks(listTaskId);
+            var collectionTasks = _listTaskRepository.GetAllTasks(listTaskId);
 
             // 3. Init list task (title, id) to store and return to client
             var storeTasks = new List<Domain.Entities.Task>();
-            foreach (var listTask in getCollectionTasks)
+            foreach (var listTask in collectionTasks)
             {
                 foreach (var task in listTask)
                 {
@@ -122,7 +121,7 @@ namespace Service
                         Id = task.Id,
                         Title = task.Title,
                         ListTaskId = task.ListTaskId,
-                        UserId = task.UserId,
+                        DoingId = task.DoingId,
                         Position = task.Position
                     };
                     storeTasks.Add(t);
@@ -138,7 +137,6 @@ namespace Service
                 Task = storeTasks.OrderBy(t => t.Position).ToList()
             };
         }
-
         public async Task<UserManagerResponse> MoveTask(TaskRequest model)
         {
             try

@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Interfaces.Repositories;
 using System.Linq;
+using Domain.Entities;
 
 namespace Infrastructure.Repositories
 {
@@ -12,10 +13,12 @@ namespace Infrastructure.Repositories
         public TaskRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
+
         public async Task<Domain.Entities.Task> FindByIdAsync(int taskId)
         {
             return await DbSet.FindAsync(taskId);
         }
+
         public Domain.Entities.Task FindByTwoId(int taskId, int listTaskId)
         {
             return (from t in DbSet 

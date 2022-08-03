@@ -4,14 +4,16 @@ using API.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220802022238_Modify-Task-Label-2")]
+    partial class ModifyTaskLabel2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,21 +35,6 @@ namespace API.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("ApplicationUserProject");
-                });
-
-            modelBuilder.Entity("ApplicationUserTask", b =>
-                {
-                    b.Property<int>("TasksId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("TasksId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("ApplicationUserTask");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
@@ -202,9 +189,6 @@ namespace API.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("DoingId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int?>("ListTaskId")
                         .HasColumnType("int");
 
@@ -214,13 +198,38 @@ namespace API.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "ListTaskId" }, "IX_Task_ListTaskId");
 
-                    b.HasIndex(new[] { "DoingId" }, "IX_Task_UserId");
+                    b.HasIndex(new[] { "UserId" }, "IX_Task_UserId");
 
                     b.ToTable("Task");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TaskMember", b =>
+                {
+                    b.Property<int?>("TaskId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("TaskId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("TaskId");
+
+                    b.HasIndex("TaskId1");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskMember");
                 });
 
             modelBuilder.Entity("Domain.Entities.Todo", b =>
@@ -410,21 +419,6 @@ namespace API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ApplicationUserTask", b =>
-                {
-                    b.HasOne("Domain.Entities.Task", null)
-                        .WithMany()
-                        .HasForeignKey("TasksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Entities.ListTask", b =>
                 {
                     b.HasOne("Domain.Entities.Project", "Project")
@@ -442,7 +436,29 @@ namespace API.Migrations
                         .HasForeignKey("ListTaskId")
                         .HasConstraintName("FK__Task__ListTaskId__151B244E");
 
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany("Tasks")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK__Task__UserId__160F4887");
+
                     b.Navigation("ListTask");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TaskMember", b =>
+                {
+                    b.HasOne("Domain.Entities.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId1");
+
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Todo", b =>
@@ -519,6 +535,11 @@ namespace API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Domain.Entities.ListTask", b =>

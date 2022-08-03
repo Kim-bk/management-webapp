@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Service.DTOs.Requests;
 using Service.DTOS.Requests;
 using Service.DTOS.Responses;
 using Service.Interfaces;
@@ -28,17 +29,17 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<UserManagerResponse> AddMemberToProject(string userId, int projectId)
+        public async Task<UserManagerResponse> AddMemberToProject(ProjectRequest model)
         {
             try
             {
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find user in Database
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(model.UserId);
 
                 // 2. Find project in Database
-                var project = await _projectRepository.FindByIdAsync(projectId);
+                var project = await _projectRepository.FindByIdAsync(model.ProjectId);
 
                 // 3. Add member to project then update
                 project.Users.Add(user);
@@ -63,7 +64,7 @@ namespace Service
             }
         }
 
-        public async Task<UserManagerResponse> CreateListTask(string title, int projectId)
+        public async Task<UserManagerResponse> CreateListTask(CommonRequest model)
         {
             try
             {
@@ -71,12 +72,12 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 2.Find project by it ID
-                var project = await _projectRepository.FindByIdAsync(projectId);
+                var project = await _projectRepository.FindByIdAsync(model.Id);
 
                 // 3. Create list task in the project then update
                 var listTask = new ListTask
                 {
-                    Title = title,
+                    Title = model.Title,
                     Project = project
                 };
 

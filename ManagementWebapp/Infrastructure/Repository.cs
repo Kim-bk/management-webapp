@@ -19,7 +19,7 @@ namespace Infrastructure
         }
         public DbContext DbContext { get; }
 
-        public Repository( DbFactory dbFactory)
+        public Repository(DbFactory dbFactory)
         {
             _dbFactory = dbFactory;
         }

@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Service.DTOs.Requests;
-using Service.DTOS.Requests;
-using Service.DTOS.Responses;
+using Domain.DTOs.Requests;
+using Domain.DTOs.Responses;
 
 namespace Service.Interfaces
 {
@@ -10,5 +9,6 @@ namespace Service.Interfaces
         Task<UserManagerResponse> CreateUserProject(string userId, ProjectRequest model);
         Task<UserManagerResponse> AddMemberToProject(ProjectRequest model);
         Task<UserManagerResponse> CreateListTask(CommonRequest model);
+        Task<ProjectManagerResponse> GetListTasks(int projectId);
     }
 }

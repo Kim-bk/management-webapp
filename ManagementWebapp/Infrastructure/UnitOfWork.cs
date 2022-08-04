@@ -2,7 +2,6 @@
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using API.Context;
 using Domain;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using Domain.DTOs.Requests;
+using Domain.DTOs.Responses;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Service.DTOs.Requests;
-using Service.DTOs.Responses;
-using Service.DTOS.Responses;
 using Service.Interfaces;
 
 namespace Service
@@ -29,82 +26,19 @@ namespace Service
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         } 
-        private List<Todo> GetAllTodos(Domain.Entities.Task task)
-        {
-            // 1. Init list labels to store label of the task
-            var storeTodos = new List<Todo>();
-            foreach (var todoItem in task.Todos)
-            {
-                var t = new Todo
-                {
-                    Id = todoItem.Id,
-                    Title = todoItem.Title,
-                    IsDone = todoItem.IsDone,
-                    ParentId = todoItem.ParentId,
-                };
-                storeTodos.Add(t);
-            }
-            // 2. Return result
-            return storeTodos;
-        }
-
-        private List<ApplicationUser> GetAllMembersAssigned(Domain.Entities.Task task)
-        {
-            // 1. Init list labels to store label of the task
-            var storeMembers = new List<ApplicationUser>();
-            foreach (var member in task.Users)
-            {
-                var m = new ApplicationUser
-                {
-                    Id = member.Id,
-                    UserName = member.UserName,
-                };
-                storeMembers.Add(m);
-            }
-            // 2. Return result
-            return storeMembers;
-        }
-        private List<Label> GetAllLabels(Domain.Entities.Task task)
-        {
-            // 1. Init list labels to store label of the task
-            var storeLabels = new List<Label>();
-            foreach (var label in task.Labels)
-            {
-                var l = new Label
-                {
-                    Id = label.Id,
-                    Title = label.Title,
-                    Color = label.Color,
-                };
-                storeLabels.Add(l);
-            }
-            // 2. Return result
-            return storeLabels;
-        }
-        public async Task<TaskManagerResponse> GetAllComponentsOfTask(int taskId)
+      
+        public async Task<TaskManagerResponse> GetTask(int taskId)
         {
             try
             {
-                // 1. Find task by id
-                var task = await _taskRepository.FindByIdAsync(taskId);
+                // 1. Get all information of task by id
+                var task = await _taskRepository.GetByIdAsync(taskId);
 
-                // 2. Get labels of task
-                var listLabels = GetAllLabels(task);
-
-                // 3. Get todos of task
-                var listTodos = GetAllTodos(task);
-
-                // 4. Get members assigned in task
-                var listMembers = GetAllMembersAssigned(task);
-
-                // 5. Return for client information of task
+                // 2. Return to client information of task
                 return new TaskManagerResponse
                 {
-                    Message = "Get all components of task",
-                    Title = task.Title,
-                    Todos = listTodos,
-                    Labels = listLabels,
-                    Members = listMembers,
+                    Message = "Get task",
+                    Task = task,
                     IsSuccess = true
                 };
             }
@@ -113,30 +47,41 @@ namespace Service
                 return new TaskManagerResponse
                 {
                     Message = e.ToString(),
-                    IsSuccess = false
+                    IsSuccess = true
                 };
             }
         }
-        public async Task<UserManagerResponse> AddLabel(LabelRequest model)
+        public async Task<UserManagerResponse> AddLabelToTask(LabelRequest model)
         {
            try
             {
+                // 1. Check if duplicate name label
+                var task = await _labelRepository.FindByNameAsync(model.Title);
+                if (task != null)
+                {
+                    return new UserManagerResponse
+                    {
+                        Message = "The Label already exists in the task!",
+                        IsSuccess = true,
+                    };
+                }
+
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Init new Label
+                // 2. Init new Label
                 var label = new Label
                 {
                     Title = model.Title,
                     Color = model.Color
                 };
 
-                // 2. Find task by id 
+                // 3. Find task by id 
                 Domain.Entities.Task task = await _taskRepository.FindByIdAsync(model.TaskId);
 
-                // 3. Update task with label
+                // 4. Update task with label
                 task.Labels.Add(label);
-
-                // 4. Commit
+                
+                // 5. Commit changes
                 await _unitOfWork.CommitTransaction();
                 return new UserManagerResponse
                 {
@@ -154,7 +99,7 @@ namespace Service
             }
         }
 
-        public async Task<UserManagerResponse> RemoveLabel(LabelRequest model)
+        public async Task<UserManagerResponse> RemoveLabelInTask(LabelRequest model)
         {
             try
             {
@@ -175,7 +120,7 @@ namespace Service
                 // 5. Return message
                 return new UserManagerResponse
                 {
-                    Message = "Remove label " + label.Title + " from task " + task.Title,
+                    Message = "Remove label " + label.Title + " in task " + task.Title,
                     IsSuccess = true
                 };
             }
@@ -190,16 +135,30 @@ namespace Service
             }
         }
 
-        public async Task<TaskManagerResponse> AddToDo(ToDoRequest model)
+        public async Task<TaskManagerResponse> AddToDoToTask(ToDoRequest model)
         {
             try
             {
+                // 1. Check duplicate title todo parent
+                if (model.ParentId != null)
+                {
+                    var isDuplicated = await _todoRepository.FindByNameAsync(model.Title);
+                    if (isDuplicated != null)
+                    {
+                        return new TaskManagerResponse
+                        {
+                            Message = "The To-do already exists in the task!",
+                            IsSuccess = true
+                        };
+                    }
+                }
+
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Find task by ID
+                // 2. Find task by ID
                 var task = await _taskRepository.FindByIdAsync(model.TaskId);
 
-                // 2. Init object Todo
+                // 3. Init entity Todo
                 var todo = new Todo
                 {
                     Title = model.Title,
@@ -208,10 +167,10 @@ namespace Service
                     Task = task,
                 };
 
-                // 3. Add todo to task
+                // 4. Add todo to task
                 task.Todos.Add(todo);
 
-                // 4. Commit
+                // 5. Commit
                 await _unitOfWork.CommitTransaction();
 
                 return new TaskManagerResponse

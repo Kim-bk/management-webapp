@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "GqE8ocKhr5S5Y8bqeI8a5vIbJhIMea1aV3KqpZYWworHs2JSemlpnaZy9f1nwykt3dLwBtUcGODy/Y3Bt0RjoQ==",
+  "dgSpecHash": "y7uIqPwNCdDMisvwCFv4VkCJkdDbrKcf5xxRS5KrRL2H3Q56VEK2Fct0SlVqQJZFRjfL0UhlfQdZLu1Lf4iQwg==",
   "success": true,
-  "projectFilePath": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
+  "projectFilePath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ASUS\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",

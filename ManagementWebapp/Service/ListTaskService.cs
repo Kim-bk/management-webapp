@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
-using Service.DTOs.Responses;
-using Service.DTOS.Responses;
 using Service.Interfaces;
 using System.Linq;
-using Service.DTOs.Requests;
+using Domain.DTOs.Responses;
+using Domain.DTOs.Requests;
 
 namespace Service
 {
@@ -17,7 +16,8 @@ namespace Service
         private ITaskRepository _taskRepository;
         private IUnitOfWork _unitOfWork;
 
-        public ListTaskService(IListTaskRepository listTaskRepository, IUnitOfWork unitOfWork, ITaskRepository taskRepository)
+        public ListTaskService(IListTaskRepository listTaskRepository, IUnitOfWork unitOfWork,
+                            ITaskRepository taskRepository)
         {
             _listTaskRepository = listTaskRepository;
             _taskRepository = taskRepository;
@@ -107,34 +107,15 @@ namespace Service
                 };
             }
 
-            // 2. Get all tasks in list task by ID
-            var collectionTasks = _listTaskRepository.GetAllTasks(listTaskId);
+            // 2. Get all tasks in list task found
+            var tasks = _listTaskRepository.GetAllTasks(findListTask);
 
-            // 3. Init list task (title, id) to store and return to client
-            var storeTasks = new List<Domain.Entities.Task>();
-            foreach (var listTask in collectionTasks)
-            {
-                foreach (var task in listTask)
-                {
-                    var t = new Domain.Entities.Task
-                    {
-                        Id = task.Id,
-                        Title = task.Title,
-                        ListTaskId = task.ListTaskId,
-                        DoingId = task.DoingId,
-                        Position = task.Position
-                    };
-                    storeTasks.Add(t);
-                }
-            }
-            // 4. Return result
+            // 3. Return result
             return new ListTaskManagerResponse
             {
                 Message = "Get all tasks in list success!",
                 IsSuccess = true,
-
-                // 5. Get all task ordered by ascending to show in list task
-                Task = storeTasks.OrderBy(t => t.Position).ToList()
+                Task = tasks
             };
         }
         public async Task<UserManagerResponse> MoveTask(TaskRequest model)
@@ -144,8 +125,8 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find each task in list task by list task id and task id
-                var firstTask = _taskRepository.FindByTwoId(model.BeforeTaskId, model.BeforeListId);
-                var secondTask = _taskRepository.FindByTwoId(model.AfterTaskId, model.AfterListId);
+                var firstTask = _taskRepository.FindByIdAndListTask(model.BeforeTaskId, model.BeforeListId);
+                var secondTask = _taskRepository.FindByIdAndListTask(model.AfterTaskId, model.AfterListId);
 
                 // 2. Validate
                 if (firstTask == null || secondTask == null)

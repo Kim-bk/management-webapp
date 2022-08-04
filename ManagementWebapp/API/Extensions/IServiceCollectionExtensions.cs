@@ -30,6 +30,7 @@ namespace API.Extensions
             services.AddScoped<Func<AppDbContext>>((provider) => () => provider.GetService<AppDbContext>());
             services.AddScoped<DbFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IMapper, Mapper>();
 
             return services;
         }

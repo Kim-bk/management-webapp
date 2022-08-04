@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Domain.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.DTOs.Requests;
 using Service.Interfaces;
 
 namespace API.Controllers
@@ -18,11 +18,12 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetInfoTask(int id)
+        // api/task/{id}
+        public async Task<IActionResult> GetTask(int id)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _taskService.GetAllComponentsOfTask(id);
+                var rs = await _taskService.GetTask(id);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -34,11 +35,11 @@ namespace API.Controllers
         [Authorize]
         [HttpPost("label")]
         // api/task/label
-        public async Task<IActionResult> AddLabel([FromBody] LabelRequest model)
+        public async Task<IActionResult> AddLabelToTask([FromBody] LabelRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _taskService.AddLabel(model);
+                var rs = await _taskService.AddLabelToTask(model);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -50,11 +51,11 @@ namespace API.Controllers
         [Authorize]
         [HttpDelete("label")]
         // api/task/label
-        public async Task<IActionResult> RemoveLabel([FromBody] LabelRequest model)
+        public async Task<IActionResult> RemoveLabelInTask([FromBody] LabelRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _taskService.RemoveLabel(model);
+                var rs = await _taskService.RemoveLabelInTask(model);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);
@@ -66,11 +67,11 @@ namespace API.Controllers
         [Authorize]
         [HttpPost("todo")]
         // api/task/to-do
-        public async Task<IActionResult> AddToDo([FromBody] ToDoRequest model)
+        public async Task<IActionResult> AddToDoToTask([FromBody] ToDoRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _taskService.AddToDo(model);
+                var rs = await _taskService.AddToDoToTask(model);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);

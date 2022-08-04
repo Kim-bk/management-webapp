@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.DTOs;
 using Domain.Entities;
 
 namespace Domain.Interfaces.Repositories
@@ -11,6 +12,7 @@ namespace Domain.Interfaces.Repositories
     {
         void Create(ListTask listTask);
         Task<ListTask> FindListTaskByIdAsync(int listTaskId);
-        IQueryable<ICollection<Domain.Entities.Task>> GetAllTasks(int listTaskId);
+        List<TaskDTO> GetAllTasks(ListTask findListTask);
+        Task<ListTask> FindByNameAsync(string nameListTask);
     }
 }

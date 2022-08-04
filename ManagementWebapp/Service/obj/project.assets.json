@@ -8503,11 +8503,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Enlab\\my-github\\ManagementWebapp\\Service\\Service.csproj",
+      "projectUniqueName": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Service\\Service.csproj",
       "projectName": "Service",
-      "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Service\\Service.csproj",
+      "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Service\\Service.csproj",
       "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-      "outputPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Service\\obj\\",
+      "outputPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Service\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -8524,11 +8524,11 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj": {
-              "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Domain\\Domain.csproj"
+            "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj": {
+              "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Domain\\Domain.csproj"
             },
-            "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj"
+            "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj"
             }
           }
         }

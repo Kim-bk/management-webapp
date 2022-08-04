@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
+using Domain.DTOS.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.DTOS.Requests;
 using Service.Interfaces;
 
 namespace API.Controllers
@@ -52,16 +52,16 @@ namespace API.Controllers
         // api/account/project
         [Authorize]
         [HttpGet("project")]
-        public async Task<IActionResult> GetUserProjects()
+        public IActionResult GetUserProjects()
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var res = await _accountService.GetUserProjects(userId);
+            var res = _accountService.GetUserProjects(userId);
             if (res.IsSuccess)
             {
                 return new OkObjectResult(new
                 {
                     res.Message,
-                    res.Project
+                    res.Projects
                 });
             }
             return BadRequest("Some properties is not valid!"); // error code 400

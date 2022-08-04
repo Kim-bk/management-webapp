@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
+using Domain.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
-using Service.DTOs.Requests;
-using Service.DTOS.Requests;
 using Service.Interfaces;
 
 namespace API.Controllers
@@ -23,8 +18,29 @@ namespace API.Controllers
         }
 
         [Authorize]
+        [HttpGet("{projectId:int}/list-task")]
+        // api/project/{projectId}/list-task
+        public async Task<IActionResult> GetListTasks(int projectId)
+        {
+            if (ModelState.IsValid)
+            {
+                var rs = await _projectService.GetListTasks(projectId);
+                if (rs.IsSuccess)
+                {
+                    return new OkObjectResult(new
+                    {
+                        rs.Message,
+                        rs.Project
+                    });
+                }
+            }
+
+            return BadRequest("Invalid some properties!");
+        }
+
+        [Authorize]
         [HttpPost]
-        // api/project/create
+        // api/project
         public async Task<IActionResult> Create([FromBody] ProjectRequest model)
         {
             if(ModelState.IsValid)
@@ -53,7 +69,6 @@ namespace API.Controllers
                     return Ok(rs);
                 }
             }
-
             return BadRequest("Invalid some properties!");
         }
 

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
-using Domain;
 using Domain.Accounts;
+using Domain.DTOs.Responses;
+using Domain.DTOS.Requests;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Service.DTOs.Responses;
-using Service.DTOS.Requests;
-using Service.DTOS.Responses;
 using Service.Interfaces;
 using Service.TokenGenratorServices;
 
@@ -64,7 +61,6 @@ namespace Service
             if (rs.Succeeded)
             {
                 await _unitOfWork.CommitTransaction();
-
                 return new UserManagerResponse
                 {
                     Message = "User created successfully!",
@@ -75,7 +71,6 @@ namespace Service
             else
             {
                 await _unitOfWork.RollbackTransaction();
-
                 return new UserManagerResponse
                 {
                     Message = "User created failed!",
@@ -126,33 +121,18 @@ namespace Service
             };
         }
 
-        public async Task<ProjectManagerResponse> GetUserProjects(string userId)
+        public ProjectManagerResponse GetUserProjects(string userId)
         {
             try
             {
                 // 1. Get all projects of user
-                var getCollectionProjects = _accountRepository.GetUserProjects(userId);
-
-                // 2. Init list project (name, id) to store and return to client
-                var storeProjects = new List<Project>();
-                foreach (var listProject in getCollectionProjects)
-                {
-                    foreach (var project in listProject)
-                    {
-                        var p = new Project
-                        {
-                            Id = project.Id,
-                            Name = project.Name,
-                        };
-                        storeProjects.Add(p);
-                    }
-                }
+                var userProjects = _accountRepository.GetUserProjects(userId);
 
                 // 3. Return message
                 return new ProjectManagerResponse
                 {
                     Message = "Get user projects success!",
-                    Project = storeProjects,
+                    Projects = userProjects,
                     IsSuccess = true
                 };
             }

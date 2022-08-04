@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
 
@@ -14,6 +15,11 @@ namespace Infrastructure.Repositories
             return (from todo in DbSet
                     where todo.Id == todoId && todo.TaskId == taskId
                     select todo).FirstOrDefault();
+        }
+
+        public async Task<Todo> FindByNameAsync(string title)
+        {
+            return await DbSet.FindAsync(title);
         }
     }
 }

@@ -13,5 +13,10 @@ namespace Infrastructure.Repositories
         {
             return await DbSet.FindAsync(labelId);
         }
+
+        public async Task<Label> FindByNameAsync(string title)
+        {
+            return await DbSet.FindAsync(title);
+        }
     }
 }

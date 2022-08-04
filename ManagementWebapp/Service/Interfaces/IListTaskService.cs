@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Service.DTOs.Requests;
-using Service.DTOs.Responses;
-using Service.DTOS.Responses;
+using Domain.DTOs.Requests;
+using Domain.DTOs.Responses;
 
 namespace Service.Interfaces
 {

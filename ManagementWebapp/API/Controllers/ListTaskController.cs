@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
+using Domain.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.DTOs.Requests;
 using Service.Interfaces;
 
 namespace API.Controllers
@@ -35,13 +35,13 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpGet("task")]
-        // api/listtask-management/task
-        public async Task<IActionResult> GetAllTasks([FromBody] CommonRequest model)
+        [HttpGet("{listTaskId:int}/task")]
+        // api/listtask/{listTaskId}/task
+        public async Task<IActionResult> GetAllTasks(int listTaskId)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _listTaskService.GetAllTasks(model.Id);
+                var rs = await _listTaskService.GetAllTasks(listTaskId);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs);

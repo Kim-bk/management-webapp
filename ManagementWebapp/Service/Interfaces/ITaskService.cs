@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Domain.Entities;
-using Service.DTOs.Requests;
-using Service.DTOs.Responses;
-using Service.DTOS.Responses;
+using Domain.DTOs.Requests;
+using Domain.DTOs.Responses;
+
 
 namespace Service.Interfaces
 {
     public interface ITaskService
     {
-        Task<TaskManagerResponse> GetAllComponentsOfTask(int taskId);
-        Task<UserManagerResponse> AddLabel(LabelRequest model);
-        Task<UserManagerResponse> RemoveLabel(LabelRequest model);
-        Task<TaskManagerResponse> AddToDo(ToDoRequest model);
+        Task<TaskManagerResponse> GetTask(int taskId);
+        Task<UserManagerResponse> AddLabelToTask(LabelRequest model);
+        Task<UserManagerResponse> RemoveLabelInTask(LabelRequest model);
+        Task<TaskManagerResponse> AddToDoToTask(ToDoRequest model);
         Task<TaskManagerResponse> ManageToDoItems(ToDoRequest model);
         Task<TaskManagerResponse> AssignMember(int taskId, string userId);
     }

@@ -46,3 +46,6 @@ D:\Enlab\my-github\ManagementWebapp\Service\obj\Debug\netcoreapp3.1\Service.pdb
 D:\Enlab\my-github\ManagementWebapp\Service\bin\Debug\netcoreapp3.1\Service.runtimeconfig.json
 D:\Enlab\my-github\ManagementWebapp\Service\bin\Debug\netcoreapp3.1\Service.runtimeconfig.dev.json
 D:\Enlab\my-github\ManagementWebapp\Service\obj\Debug\netcoreapp3.1\Service.genruntimeconfig.cache
+D:\Enlab\kim.nguyen\ManagementWebapp\Service\bin\Debug\netcoreapp3.1\Service.runtimeconfig.json
+D:\Enlab\kim.nguyen\ManagementWebapp\Service\bin\Debug\netcoreapp3.1\Service.runtimeconfig.dev.json
+D:\Enlab\kim.nguyen\ManagementWebapp\Service\obj\Debug\netcoreapp3.1\Service.genruntimeconfig.cache

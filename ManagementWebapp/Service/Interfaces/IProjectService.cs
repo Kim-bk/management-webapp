@@ -7,8 +7,8 @@ namespace Service.Interfaces
     public interface IProjectService
     {
         Task<UserManagerResponse> CreateUserProject(string userId, ProjectRequest model);
-        Task<UserManagerResponse> AddMemberToProject(ProjectRequest model);
-        Task<UserManagerResponse> CreateListTask(CommonRequest model);
+        Task<UserManagerResponse> AddMemberToProject(int projectId, ProjectRequest model);
+        Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model);
         Task<ProjectManagerResponse> GetListTasks(int projectId);
     }
 }

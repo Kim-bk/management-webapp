@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -16,7 +18,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Label> FindByNameAsync(string title)
         {
-            return await DbSet.FindAsync(title);
+            return await DbSet.Where(l => l.Title == title).FirstOrDefaultAsync();
         }
     }
 }

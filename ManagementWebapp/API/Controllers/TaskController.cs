@@ -10,7 +10,7 @@ namespace API.Controllers
     [ApiController]
     public class TaskController : ControllerBase
     {
-        private ITaskService _taskService;
+        private readonly ITaskService _taskService;
         public TaskController(ITaskService taskService)
         {
             _taskService = taskService;
@@ -26,7 +26,10 @@ namespace API.Controllers
                 var rs = await _taskService.GetTask(id);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(new OkObjectResult(new { 
+                        rs.Message,
+                        rs.Task,
+                    }));
                 }
             }
             return BadRequest("Some properties is not valid!");
@@ -42,7 +45,7 @@ namespace API.Controllers
                 var rs = await _taskService.AddLabelToTask(model);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
             return BadRequest("Some properties is not valid!");
@@ -58,7 +61,7 @@ namespace API.Controllers
                 var rs = await _taskService.RemoveLabelInTask(model);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
             return BadRequest("Some properties is not valid!");
@@ -74,7 +77,7 @@ namespace API.Controllers
                 var rs = await _taskService.AddToDoToTask(model);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
 
@@ -91,7 +94,7 @@ namespace API.Controllers
                 var rs = await _taskService.ManageToDoItems(model);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
 
@@ -108,7 +111,7 @@ namespace API.Controllers
                 var rs = await _taskService.AssignMember(taskId, model.UserId);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
 

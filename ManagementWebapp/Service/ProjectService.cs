@@ -12,10 +12,10 @@ namespace Service
 {
     public class ProjectService : IProjectService
     {
-        private IProjectRepository _projectRepository;
-        private IListTaskRepository _listTaskRepository;
-        private IUnitOfWork _unitOfWork;
-        private UserManager<ApplicationUser> _userManager;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IListTaskRepository _listTaskRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager;
         public ProjectService(IProjectRepository projectRepository, IListTaskRepository listTaskRepository,
                             IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
         {
@@ -25,7 +25,7 @@ namespace Service
             _userManager = userManager;
         }
         
-        public async Task<UserManagerResponse> AddMemberToProject(ProjectRequest model)
+        public async Task<UserManagerResponse> AddMemberToProject(int projectId, ProjectRequest model)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Service
                 var user = await _userManager.FindByIdAsync(model.UserId);
 
                 // 2. Find project in Database
-                var project = await _projectRepository.FindByIdAsync(model.ProjectId);
+                var project = await _projectRepository.FindByIdAsync(projectId);
 
                 // 3. Add member to project then update
                 project.Users.Add(user);
@@ -59,14 +59,24 @@ namespace Service
                 };
             }
         }
-
-        public async Task<UserManagerResponse> CreateListTask(CommonRequest model)
+        public async Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model)
         {
             try
             {
-                // 1. Check if list task is duplicated
-                var listTaskCheck = await _listTaskRepository.FindByNameAsync(model.Title);
-                if (listTaskCheck != null)
+                // 1.Find project by it ID
+                var project = await _projectRepository.FindByIdAsync(projectId);
+                if (project == null)
+                {
+                    return new UserManagerResponse
+                    {
+                        Message = "The Project is not found!",
+                        IsSuccess = true,
+                    };
+                }
+
+                // 2. Check if list task is duplicated
+                var listTask = await _listTaskRepository.FindByNameAsync(model.Title);
+                if (listTask != null && listTask.ProjectId == projectId)
                 {
                     return new UserManagerResponse
                     {
@@ -74,19 +84,15 @@ namespace Service
                         IsSuccess = true,
                     };
                 }
+
                 await _unitOfWork.BeginTransaction();
 
-                // 2.Find project by it ID
-                var project = await _projectRepository.FindByIdAsync(model.Id);
-
                 // 3. Create list task in the project then update
-                var listTask = new ListTask
+                project.ListTasks.Add(new ListTask
                 {
                     Title = model.Title,
                     Project = project
-                };
-
-                project.ListTasks.Add(listTask);
+                });
 
                 await _unitOfWork.CommitTransaction();
 
@@ -103,7 +109,7 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = e.ToString(),
-                    IsSuccess = false
+                    IsSuccess = true
                 };
             }
         }
@@ -112,9 +118,14 @@ namespace Service
         {
             try
             {
-                // 1. Check if name project is exist
-                var project = _projectRepository.FindByNameAsync(model.Name);
-                if (project != null)
+                // 1. Find project by name
+                var project = await _projectRepository.FindByNameAsync(model.Name);
+
+                // 2. Find user
+                var user = await _userManager.FindByIdAsync(userId);
+
+                // 3. Check if name project is exist in user projects
+                if (project != null && project.Users.Contains(user))
                 {
                     return new UserManagerResponse
                     {
@@ -125,18 +136,11 @@ namespace Service
 
                 await _unitOfWork.BeginTransaction();
 
-                // 2. Find user
-                var user = await _userManager.FindByIdAsync(userId);
-
-                // 3. Create Project
-                var p = new Project
+                // 4. Create Project then add to user
+                user.Projects.Add(new Project
                 {
                     Name = model.Name,
-                };
-
-                // 4. Add user to project
-                p.Users.Add(user);
-                _projectRepository.CreateProject(p);
+                });
 
                 // 5. Commit transaction if not catch exception
                 await _unitOfWork.CommitTransaction();
@@ -144,7 +148,7 @@ namespace Service
                 // 6. Return message create success
                 return new UserManagerResponse
                 {
-                    Message = "Create new project!",
+                    Message = "Create new project to user!",
                     IsSuccess = true
                 };
             }
@@ -154,7 +158,7 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = e.ToString(),
-                    IsSuccess = false
+                    IsSuccess = true
                 };
             }
         }

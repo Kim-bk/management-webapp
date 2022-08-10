@@ -11,24 +11,24 @@ namespace API.Controllers
     [ApiController]
     public class ListTaskController : ControllerBase
     {
-        private IListTaskService _listTaskService;
+        private readonly IListTaskService _listTaskService;
         public ListTaskController(IListTaskService listTaskService)
         {
             _listTaskService = listTaskService;
         }
         
         [Authorize]
-        [HttpPost("task")]
+        [HttpPost("{listTaskId:int}/task")]
         // api/listtask-management/task
-        public async Task<IActionResult> CreateTask([FromBody] CommonRequest model)
+        public async Task<IActionResult> CreateTask([FromBody] CommonRequest model, int listTaskId)
         {
             if (ModelState.IsValid)
             {
                 string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var rs = await _listTaskService.AddTaskToList(model, userId);
+                var rs = await _listTaskService.AddTaskToList(listTaskId, model, userId);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
             return BadRequest("Some properties is not valid!");
@@ -44,7 +44,10 @@ namespace API.Controllers
                 var rs = await _listTaskService.GetAllTasks(listTaskId);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(new OkObjectResult(new {
+                        rs.Message,
+                        rs.Task,
+                    }));
                 }
             }
             return BadRequest("Some properties is not valid!");

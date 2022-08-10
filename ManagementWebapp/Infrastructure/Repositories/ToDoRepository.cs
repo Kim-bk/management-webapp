@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -19,7 +20,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Todo> FindByNameAsync(string title)
         {
-            return await DbSet.FindAsync(title);
+            return await DbSet.Where(td => td.Title == title).FirstOrDefaultAsync();
         }
     }
 }

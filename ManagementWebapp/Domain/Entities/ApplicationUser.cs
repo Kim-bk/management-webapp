@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities
 {
+    [Table("User")]
     public class ApplicationUser : IdentityUser
     {
         public ApplicationUser()

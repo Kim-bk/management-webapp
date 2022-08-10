@@ -12,9 +12,9 @@ namespace Service
 {
     public class ListTaskService : IListTaskService
     {
-        private IListTaskRepository _listTaskRepository;
-        private ITaskRepository _taskRepository;
-        private IUnitOfWork _unitOfWork;
+        private readonly IListTaskRepository _listTaskRepository;
+        private readonly ITaskRepository _taskRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ListTaskService(IListTaskRepository listTaskRepository, IUnitOfWork unitOfWork,
                             ITaskRepository taskRepository)
@@ -40,14 +40,14 @@ namespace Service
             return maxPos;
         }
 
-        public async Task<UserManagerResponse> AddTaskToList(CommonRequest model, string userId)
+        public async Task<UserManagerResponse> AddTaskToList(int listTaskId, CommonRequest model, string userId)
         {
             try
             {
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find list task by ID
-                var listTask = await _listTaskRepository.FindListTaskByIdAsync(model.Id);
+                var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
 
                 // 2. Set max position for task in list
                 var positon = FindMaxPosition(listTask.Tasks) + 1;
@@ -79,7 +79,7 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = e.ToString(),
-                    IsSuccess = true,
+                    IsSuccess = false,
                 };
             }
         }
@@ -96,9 +96,11 @@ namespace Service
                 };
             }
 
-            var findListTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
-        
-            if (findListTask == null)
+            // 2. Get all tasks in list task
+            var result = await _listTaskRepository.GetTasksInList(listTaskId);
+
+            // 3. Validate if list task not found
+            if (result == null)
             {
                 return new ListTaskManagerResponse
                 {
@@ -107,15 +109,12 @@ namespace Service
                 };
             }
 
-            // 2. Get all tasks in list task found
-            var tasks = _listTaskRepository.GetAllTasks(findListTask);
-
-            // 3. Return result
+            // 4. Return result
             return new ListTaskManagerResponse
             {
                 Message = "Get all tasks in list success!",
                 IsSuccess = true,
-                Task = tasks
+                Task = result
             };
         }
         public async Task<UserManagerResponse> MoveTask(TaskRequest model)
@@ -161,10 +160,9 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = e.ToString(),
-                    IsSuccess = false,
+                    IsSuccess = true,
                 };
             }
-
         }
     }
 }

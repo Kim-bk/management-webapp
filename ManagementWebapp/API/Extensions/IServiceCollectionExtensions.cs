@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service;
+using Service.Authenticators;
 using Service.Interfaces;
 using Service.TokenGenratorServices;
+using Service.TokenValidators;
 
 namespace API.Extensions
 {
@@ -20,14 +22,14 @@ namespace API.Extensions
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             // Configure DbContext with Scoped lifetime
-            services.AddDbContext<AppDbContext>(options =>
+            services.AddDbContext<Context.AppDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("API"));
                 options.UseLazyLoadingProxies();
             }
             );
 
-            services.AddScoped<Func<AppDbContext>>((provider) => () => provider.GetService<AppDbContext>());
+            services.AddScoped((Func<IServiceProvider, Func<Context.AppDbContext>>)((provider) => () => provider.GetService<Context.AppDbContext>()));
             services.AddScoped<DbFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IMapper, Mapper>();
@@ -52,11 +54,15 @@ namespace API.Extensions
         {
             return services
                 .AddScoped<IAccountService, AccountService>()
-                .AddScoped<AccessTokenGenerator>()
-                .AddScoped<RefreshTokenGenerator>()
+                .AddScoped<AccessTokenService>()
+                .AddScoped<RefreshTokenService>()
                 .AddScoped<IProjectService, ProjectService>()
                 .AddScoped<IListTaskService, ListTaskService>()
-                .AddScoped<ITaskService, TaskService>();
+                .AddScoped<ITaskService, TaskService>()
+                .AddScoped<IRoleService, RoleService>()
+                .AddScoped<TokenGenerator>()
+                .AddScoped<RefreshTokenValidator>()
+                .AddScoped<Authenticator>();
         }
     }
 }

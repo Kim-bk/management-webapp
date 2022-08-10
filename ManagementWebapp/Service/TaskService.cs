@@ -12,11 +12,11 @@ namespace Service
 {
     public class TaskService : ITaskService
     {
-        private ITaskRepository _taskRepository;
-        private IToDoRepository _todoRepository;
-        private ILabelRepository _labelRepository;
-        private UserManager<ApplicationUser> _userManager;
-        private IUnitOfWork _unitOfWork;
+        private readonly ITaskRepository _taskRepository;
+        private readonly IToDoRepository _todoRepository;
+        private readonly ILabelRepository _labelRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
         public TaskService(ITaskRepository taskRepository, IUnitOfWork unitOfWork, ILabelRepository labelRepository, 
                         IToDoRepository todoRepository, UserManager<ApplicationUser> userManager)
         {
@@ -56,36 +56,34 @@ namespace Service
            try
             {
                 // 1. Check if duplicate name label
-                var task = await _labelRepository.FindByNameAsync(model.Title);
-                if (task != null)
+                var label = await _labelRepository.FindByNameAsync(model.Title);
+                if (label != null)
                 {
                     return new UserManagerResponse
                     {
-                        Message = "The Label already exists in the task!",
+                        Message = "The Label already exists!",
                         IsSuccess = true,
                     };
                 }
 
                 await _unitOfWork.BeginTransaction();
 
-                // 2. Init new Label
-                var label = new Label
-                {
-                    Title = model.Title,
-                    Color = model.Color
-                };
-
-                // 3. Find task by id 
+                // 2. Find task by id 
                 Domain.Entities.Task task = await _taskRepository.FindByIdAsync(model.TaskId);
 
-                // 4. Update task with label
-                task.Labels.Add(label);
+                // 3. Update task with new label 
+                task.Labels.Add(new Label 
+                { 
+                    Title = model.Title,
+                    Color = model.Color
+                });
                 
-                // 5. Commit changes
+                // 4. Commit changes
                 await _unitOfWork.CommitTransaction();
+
                 return new UserManagerResponse
                 {
-                    Message = "Add label " + label.Title.ToString() + " to task " + task.Title.ToString(),
+                    Message = "Add label " + model.Title.ToString() + " to task " + task.Title.ToString(),
                     IsSuccess = true,
                 };
             }
@@ -134,7 +132,6 @@ namespace Service
                 };
             }
         }
-
         public async Task<TaskManagerResponse> AddToDoToTask(ToDoRequest model)
         {
             try
@@ -142,8 +139,8 @@ namespace Service
                 // 1. Check duplicate title todo parent
                 if (model.ParentId != null)
                 {
-                    var isDuplicated = await _todoRepository.FindByNameAsync(model.Title);
-                    if (isDuplicated != null)
+                    var parenTodo = await _todoRepository.FindByNameAsync(model.Title);
+                    if (parenTodo != null && parenTodo.TaskId == model.TaskId)
                     {
                         return new TaskManagerResponse
                         {
@@ -158,24 +155,21 @@ namespace Service
                 // 2. Find task by ID
                 var task = await _taskRepository.FindByIdAsync(model.TaskId);
 
-                // 3. Init entity Todo
-                var todo = new Todo
+                // 3. Add new todo to task
+                task.Todos.Add(new Todo 
                 {
                     Title = model.Title,
                     IsDone = false,
                     ParentId = model.ParentId,
                     Task = task,
-                };
+                });
 
-                // 4. Add todo to task
-                task.Todos.Add(todo);
-
-                // 5. Commit
+                // 4. Commit
                 await _unitOfWork.CommitTransaction();
 
                 return new TaskManagerResponse
                 {
-                    Message = "Add to do " + todo.Title + " to task " + task.Title,
+                    Message = "Add to do " + model.Title + " to task " + model.Title,
                     IsSuccess = true,
                 };
             }
@@ -204,7 +198,7 @@ namespace Service
                 {
                     return new TaskManagerResponse
                     {
-                        Message = "ToDo Parent can not check or uncheck!",
+                        Message = "Todo Parent can not check or uncheck!",
                         IsSuccess = true
                     };
                 }
@@ -253,6 +247,7 @@ namespace Service
             try
             {
                 await _unitOfWork.BeginTransaction();
+
                 // 2. Find user by id
                 var user = await _userManager.FindByIdAsync(userId);
 

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Domain.DTOs;
 using Domain.Entities;
@@ -11,7 +10,7 @@ namespace Infrastructure.Repositories
 {
     public class ProjectRepository: Repository<Project>, IProjectRepository
     {
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
         public ProjectRepository(DbFactory dbFactory, IMapper mapper) : base(dbFactory)
         {
             _mapper = mapper;
@@ -29,7 +28,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Project> FindByNameAsync(string name)
         {
-            return await DbSet.FindAsync(name);
+            return await DbSet.Where(p => p.Name == name).FirstOrDefaultAsync();
         }
 
         public async Task<ProjectDTO> GetListTasksByProjectId(int projectId)

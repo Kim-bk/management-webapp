@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
     public class ListTaskRepository : Repository<ListTask>, IListTaskRepository
     {
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
         public ListTaskRepository(DbFactory dbFactory, IMapper mapper) : base(dbFactory)
         {
             _mapper = mapper;
@@ -23,21 +23,21 @@ namespace Infrastructure.Repositories
 
         public async Task<ListTask> FindByNameAsync(string nameListTask)
         {
-            return await DbSet.FindAsync(nameListTask);
+            return await DbSet.Where(lt => lt.Title == nameListTask).FirstOrDefaultAsync();
         }
 
         public async Task<ListTask> FindListTaskByIdAsync(int listTaskId)
         {
             return await DbSet.FindAsync(listTaskId);
         }
-
-        public IQueryable<ICollection<Domain.Entities.Task>> GetAllTasks(int listTaskId)
+        public async Task<List<TaskDTO>> GetTasksInList(int listTaskId)
         {
-            return DbSet.Where(lt => lt.ListTaskId == listTaskId).Select(t => t.Tasks);
-        }
+            var listTask = await FindListTaskByIdAsync(listTaskId);
+            if (listTask == null)
+            {
+                return null;
+            }
 
-        public List<TaskDTO> GetAllTasks(ListTask listTask)
-        {
             return _mapper.MapTasks(listTask);
         }
     }

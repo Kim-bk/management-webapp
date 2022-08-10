@@ -1,31 +1,28 @@
 ﻿using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Domain.Accounts;
 using Domain.DTOs.Responses;
 using Domain.DTOS.Requests;
 using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
-using Service.TokenGenratorServices;
 
 namespace Service
 {
     public class AccountService : IAccountService
     {
-        private UserManager<ApplicationUser> _userManager;
-        private IAccountRepository _accountRepository;
-        private IUnitOfWork _unitOfWork;
-        private AccessTokenGenerator _genAccessToken;
-        private RefreshTokenGenerator _genRefreshToken;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUnitOfWork _unitOfWork;
         public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, 
-            AccessTokenGenerator genAccessToken, RefreshTokenGenerator genRefreshToken, UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, IRefreshTokenRepository refreshTokenRepository)
         {
+            _refreshTokenRepository = refreshTokenRepository;
             _accountRepository = accountRepository;
             _unitOfWork = uniOfWork;
-            _genAccessToken = genAccessToken;
-            _genRefreshToken = genRefreshToken;
             _userManager = userManager;
         }
         public async Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model)
@@ -79,46 +76,26 @@ namespace Service
             }
         }
 
-        public async Task<UserManagerResponse> UserLoginAsync(LoginRequest model)
+        public async Task<ApplicationUser> UserLoginAsync(LoginRequest model)
         {
             // 1. Validate input
             if (model == null)
             {
                 throw new NullReferenceException("Login Model is null");
             }
-
+            
+            // 2. Check username exists
             var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user == null)
+            if (user != null)
             {
-                return new UserManagerResponse
+                // 3. Check password
+                var password = await _userManager.CheckPasswordAsync(user, model.Password);
+                if (password)
                 {
-                    Message = "User does not exist!",
-                    IsSuccess = false,
-                };
+                    return user;
+                }
             }
-
-            var rs = await _userManager.CheckPasswordAsync(user, model.Password);
-            if (!rs)
-            {
-                return new UserManagerResponse
-                {
-                    Message = "Invalid password!",
-                    IsSuccess = false,
-                };
-            }
-
-            // 2. create access token for user
-            var accessToken = _genAccessToken.Generate(user);
-
-            // 3. create refresh token for user
-           // var refreshToken = _genRefreshToken.Generate();
-       
-            return new UserManagerResponse
-            {
-                Message = new JwtSecurityTokenHandler().WriteToken(accessToken),
-                IsSuccess = true,
-                ExpireDate = accessToken.ValidTo
-            };
+            return null;
         }
 
         public ProjectManagerResponse GetUserProjects(string userId)
@@ -146,9 +123,29 @@ namespace Service
             }
         }
 
-        public Task<UserManagerResponse> UserLogout()
+        public async Task<UserManagerResponse> Logout(string userId)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.BeginTransaction();
+
+            try
+            {
+                await _refreshTokenRepository.DeleteAll(userId);
+                await _unitOfWork.CommitTransaction();
+                return new UserManagerResponse
+                {
+                    IsSuccess = true,
+                    Message = "User logout success!"
+                };
+            }
+            catch (Exception e)
+            {
+                await _unitOfWork.RollbackTransaction();
+                return new UserManagerResponse
+                {
+                    Message = e.ToString(),
+                    IsSuccess = false,
+                };
+            }
         }
     }
 }

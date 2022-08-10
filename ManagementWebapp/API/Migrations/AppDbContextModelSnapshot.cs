@@ -15,7 +15,6 @@ namespace API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -132,14 +131,14 @@ namespace API.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("ReferenceId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("History");
+                    b.ToTable("Histories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Label", b =>
@@ -157,7 +156,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Label");
+                    b.ToTable("Labels");
                 });
 
             modelBuilder.Entity("Domain.Entities.ListTask", b =>
@@ -175,9 +174,9 @@ namespace API.Migrations
 
                     b.HasKey("ListTaskId");
 
-                    b.HasIndex(new[] { "ProjectId" }, "IX_ListTask_ProjectId");
+                    b.HasIndex("ProjectId");
 
-                    b.ToTable("ListTask");
+                    b.ToTable("ListTasks");
                 });
 
             modelBuilder.Entity("Domain.Entities.Project", b =>
@@ -192,7 +191,25 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Project");
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("Domain.Entities.Task", b =>
@@ -203,7 +220,7 @@ namespace API.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("DoingId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ListTaskId")
                         .HasColumnType("int");
@@ -216,11 +233,9 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "ListTaskId" }, "IX_Task_ListTaskId");
+                    b.HasIndex("ListTaskId");
 
-                    b.HasIndex(new[] { "DoingId" }, "IX_Task_UserId");
-
-                    b.ToTable("Task");
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("Domain.Entities.Todo", b =>
@@ -244,9 +259,9 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "TaskId" }, "IX_Todo_TaskId");
+                    b.HasIndex("TaskId");
 
-                    b.ToTable("Todo");
+                    b.ToTable("Todos");
                 });
 
             modelBuilder.Entity("LabelTask", b =>
@@ -429,18 +444,25 @@ namespace API.Migrations
                 {
                     b.HasOne("Domain.Entities.Project", "Project")
                         .WithMany("ListTasks")
-                        .HasForeignKey("ProjectId")
-                        .HasConstraintName("FK__ListTask__Projec__123EB7A3");
+                        .HasForeignKey("ProjectId");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Task", b =>
                 {
                     b.HasOne("Domain.Entities.ListTask", "ListTask")
                         .WithMany("Tasks")
-                        .HasForeignKey("ListTaskId")
-                        .HasConstraintName("FK__Task__ListTaskId__151B244E");
+                        .HasForeignKey("ListTaskId");
 
                     b.Navigation("ListTask");
                 });
@@ -449,8 +471,7 @@ namespace API.Migrations
                 {
                     b.HasOne("Domain.Entities.Task", "Task")
                         .WithMany("Todos")
-                        .HasForeignKey("TaskId")
-                        .HasConstraintName("FK__Todo__TaskId__18EBB532");
+                        .HasForeignKey("TaskId");
 
                     b.Navigation("Task");
                 });

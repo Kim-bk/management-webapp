@@ -11,10 +11,12 @@ namespace API.Controllers
     [ApiController]
     public class ProjectController : ControllerBase
     {
-        private IProjectService _projectService;
-        public ProjectController(IProjectService projectService)
+        private readonly IProjectService _projectService;
+        private readonly IRoleService _roleService;
+        public ProjectController(IProjectService projectService, IRoleService roleService)
         {
             _projectService = projectService;
+            _roleService = roleService;
         }
 
         [Authorize]
@@ -34,7 +36,6 @@ namespace API.Controllers
                     });
                 }
             }
-
             return BadRequest("Invalid some properties!");
         }
 
@@ -43,46 +44,53 @@ namespace API.Controllers
         // api/project
         public async Task<IActionResult> Create([FromBody] ProjectRequest model)
         {
-            if(ModelState.IsValid)
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var access = await _roleService.CheckUserRole(userId, "Admin");
+            if (access)
             {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var rs = await _projectService.CreateUserProject(userId, model);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
+                return BadRequest("Invalid some properties!");
             }
-          
-            return BadRequest("Invalid some properties!");
+            return Forbid();
         }
 
         [Authorize]
-        [HttpPost("user")]
-        // api/project/user
-        public async Task<IActionResult> AddMemberToProject([FromBody] ProjectRequest model)
+        [HttpPost("{projectId:int}/user")]
+        // api/project/{projectId}/member
+        public async Task<IActionResult> AddMemberToProject(int projectId, [FromBody] ProjectRequest model)
         {
-            if (ModelState.IsValid)
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var access = await _roleService.CheckUserRole(userId, "Admin");
+            if (access)
             {
-                var rs = await _projectService.AddMemberToProject(model);
-                if (rs.IsSuccess)
+                if (ModelState.IsValid)
                 {
-                    return Ok(rs);
+                    var rs = await _projectService.AddMemberToProject(projectId, model);
+                    if (rs.IsSuccess)
+                    {
+                        return Ok(rs.Message);
+                    }
                 }
+                return BadRequest("Invalid some properties!");
             }
-            return BadRequest("Invalid some properties!");
+            return Forbid();
         }
 
         [Authorize]
-        [HttpPost("list-task")]
-        // api/project/list-task
-        public async Task<IActionResult> CreateListTask([FromBody] CommonRequest model)
+        [HttpPost("{projectId:int}/list-task")]
+        // api/project/{projectId}/list-task
+        public async Task<IActionResult> CreateListTask(int projectId, [FromBody] CommonRequest model)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _projectService.CreateListTask(model);
+                var rs = await _projectService.CreateListTask(projectId, model);
                 if (rs.IsSuccess)
                 {
-                    return Ok(rs);
+                    return Ok(rs.Message);
                 }
             }
             return BadRequest("Invalid some properties!");

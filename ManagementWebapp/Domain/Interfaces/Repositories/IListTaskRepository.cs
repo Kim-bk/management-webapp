@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.DTOs;
 using Domain.Entities;
@@ -12,7 +9,7 @@ namespace Domain.Interfaces.Repositories
     {
         void Create(ListTask listTask);
         Task<ListTask> FindListTaskByIdAsync(int listTaskId);
-        List<TaskDTO> GetAllTasks(ListTask findListTask);
+        Task<List<TaskDTO>> GetTasksInList(int listTaskId);
         Task<ListTask> FindByNameAsync(string nameListTask);
     }
 }

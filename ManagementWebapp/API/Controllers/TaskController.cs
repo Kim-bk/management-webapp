@@ -32,6 +32,7 @@ namespace API.Controllers
                     }));
                 }
             }
+
             return BadRequest("Some properties is not valid!");
         }
 

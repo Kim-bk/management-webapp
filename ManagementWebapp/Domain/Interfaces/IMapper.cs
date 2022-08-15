@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AutoMapper;
 using Domain.DTOs;
 using Domain.Entities;
 
@@ -11,6 +12,6 @@ namespace Domain.Interfaces
         List<TodoDTO> MapTodos(Domain.Entities.Task task);
         List<TaskDTO> MapTasks(ListTask listTask);
         List<ListTaskDTO> MapListTasks(Project project);
-
+        
     }
 }

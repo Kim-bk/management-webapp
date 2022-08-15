@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "y7uIqPwNCdDMisvwCFv4VkCJkdDbrKcf5xxRS5KrRL2H3Q56VEK2Fct0SlVqQJZFRjfL0UhlfQdZLu1Lf4iQwg==",
+  "dgSpecHash": "hHR1sHr5InwmJ5dYESz0C7nulRvFXOq/eV+DxpIY0ML20j8hTIfAp+1IkSSjpllfd3GTrAL3xcMoenr7h0p0ZQ==",
   "success": true,
   "projectFilePath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ASUS\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

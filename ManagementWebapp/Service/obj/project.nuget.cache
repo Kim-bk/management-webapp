@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "2rO+y/FxGbRpVeW+sy81RlhacoYQo4UzmFGC7wnPr4bRjZ9A3WFb7ZqStZmHt5XqHq4PVNL08nPj7WWIVWEpIA==",
+  "dgSpecHash": "45KDc91F37Z2d/Z0j+SBABR+aUGxJ1yfXx6ndQ7+FX+msy4t/J3T/E6ckxFxeriS2BJ0rYJfCyQbdtyr6VL+2A==",
   "success": true,
   "projectFilePath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Service\\Service.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ASUS\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\microsoft.aspnetcore.authentication\\2.2.0\\microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",

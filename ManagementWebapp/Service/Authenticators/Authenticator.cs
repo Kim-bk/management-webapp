@@ -59,7 +59,6 @@ namespace Service.Authenticators
                     AccessToken = e.ToString(),
                 };
             }
-            
         }
     }
 }

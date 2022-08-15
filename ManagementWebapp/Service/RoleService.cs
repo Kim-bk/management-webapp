@@ -7,7 +7,6 @@ using Service.Interfaces;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using System;
 
 namespace Service
 {
@@ -16,12 +15,18 @@ namespace Service
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+       
         public RoleService(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager,
                         IUnitOfWork unitOfWork)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+        }
+        private void Dispose()
+        {
+            _roleManager.Dispose();
+            _userManager.Dispose();
         }
 
         public async Task<IdentityResult> CreateRole(string nameRole)
@@ -51,15 +56,23 @@ namespace Service
             var user = await _userManager.FindByIdAsync(request.UserId);
 
             // 2. Add role to user
+            await _unitOfWork.BeginTransaction();
+            
             var result = await _userManager.AddToRoleAsync(user, request.RoleName);
-
-            // 3. Return result
+            if (result.Succeeded)
+            {
+                await _unitOfWork.CommitTransaction();
+                return result;
+            }
+            await _unitOfWork.RollbackTransaction();
             return result;
         }
+
         public async Task<List<IdentityRole>> GetAllRoles()
         {
             return await _roleManager.Roles.OrderBy(n => n.Name).ToListAsync();
         }
+
         public async Task<bool> CheckUserRole(string userId, string roleName)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -72,32 +85,34 @@ namespace Service
             {
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Find role
-                var role = await _roleManager.FindByNameAsync(roleName);
+                // 1. Get all users in role
+                var users = await _userManager.GetUsersInRoleAsync(roleName);
 
-                // 2. Find all users and remove from that role
-                var users = await _userManager.Users.ToListAsync();
-                foreach(var user in users)
+                // 2. Remove role from user
+                foreach (var user in users)
                 {
-                    if (await _userManager.IsInRoleAsync(user, roleName))
-                    {
-                        await _userManager.RemoveFromRoleAsync(user, roleName);
-                    }
+                   await _userManager.RemoveFromRoleAsync(user, roleName);
                 }
 
-                // 3. Delete role
+                // 3. Find role
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                // 4. Delete role
                 var rs = await _roleManager.DeleteAsync(role);
                 if (rs.Succeeded)
                 {
+                    Dispose();
                     await _unitOfWork.CommitTransaction();
                     return true;
                 }
 
+                Dispose();
                 await _unitOfWork.RollbackTransaction();
                 return false;
             }
             catch
             {
+                Dispose();
                 await _unitOfWork.RollbackTransaction();
                 return false;
             }

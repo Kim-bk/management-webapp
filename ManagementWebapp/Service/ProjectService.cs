@@ -24,6 +24,10 @@ namespace Service
             _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
+        ~ProjectService()
+        {
+            _userManager.Dispose();
+        }
         
         public async Task<UserManagerResponse> AddMemberToProject(int projectId, ProjectRequest model)
         {

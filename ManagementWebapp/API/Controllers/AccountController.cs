@@ -68,7 +68,6 @@ namespace API.Controllers
             }
             return BadRequest("Some properties is not valid!"); // error code 400
         }
-
         
         [Authorize]
         [HttpGet("project")]

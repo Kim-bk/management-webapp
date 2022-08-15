@@ -17,6 +17,7 @@ namespace Service
         private readonly IAccountRepository _accountRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
+
         public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, 
             UserManager<ApplicationUser> userManager, IRefreshTokenRepository refreshTokenRepository)
         {
@@ -24,6 +25,11 @@ namespace Service
             _accountRepository = accountRepository;
             _unitOfWork = uniOfWork;
             _userManager = userManager;
+        }
+
+        private void Dispose()
+        {
+            _userManager.Dispose();
         }
         public async Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model)
         {
@@ -92,9 +98,11 @@ namespace Service
                 var password = await _userManager.CheckPasswordAsync(user, model.Password);
                 if (password)
                 {
+                    Dispose();
                     return user;
                 }
             }
+            Dispose();
             return null;
         }
 

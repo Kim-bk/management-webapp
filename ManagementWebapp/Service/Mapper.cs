@@ -84,7 +84,6 @@ namespace Service
 
         public List<TodoDTO> MapTodos(Task task)
         {
-
             // 1. Init list todos to store label of the task
             var storeTodos = new List<TodoDTO>();
             foreach (var todoItem in task.Todos)

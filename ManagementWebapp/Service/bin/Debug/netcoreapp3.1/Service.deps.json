@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v3.1": {
       "Service/1.0.0": {
         "dependencies": {
+          "AutoMapper": "11.0.1",
           "Domain": "1.0.0",
           "EntityFramework": "6.4.4",
           "Infrastructure": "1.0.0",
@@ -16,6 +17,17 @@
         },
         "runtime": {
           "Service.dll": {}
+        }
+      },
+      "AutoMapper/11.0.1": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/AutoMapper.dll": {
+            "assemblyVersion": "11.0.0.0",
+            "fileVersion": "11.0.1.0"
+          }
         }
       },
       "Castle.Core/4.4.1": {
@@ -1832,6 +1844,7 @@
       },
       "Domain/1.0.0": {
         "dependencies": {
+          "AutoMapper": "11.0.1",
           "EntityFramework": "6.4.4",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "5.0.17",
           "Microsoft.EntityFrameworkCore.SqlServer": "5.0.17"
@@ -1842,6 +1855,7 @@
       },
       "Infrastructure/1.0.0": {
         "dependencies": {
+          "AutoMapper": "11.0.1",
           "Domain": "1.0.0",
           "EntityFramework": "6.4.4",
           "Microsoft.AspNetCore.Identity": "2.2.0",
@@ -1860,6 +1874,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AutoMapper/11.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-WIadGC1pIwbnyTubvI577p3F++Bsj9q2Q3OaAc1I0QS+JhupN1xkdrPBhI9bPIeg63zM81tZplUNYkqU1HE5jQ==",
+      "path": "automapper/11.0.1",
+      "hashPath": "automapper.11.0.1.nupkg.sha512"
     },
     "Castle.Core/4.4.1": {
       "type": "package",

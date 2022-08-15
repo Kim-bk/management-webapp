@@ -26,6 +26,10 @@ namespace Service
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         } 
+        ~TaskService()
+        {
+            _userManager.Dispose();
+        }
       
         public async Task<TaskManagerResponse> GetTask(int taskId)
         {
@@ -183,7 +187,6 @@ namespace Service
                 };
             }
         }
-
         public async Task<TaskManagerResponse> ManageToDoItems(ToDoRequest model)
         {
             try
@@ -224,6 +227,7 @@ namespace Service
             }
             catch (Exception e)
             {
+                await _unitOfWork.RollbackTransaction();
                 return new TaskManagerResponse
                 {
                     Message = e.ToString(),

@@ -2,10 +2,14 @@
 using API.Context;
 using Domain;
 using Domain.Accounts;
+using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Infrastructure;
+using Infrastructure.Custom;
+using Infrastructure.CustomIdentity;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,17 +26,19 @@ namespace API.Extensions
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             // Configure DbContext with Scoped lifetime
-            services.AddDbContext<Context.AppDbContext>(options =>
+            services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("API"));
                 options.UseLazyLoadingProxies();
             }
             );
 
-            services.AddScoped((Func<IServiceProvider, Func<Context.AppDbContext>>)((provider) => () => provider.GetService<Context.AppDbContext>()));
+            services.AddScoped((Func<IServiceProvider, Func<AppDbContext>>)((provider) => () => provider.GetService<AppDbContext>()));
+            // TODO : Test Transion
             services.AddScoped<DbFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IMapper, Mapper>();
+            services.AddScoped<IUserStore<ApplicationUser>, CustomUserStore>();
+            services.AddScoped<IRoleStore<IdentityRole>, CustomRoleStore>();
 
             return services;
         }
@@ -62,6 +68,7 @@ namespace API.Extensions
                 .AddScoped<IRoleService, RoleService>()
                 .AddScoped<TokenGenerator>()
                 .AddScoped<RefreshTokenValidator>()
+                .AddScoped<IMapper, Mapper>()
                 .AddScoped<Authenticator>();
         }
     }

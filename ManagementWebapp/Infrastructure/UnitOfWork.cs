@@ -68,7 +68,6 @@ namespace Infrastructure
             _transaction = null;
         }
 
-
         public void Dispose()
         {
             if (DbContext == null)

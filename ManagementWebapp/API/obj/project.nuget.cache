@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "2+5SwaW+HSmZPknmUzQas6RgggVQ77X7Kf+rGMdajJ8lHyLeqATCuMV0pBp/apQ2oSun1rKlnpu+gS0fhOYRKQ==",
+  "dgSpecHash": "WDKaBDxg1QZ0mSYB30GwMFStDirYOz6DaoSRGKe17//5HhpL/crv6zX8sihhDlRp78zK10xCD66cVSxV3fnBrA==",
   "success": true,
   "projectFilePath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\API\\API.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ASUS\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

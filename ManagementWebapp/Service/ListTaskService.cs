@@ -7,6 +7,8 @@ using Service.Interfaces;
 using System.Linq;
 using Domain.DTOs.Responses;
 using Domain.DTOs.Requests;
+using AutoMapper;
+using Domain.DTOs;
 
 namespace Service
 {
@@ -15,13 +17,14 @@ namespace Service
         private readonly IListTaskRepository _listTaskRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly IUnitOfWork _unitOfWork;
-
+        private readonly IMapperCustom _mapper;
         public ListTaskService(IListTaskRepository listTaskRepository, IUnitOfWork unitOfWork,
-                            ITaskRepository taskRepository)
+                            ITaskRepository taskRepository, IMapperCustom mapper)
         {
             _listTaskRepository = listTaskRepository;
             _taskRepository = taskRepository;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         private int FindMaxPosition(ICollection<Domain.Entities.Task> list)
         {
@@ -75,7 +78,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollbackTransaction(); 
+                await _unitOfWork.RollbackTransaction();
                 return new UserManagerResponse
                 {
                     Message = e.ToString(),
@@ -97,10 +100,10 @@ namespace Service
             }
 
             // 2. Get all tasks in list task
-            var result = await _listTaskRepository.GetTasksInList(listTaskId);
+            var tasks = await _listTaskRepository.GetTasksInList(listTaskId);
 
             // 3. Validate if list task not found
-            if (result == null)
+            if (tasks == null)
             {
                 return new ListTaskManagerResponse
                 {
@@ -109,14 +112,14 @@ namespace Service
                 };
             }
 
-            // 4. Return result
             return new ListTaskManagerResponse
             {
                 Message = "Get all tasks in list success!",
                 IsSuccess = true,
-                Task = result
+                Task = _mapper.MapTasks(tasks)
             };
         }
+
         public async Task<UserManagerResponse> MoveTask(TaskRequest model)
         {
             try

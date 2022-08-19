@@ -7,6 +7,9 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
+using AutoMapper;
+using Domain.DTOs;
+using System.Linq;
 
 namespace Service
 {
@@ -17,14 +20,16 @@ namespace Service
         private readonly ILabelRepository _labelRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapperCustom _mapper;
         public TaskService(ITaskRepository taskRepository, IUnitOfWork unitOfWork, ILabelRepository labelRepository, 
-                        IToDoRepository todoRepository, UserManager<ApplicationUser> userManager)
+                        IToDoRepository todoRepository, UserManager<ApplicationUser> userManager, IMapperCustom mapper)
         {
             _labelRepository = labelRepository;
             _todoRepository = todoRepository;
             _taskRepository = taskRepository;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         } 
         ~TaskService()
         {
@@ -36,13 +41,23 @@ namespace Service
             try
             {
                 // 1. Get all information of task by id
-                var task = await _taskRepository.GetByIdAsync(taskId);
+                var task = await _taskRepository.FindByIdAsync(taskId);
 
-                // 2. Return to client information of task
+                // 2. Map Task to Task DTO
+                var taskDTO = new TaskDTO
+                {
+                    TaskId = task.Id,
+                    Position = task.Position,
+                    Title = task.Title,
+                    Todos = _mapper.MapTodos(task.Todos.ToList()),
+                    Labels = _mapper.MapLabels(task.Labels.ToList()),
+                    Members = _mapper.MapMembers(task.Users.ToList()),
+                };
+
                 return new TaskManagerResponse
                 {
                     Message = "Get task",
-                    Task = task,
+                    Task = taskDTO,
                     IsSuccess = true
                 };
             }

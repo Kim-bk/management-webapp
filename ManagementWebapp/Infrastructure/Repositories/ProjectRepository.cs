@@ -1,8 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Domain.DTOs;
 using Domain.Entities;
-using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +9,8 @@ namespace Infrastructure.Repositories
 {
     public class ProjectRepository: Repository<Project>, IProjectRepository
     {
-        private readonly IMappering _mapper;
-        public ProjectRepository(DbFactory dbFactory, IMappering mapper) : base(dbFactory)
+        public ProjectRepository(DbFactory dbFactory) : base(dbFactory)
         {
-            _mapper = mapper;
         }
 
         public async void CreateProject(Project project)
@@ -31,13 +28,11 @@ namespace Infrastructure.Repositories
             return await DbSet.Where(p => p.Name == name).FirstOrDefaultAsync();
         }
 
-        public async Task<ProjectDTO> GetListTasksByProjectId(int projectId)
+        public async Task<List<ListTask>> GetListTasksByProjectId(int projectId)
         {
-            var project = await DbSet.FindAsync(projectId);
-            return new ProjectDTO 
-            { 
-                ListTasks = _mapper.MapListTasks(project),
-            };
+            return await DbSet.Where(p => p.Id == projectId)
+                        .SelectMany(lt => lt.ListTasks)
+                        .ToListAsync();
         }
     }
 }

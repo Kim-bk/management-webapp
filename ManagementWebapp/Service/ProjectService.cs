@@ -16,13 +16,15 @@ namespace Service
         private readonly IListTaskRepository _listTaskRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMapperCustom _mapper;
         public ProjectService(IProjectRepository projectRepository, IListTaskRepository listTaskRepository,
-                            IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+                            IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper)
         {
             _projectRepository = projectRepository;
             _listTaskRepository = listTaskRepository;
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _mapper = mapper;
         }
         ~ProjectService()
         {
@@ -177,7 +179,7 @@ namespace Service
             {
                 IsSuccess = true,
                 Message = "Get all list task of project",
-                Project = listTasks,
+                ListTaskDTOs = _mapper.MapListTasks(listTasks),
             };
         }
     }

@@ -11,10 +11,8 @@ namespace Infrastructure.Repositories
 {
     public class ListTaskRepository : Repository<ListTask>, IListTaskRepository
     {
-        private readonly IMappering _mapper;
-        public ListTaskRepository(DbFactory dbFactory, IMappering mapper) : base(dbFactory)
+        public ListTaskRepository(DbFactory dbFactory) : base(dbFactory)
         {
-            _mapper = mapper;
         }
         public async void Create(ListTask listTask)
         {
@@ -30,15 +28,11 @@ namespace Infrastructure.Repositories
         {
             return await DbSet.FindAsync(listTaskId);
         }
-        public async Task<List<TaskDTO>> GetTasksInList(int listTaskId)
+        public async Task<List<Domain.Entities.Task>> GetTasksInList(int listTaskId)
         {
-            var listTask = await FindListTaskByIdAsync(listTaskId);
-            if (listTask == null)
-            {
-                return null;
-            }
-
-            return _mapper.MapTasks(listTask);
+            return await DbSet.Where(lt => lt.ListTaskId == listTaskId)
+                .SelectMany(t => t.Tasks)
+                .ToListAsync();
         }
     }
 }

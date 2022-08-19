@@ -32,7 +32,7 @@ namespace API.Controllers
                     return new OkObjectResult(new
                     {
                         rs.Message,
-                        rs.Project
+                        rs.ListTaskDTOs
                     });
                 }
             }

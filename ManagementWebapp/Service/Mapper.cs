@@ -3,102 +3,67 @@ using Domain.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
 using System.Linq;
+using AutoMapper;
 
 namespace Service
 {
-    public class Mapper : IMappering
+    public class Mapper : IMapperCustom
     {
-        public List<LabelDTO> MapLabels(Domain.Entities.Task task)
+        private readonly IMapper _autoMapper;
+        public Mapper(IMapper autoMapper)
         {
-            // 1. Init list labels to store label of the task
-            var storeLabels = new List<LabelDTO>();
-            foreach (var label in task.Labels)
-            {
-                var l = new LabelDTO
-                {
-                    LabelId = label.Id,
-                    Title = label.Title,
-                    Color = label.Color,
-                };
-                storeLabels.Add(l);
-            }
-            // 2. Return result
-            return storeLabels;
+            _autoMapper = autoMapper;
+        }
+        public List<LabelDTO> MapLabels(List<Label> labels)
+        {
+            return _autoMapper.Map<List<Label>, List<LabelDTO>>(labels);
+        }
+        public List<MemberDTO> MapMembers(List<ApplicationUser> members)
+        {
+            return _autoMapper.Map<List<ApplicationUser>, List<MemberDTO>>(members);
+        }
+        public List<TodoDTO> MapTodos(List<Todo> todos)
+        {
+            return _autoMapper.Map<List<Todo>, List<TodoDTO>>(todos);
         }
 
-        public List<ListTaskDTO> MapListTasks(Project project)
+        public List<ListTaskDTO> MapListTasks(List<ListTask> listTasks)
         {
             // 1. Init list labels to store label of the task
             var storeListTasks = new List<ListTaskDTO>();
-            foreach (var listTask in project.ListTasks)
+            foreach (var listTask in listTasks)
             {
                 var lt = new ListTaskDTO
                 {
                     LiskTaskId = listTask.ListTaskId,
                     Title = listTask.Title,
-                    Tasks = MapTasks(listTask).OrderBy(t => t.Position).ToList()
+                    Tasks = MapTasks(listTask.Tasks.ToList()).OrderBy(t => t.Position).ToList()
                 };
                 storeListTasks.Add(lt);
             }
             // 2. Return result
             return storeListTasks;
         }
-
-        public List<MemberDTO> MapMembers(Domain.Entities.Task task)
-        {
-            // 1. Init list members to store label of the task
-            var storeMembers = new List<MemberDTO>();
-            foreach (var member in task.Users)
-            {
-                var m = new MemberDTO
-                {
-                    UserId = member.Id,
-                    UserName = member.UserName,
-                };
-                storeMembers.Add(m);
-            }
-            // 2. Return result
-            return storeMembers;
-        }
-
-        public List<TaskDTO> MapTasks(ListTask listTask)
+  
+        public List<TaskDTO> MapTasks(List<Task> tasks)
         {
             // 1. Init list tasks to store label of the task
             var storeTasks = new List<TaskDTO>();
-            foreach (var task in listTask.Tasks)
+            foreach (var task in tasks)
             {
                 var t = new TaskDTO
                 {
                     TaskId = task.Id,
                     Position = task.Position,
                     Title = task.Title,
-                    Members = MapMembers(task),
-                    Todos = MapTodos(task),
-                    Labels = MapLabels(task)
+                    Members = MapMembers(task.Users.ToList()),
+                    Todos = MapTodos(task.Todos.ToList()),
+                    Labels = MapLabels(task.Labels.ToList())
                 };
                 storeTasks.Add(t);
             }
             // 2. Return result
             return storeTasks;
-        }
-
-        public List<TodoDTO> MapTodos(Task task)
-        {
-            // 1. Init list todos to store label of the task
-            var storeTodos = new List<TodoDTO>();
-            foreach (var todoItem in task.Todos)
-            {
-                var t = new TodoDTO
-                {
-                    TodoId = todoItem.Id,
-                    Title = todoItem.Title,
-                    IsDone = todoItem.IsDone,
-                    ParentId = todoItem.ParentId,
-                };
-                storeTodos.Add(t);
-            }
-            // 2. Return result
-            return storeTodos;
         }
     }
 }

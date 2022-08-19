@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Domain.DTOs;
 using Domain.Entities;
 
@@ -8,7 +9,7 @@ namespace Domain.Interfaces.Repositories
     {
         void CreateProject(Project project);
         Task<Project> FindByIdAsync(int projectId);
-        Task<ProjectDTO> GetListTasksByProjectId(int projectId);
+        Task<List<ListTask>> GetListTasksByProjectId(int projectId);
         Task<Project> FindByNameAsync(string name);
     }
 }

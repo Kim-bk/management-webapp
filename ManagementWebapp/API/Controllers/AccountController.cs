@@ -72,10 +72,10 @@ namespace API.Controllers
         [Authorize]
         [HttpGet("project")]
         // api/account/project
-        public IActionResult GetUserProjects() 
+        public async Task<IActionResult> GetUserProjects() 
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var res = _accountService.GetUserProjects(userId);
+            var res = await _accountService.GetUserProjects(userId);
             if (res.IsSuccess)
             {
                 return new OkObjectResult(new

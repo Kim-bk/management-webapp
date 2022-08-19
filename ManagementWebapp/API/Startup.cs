@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using API.Context;
 using API.Extensions;
+using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Service;
+using Service.Mapping;
 
 namespace API
 {
@@ -43,6 +45,15 @@ namespace API
                .AddDatabase(Configuration)
                .AddRepositories()
                .AddServices();
+
+            // Auto Mapper Configurations
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
             services.AddAuthentication(auth =>
             {

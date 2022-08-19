@@ -9,7 +9,7 @@ namespace Service.Interfaces
     {
         Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model);
         Task<ApplicationUser> UserLoginAsync(LoginRequest model);
-        ProjectManagerResponse GetUserProjects(string userId);
+        Task<ProjectManagerResponse> GetUserProjects(string userId);
         Task<UserManagerResponse> Logout(string userId);
     }
 }

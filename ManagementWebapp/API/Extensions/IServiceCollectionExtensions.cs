@@ -68,7 +68,7 @@ namespace API.Extensions
                 .AddScoped<IRoleService, RoleService>()
                 .AddScoped<TokenGenerator>()
                 .AddScoped<RefreshTokenValidator>()
-                .AddScoped<IMapper, Mapper>()
+                .AddScoped<IMappering, Service.Mapper>()
                 .AddScoped<Authenticator>();
         }
     }

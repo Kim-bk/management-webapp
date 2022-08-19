@@ -259,3 +259,6 @@ D:\Enlab\kim.nguyen\ManagementWebapp\API\bin\Debug\netcoreapp3.1\runtimes\win-x8
 D:\Enlab\kim.nguyen\ManagementWebapp\API\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 D:\Enlab\kim.nguyen\ManagementWebapp\API\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 D:\Enlab\kim.nguyen\ManagementWebapp\API\bin\Debug\netcoreapp3.1\AutoMapper.dll
+D:\Enlab\my-github\ManagementWebapp\API\bin\Debug\netcoreapp3.1\AutoMapper.dll
+D:\Enlab\my-github\ManagementWebapp\API\bin\Debug\netcoreapp3.1\System.Net.Http.Formatting.dll
+D:\Enlab\my-github\ManagementWebapp\API\bin\Debug\netcoreapp3.1\System.Web.Http.dll

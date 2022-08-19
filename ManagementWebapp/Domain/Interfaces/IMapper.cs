@@ -5,7 +5,7 @@ using Domain.Entities;
 
 namespace Domain.Interfaces
 {
-    public interface IMapper
+    public interface IMappering
     {
         List<LabelDTO> MapLabels(Domain.Entities.Task task);
         List<MemberDTO> MapMembers(Domain.Entities.Task task);

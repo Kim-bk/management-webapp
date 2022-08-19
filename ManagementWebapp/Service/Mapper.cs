@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Service
 {
-    public class Mapper : IMapper
+    public class Mapper : IMappering
     {
         public List<LabelDTO> MapLabels(Domain.Entities.Task task)
         {

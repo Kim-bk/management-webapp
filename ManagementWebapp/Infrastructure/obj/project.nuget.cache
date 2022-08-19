@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "hHR1sHr5InwmJ5dYESz0C7nulRvFXOq/eV+DxpIY0ML20j8hTIfAp+1IkSSjpllfd3GTrAL3xcMoenr7h0p0ZQ==",
+  "dgSpecHash": "e9x8ZKVa7/2Bx3HDTNnIutfnPRTXbFPolWNeE+Dv3W2MHQbjihgn0AqTxe3ZoXKXI3xH1UPNCX5HaoVc6gGIEQ==",
   "success": true,
-  "projectFilePath": "D:\\Enlab\\kim.nguyen\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
+  "projectFilePath": "D:\\Enlab\\my-github\\ManagementWebapp\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ASUS\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",

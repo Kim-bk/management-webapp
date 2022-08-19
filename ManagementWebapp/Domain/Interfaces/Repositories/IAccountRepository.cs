@@ -8,6 +8,6 @@ namespace Domain.Accounts
 {
     public interface IAccountRepository
     {
-        List<ProjectDTO> GetUserProjects(string userId);
+        Task<List<Project>> GetUserProjects(string userId);
     }
 }

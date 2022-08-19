@@ -10,8 +10,8 @@ namespace Infrastructure.Repositories
 {
     public class ProjectRepository: Repository<Project>, IProjectRepository
     {
-        private readonly IMapper _mapper;
-        public ProjectRepository(DbFactory dbFactory, IMapper mapper) : base(dbFactory)
+        private readonly IMappering _mapper;
+        public ProjectRepository(DbFactory dbFactory, IMappering mapper) : base(dbFactory)
         {
             _mapper = mapper;
         }

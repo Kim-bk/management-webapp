@@ -11,8 +11,8 @@ namespace Infrastructure.Repositories
 {
     public class ListTaskRepository : Repository<ListTask>, IListTaskRepository
     {
-        private readonly IMapper _mapper;
-        public ListTaskRepository(DbFactory dbFactory, IMapper mapper) : base(dbFactory)
+        private readonly IMappering _mapper;
+        public ListTaskRepository(DbFactory dbFactory, IMappering mapper) : base(dbFactory)
         {
             _mapper = mapper;
         }

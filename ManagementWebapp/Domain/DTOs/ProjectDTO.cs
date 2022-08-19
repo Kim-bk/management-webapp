@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Domain.DTOs
-{
+{   
     public class ProjectDTO
     {
-        public int ProjectId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
-        public List<ListTaskDTO> ListTasks { get; set; }
+        public List<ListTaskDTO> ListTasks {get; set; }
     }
 }

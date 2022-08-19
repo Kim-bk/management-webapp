@@ -8,23 +8,29 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
+using AutoMapper;
+using System.Collections.Generic;
+using Domain.DTOs;
 
 namespace Service
 {
     public class AccountService : IAccountService
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork, 
-            UserManager<ApplicationUser> userManager, IRefreshTokenRepository refreshTokenRepository)
+        public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork,
+                    UserManager<ApplicationUser> userManager, IMapper mapper,
+                    IRefreshTokenRepository refreshTokenRepository)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _accountRepository = accountRepository;
             _unitOfWork = uniOfWork;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         private void Dispose()
@@ -106,28 +112,32 @@ namespace Service
             return null;
         }
 
-        public ProjectManagerResponse GetUserProjects(string userId)
+        public async Task<ProjectManagerResponse> GetUserProjects(string userId)
         {
             try
             {
                 // 1. Get all projects of user
-                var userProjects = _accountRepository.GetUserProjects(userId);
+                var userProjects = await _accountRepository.GetUserProjects(userId);
+
+                // 2. Map List Project to List Project DTO
+                var mapProject = _mapper.Map<List<Project>, List<ProjectDTO>>(userProjects);
 
                 // 3. Return message
                 return new ProjectManagerResponse
                 {
                     Message = "Get user projects success!",
-                    Projects = userProjects,
+                    Projects = mapProject,
                     IsSuccess = true
                 };
             }
             catch (Exception e)
             {
-                return new ProjectManagerResponse
+                throw new Exception(e.ToString());
+           /*     return new ProjectManagerResponse
                 {
                     Message = e.ToString(),
                     IsSuccess = false
-                };
+                };*/
             }
         }
 

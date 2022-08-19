@@ -8,8 +8,8 @@ namespace Infrastructure.Repositories
 {
     public class TaskRepository : Repository<Domain.Entities.Task>, ITaskRepository
     {
-        private readonly IMapper _mapper;
-        public TaskRepository(DbFactory dbFactory, IMapper mapper) : base(dbFactory)
+        private readonly IMappering _mapper;
+        public TaskRepository(DbFactory dbFactory, IMappering mapper) : base(dbFactory)
         {
             _mapper = mapper;
         }

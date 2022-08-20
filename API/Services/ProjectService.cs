@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using API.DTOs.Requests;
 using API.DTOs.Responses;
+using API.Services;
 using API.Services.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -11,21 +12,18 @@ using Service.Interfaces;
 
 namespace Service
 {
-    public class ProjectService : IProjectService
+    public class ProjectService : BaseService, IProjectService
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IListTaskRepository _listTaskRepository;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IMapperCustom _mapper;
         public ProjectService(IProjectRepository projectRepository, IListTaskRepository listTaskRepository,
                             IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper)
+                            : base(unitOfWork, mapper)
         {
             _projectRepository = projectRepository;
             _listTaskRepository = listTaskRepository;
-            _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _mapper = mapper;
         }
         ~ProjectService()
         {

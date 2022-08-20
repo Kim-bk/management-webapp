@@ -11,6 +11,7 @@ using Service.Interfaces;
 using AutoMapper;
 using System.Collections.Generic;
 using API.DTOs;
+using API.Services;
 
 namespace Service
 {
@@ -24,7 +25,7 @@ namespace Service
 
         public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork,
                     UserManager<ApplicationUser> userManager, IMapper mapper,
-                    IRefreshTokenRepository refreshTokenRepository)
+                    IRefreshTokenRepository refreshTokenRepository) 
         {
             _refreshTokenRepository = refreshTokenRepository;
             _accountRepository = accountRepository;

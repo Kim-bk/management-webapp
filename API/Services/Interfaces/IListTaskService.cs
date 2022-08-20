@@ -8,6 +8,5 @@ namespace Service.Interfaces
     {
         Task<UserManagerResponse> AddTaskToList(int listTaskId, CommonRequest model, string userId);
         Task<ListTaskManagerResponse> GetAllTasks(int listTaskId);
-        Task<UserManagerResponse> MoveTask(TaskRequest model);
     }
 }

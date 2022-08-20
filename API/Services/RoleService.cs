@@ -7,21 +7,21 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using API.DTOs.Requests;
+using API.Services;
+using API.Services.Interfaces;
 
 namespace Service
 {
-    public class RoleService : IRoleService
+    public class RoleService : BaseService, IRoleService
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
        
         public RoleService(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager,
-                        IUnitOfWork unitOfWork)
+                        IUnitOfWork unitOfWork, IMapperCustom mapper) : base(unitOfWork, mapper)
         {
             _roleManager = roleManager;
             _userManager = userManager;
-            _unitOfWork = unitOfWork;
         }
         private void Dispose()
         {

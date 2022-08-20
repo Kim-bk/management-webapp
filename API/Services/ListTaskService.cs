@@ -8,22 +8,20 @@ using System.Linq;
 using API.DTOs.Responses;
 using API.DTOs.Requests;
 using API.Services.Interfaces;
+using API.Services;
 
 namespace Service
 {
-    public class ListTaskService : IListTaskService
+    public class ListTaskService : BaseService, IListTaskService
     {
         private readonly IListTaskRepository _listTaskRepository;
         private readonly ITaskRepository _taskRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapperCustom _mapper;
+
         public ListTaskService(IListTaskRepository listTaskRepository, IUnitOfWork unitOfWork,
-                            ITaskRepository taskRepository, IMapperCustom mapper)
+                            ITaskRepository taskRepository, IMapperCustom mapper) : base(unitOfWork, mapper)
         {
             _listTaskRepository = listTaskRepository;
             _taskRepository = taskRepository;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
         private int FindMaxPosition(ICollection<Domain.Entities.Task> list)
         {
@@ -98,73 +96,26 @@ namespace Service
                 };
             }
 
-            // 2. Get all tasks in list task
-            var tasks = await _listTaskRepository.GetTasksInList(listTaskId);
-
-            // 3. Validate if list task not found
-            if (tasks == null)
+            var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
+            if (listTask == null)
             {
                 return new ListTaskManagerResponse
                 {
-                    Message = "List Task is not found!",
+                    Message = "List Task Id is not found!",
                     IsSuccess = true,
                 };
             }
 
+            // 2. Get all tasks in list task
+            var tasks = await _listTaskRepository.GetTasksInList(listTaskId);
+
+            // 3. Return result
             return new ListTaskManagerResponse
             {
                 Message = "Get all tasks in list success!",
                 IsSuccess = true,
-                Task = _mapper.MapTasks(tasks)
+                Task = _mapper.MapTasks(tasks).OrderBy(t => t.Position).ToList()
             };
-        }
-
-        public async Task<UserManagerResponse> MoveTask(TaskRequest model)
-        {
-            try
-            {
-                await _unitOfWork.BeginTransaction();
-
-                // 1. Find each task in list task by list task id and task id
-                var firstTask = _taskRepository.FindByIdAndListTask(model.BeforeTaskId, model.BeforeListId);
-                var secondTask = _taskRepository.FindByIdAndListTask(model.AfterTaskId, model.AfterListId);
-
-                // 2. Validate
-                if (firstTask == null || secondTask == null)
-                {
-                    return new UserManagerResponse
-                    {
-                        Message = "Can not find one of the task by id and list task id!",
-                        IsSuccess = false,
-                    };
-                }
-
-                // 3. Swap and update
-                var tempPos = firstTask.Position;
-                var tempList = firstTask.ListTaskId;
-
-                firstTask.Position = secondTask.Position;
-                firstTask.ListTaskId = secondTask.ListTaskId;
-
-                secondTask.Position = tempPos;
-                secondTask.ListTaskId = tempList;
-
-                await _unitOfWork.CommitTransaction();
-                return new UserManagerResponse
-                {
-                    Message = "Swap success!",
-                    IsSuccess = true,
-                };
-            }
-
-            catch (Exception e)
-            {
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true,
-                };
-            }
         }
     }
 }

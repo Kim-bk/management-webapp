@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using API.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -116,6 +117,39 @@ namespace API.Controllers
                 }
             }
 
+            return BadRequest("Some properties is not valid!");
+        }
+
+        // api/task/{taskId:int}
+        [Authorize]
+        [HttpPut("{taskId:int}")]
+        public async Task<IActionResult> MoveTask(int taskId, [FromBody] MoveTaskRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                var rs = await _taskService.MoveTask(taskId, request);
+                if (rs.IsSuccess)
+                {
+                    return Ok(rs);
+                }
+            }
+            return BadRequest("Some properties is not valid!");
+        }
+        
+        [Authorize]
+        [HttpPost]
+        // api/task
+        public async Task<IActionResult> AddTask(TaskRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var rs = await _taskService.CreateTask(request, userId);
+                if (rs.IsSuccess)
+                {
+                    return Ok(rs.Message);
+                }
+            }
             return BadRequest("Some properties is not valid!");
         }
     }

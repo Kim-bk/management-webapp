@@ -52,21 +52,5 @@ namespace API.Controllers
             }
             return BadRequest("Some properties is not valid!");
         }
-
-        [Authorize]
-        [HttpPost("managed-task")]
-        // api/listtask-management/managed-task
-        public async Task<IActionResult> MoveTask([FromBody] TaskRequest model)
-        {
-            if (ModelState.IsValid)
-            {
-                var rs = await _listTaskService.MoveTask(model);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs);
-                }
-            }
-            return BadRequest("Some properties is not valid!");
-        }
     }
 }

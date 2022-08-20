@@ -10,26 +10,27 @@ using Service.Interfaces;
 using System.Linq;
 using API.Services.Interfaces;
 using API.DTOs;
+using System.Collections.Generic;
+using API.Services;
 
 namespace Service
 {
-    public class TaskService : ITaskService
+    public class TaskService : BaseService, ITaskService
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IToDoRepository _todoRepository;
         private readonly ILabelRepository _labelRepository;
+        private readonly IListTaskRepository _listTaskRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapperCustom _mapper;
-        public TaskService(ITaskRepository taskRepository, IUnitOfWork unitOfWork, ILabelRepository labelRepository, 
-                        IToDoRepository todoRepository, UserManager<ApplicationUser> userManager, IMapperCustom mapper)
+        public TaskService(ITaskRepository taskRepository, IUnitOfWork unitOfWork, ILabelRepository labelRepository,
+                        IToDoRepository todoRepository, UserManager<ApplicationUser> userManager,
+                        IMapperCustom mapper, IListTaskRepository listTaskRepository) : base(unitOfWork, mapper)
         {
             _labelRepository = labelRepository;
             _todoRepository = todoRepository;
             _taskRepository = taskRepository;
+            _listTaskRepository = listTaskRepository;
             _userManager = userManager;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         } 
         ~TaskService()
         {
@@ -70,12 +71,12 @@ namespace Service
                 };
             }
         }
-        public async Task<UserManagerResponse> AddLabelToTask(LabelRequest model)
+        public async Task<UserManagerResponse> AddLabelToTask(LabelRequest request)
         {
            try
             {
                 // 1. Check if duplicate name label
-                var label = await _labelRepository.FindByNameAsync(model.Title);
+                var label = await _labelRepository.FindByNameAsync(request.Title);
                 if (label != null)
                 {
                     return new UserManagerResponse
@@ -88,13 +89,13 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 2. Find task by id 
-                Domain.Entities.Task task = await _taskRepository.FindByIdAsync(model.TaskId);
+                Domain.Entities.Task task = await _taskRepository.FindByIdAsync(request.TaskId);
 
                 // 3. Update task with new label 
                 task.Labels.Add(new Label 
                 { 
-                    Title = model.Title,
-                    Color = model.Color
+                    Title = request.Title,
+                    Color = request.Color
                 });
                 
                 // 4. Commit changes
@@ -102,7 +103,7 @@ namespace Service
 
                 return new UserManagerResponse
                 {
-                    Message = "Add label " + model.Title.ToString() + " to task " + task.Title.ToString(),
+                    Message = "Add label " + request.Title.ToString() + " to task " + task.Title.ToString(),
                     IsSuccess = true,
                 };
             }
@@ -116,17 +117,17 @@ namespace Service
             }
         }
 
-        public async Task<UserManagerResponse> RemoveLabelInTask(LabelRequest model)
+        public async Task<UserManagerResponse> RemoveLabelInTask(LabelRequest request)
         {
             try
             {
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find label by Id
-                var label = await _labelRepository.FindByIdAsync(model.Id);
+                var label = await _labelRepository.FindByIdAsync(request.Id);
 
                 // 2. Find task by Id
-                var task = await _taskRepository.FindByIdAsync(model.TaskId);
+                var task = await _taskRepository.FindByIdAsync(request.TaskId);
 
                 // 3. Remove label in task then update
                 task.Labels.Remove(label);
@@ -151,15 +152,15 @@ namespace Service
                 };
             }
         }
-        public async Task<TaskManagerResponse> AddToDoToTask(ToDoRequest model)
+        public async Task<TaskManagerResponse> AddToDoToTask(ToDoRequest request)
         {
             try
             {
                 // 1. Check duplicate title todo parent
-                if (model.ParentId != null)
+                if (request.ParentId != null)
                 {
-                    var parenTodo = await _todoRepository.FindByNameAsync(model.Title);
-                    if (parenTodo != null && parenTodo.TaskId == model.TaskId)
+                    var parenTodo = await _todoRepository.FindByNameAsync(request.Title);
+                    if (parenTodo != null && parenTodo.TaskId == request.TaskId)
                     {
                         return new TaskManagerResponse
                         {
@@ -172,14 +173,14 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 2. Find task by ID
-                var task = await _taskRepository.FindByIdAsync(model.TaskId);
+                var task = await _taskRepository.FindByIdAsync(request.TaskId);
 
                 // 3. Add new todo to task
                 task.Todos.Add(new Todo 
                 {
-                    Title = model.Title,
+                    Title = request.Title,
                     IsDone = false,
-                    ParentId = model.ParentId,
+                    ParentId = request.ParentId,
                     Task = task,
                 });
 
@@ -188,7 +189,7 @@ namespace Service
 
                 return new TaskManagerResponse
                 {
-                    Message = "Add to do " + model.Title + " to task " + model.Title,
+                    Message = "Add to do " + request.Title + " to task " + request.Title,
                     IsSuccess = true,
                 };
             }
@@ -202,14 +203,14 @@ namespace Service
                 };
             }
         }
-        public async Task<TaskManagerResponse> ManageToDoItems(ToDoRequest model)
+        public async Task<TaskManagerResponse> ManageToDoItems(ToDoRequest request)
         {
             try
             {
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find to do item by id and task id
-                var todoItem = _todoRepository.FindToDoItems(model.TaskId, model.Id);
+                var todoItem = _todoRepository.FindToDoItems(request.TaskId, request.Id);
 
                 // 2. Validate whether todo is parent or not
                 if (todoItem.ParentId == null)
@@ -293,6 +294,114 @@ namespace Service
                 {
                     Message = e.ToString(),
                     IsSuccess = true
+                };
+            }
+        }
+
+        public async Task<UserManagerResponse> MoveTask(int taskId, MoveTaskRequest request)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransaction();
+
+                // 1. Find each task in list task by list task id and task id
+                var firstTask = _taskRepository.FindByIdAndListTask(taskId, request.CurrentListId);
+                var secondTask = _taskRepository.FindByIdAndListTask(request.TaskId, request.AfterListId);
+
+                // 2. Validate
+                if (firstTask == null || secondTask == null)
+                {
+                    return new UserManagerResponse
+                    {
+                        Message = "Can not find one of the task by id and list task id!",
+                        IsSuccess = false,
+                    };
+                }
+
+                // 3. Swap and update
+                var tempPos = firstTask.Position;
+                var tempList = firstTask.ListTaskId;
+
+                firstTask.Position = secondTask.Position;
+                firstTask.ListTaskId = secondTask.ListTaskId;
+
+                secondTask.Position = tempPos;
+                secondTask.ListTaskId = tempList;
+
+                await _unitOfWork.CommitTransaction();
+
+                return new UserManagerResponse
+                {
+                    Message = "Swap success!",
+                    IsSuccess = true,
+                };
+            }
+
+            catch (Exception e)
+            {
+                return new UserManagerResponse
+                {
+                    Message = e.ToString(),
+                    IsSuccess = true,
+                };
+            }
+        }
+        private int FindMaxPosition(ICollection<Domain.Entities.Task> list)
+        {
+            if (list.Count == 0)
+            {
+                return 0;
+            }
+            int maxPos = int.MinValue;
+            foreach (var type in list)
+            {
+                if (type.Position > maxPos)
+                {
+                    maxPos = Convert.ToInt32(type.Position);
+                }
+            }
+            return maxPos;
+        }
+        public async Task<UserManagerResponse> CreateTask(TaskRequest request, string userId)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransaction();
+
+                // 1. Find list task by ID
+                var listTask = await _listTaskRepository.FindListTaskByIdAsync(request.ListTaskId);
+
+                // 2. Set max position for task in list
+                var positon = FindMaxPosition(listTask.Tasks) + 1;
+
+                // 3. Init object Task
+                var task = new Domain.Entities.Task
+                {
+                    Title = request.Title,
+                    ListTask = listTask,
+                    Position = positon
+                };
+
+                // 4. Add the task to list task found
+                listTask.Tasks.Add(task);
+
+                // 5. Commit 
+                await _unitOfWork.CommitTransaction();
+
+                // 6. Return message 
+                return new UserManagerResponse
+                {
+                    Message = "Add task " + task.Title.ToString() + " to " + "list task " + task.ListTask.Title.ToString(),
+                    IsSuccess = true,
+                };
+            }
+            catch (Exception e)
+            {
+                await _unitOfWork.RollbackTransaction();
+                return new UserManagerResponse
+                {
+                    Message = e.ToString(),
+                    IsSuccess = false,
                 };
             }
         }

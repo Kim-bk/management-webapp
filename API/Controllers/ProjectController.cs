@@ -48,10 +48,10 @@ namespace API.Controllers
             var access = await _roleService.CheckUserRole(userId, "Admin");
             if (access)
             {
-                var rs = await _projectService.CreateUserProject(userId, model);
-                if (rs.IsSuccess)
+                var res = await _projectService.CreateUserProject(userId, model);
+                if (res.IsSuccess)
                 {
-                    return Ok(rs.Message);
+                    return Ok(res.Message);
                 }
                 return BadRequest("Invalid some properties!");
             }

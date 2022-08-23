@@ -34,10 +34,10 @@ namespace Service
             // 1. Create role
             await _unitOfWork.BeginTransaction();
             var result = await _roleManager.CreateAsync(
-                        new IdentityRole
-                        {
-                            Name = nameRole
-                        });
+                            new IdentityRole
+                            {
+                                Name = nameRole
+                            });
 
             if (result.Succeeded)
             {

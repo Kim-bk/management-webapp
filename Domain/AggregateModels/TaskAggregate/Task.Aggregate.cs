@@ -67,7 +67,7 @@ namespace Domain.Entities
             this.Users.Add(user);
             DoingId = user.Id;
         }
-        public void MoveTask(Domain.Entities.Task taskToSwap)
+        public void Swap(Task taskToSwap)
         {
             // 1. Swap and update
             var tempPos = this.Position;

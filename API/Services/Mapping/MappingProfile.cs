@@ -29,7 +29,7 @@ namespace API.Services.Mapping
 
             // Todo -> TodoDTO
             CreateMap<Todo, TodoDTO>()
-                .ForMember(des => des.TodoId, o => o.MapFrom(t => t.Id));
+                .ForMember(des => des.TodoId, o => o.MapFrom(td => td.Id));
 
             // ApplicationUser -> MemberDTO
             CreateMap<ApplicationUser, MemberDTO>()

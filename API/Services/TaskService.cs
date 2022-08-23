@@ -276,7 +276,7 @@ namespace Service
                         IsSuccess = false,
                     };
                 }
-
+                firstTask.Swap(secondTask);
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse

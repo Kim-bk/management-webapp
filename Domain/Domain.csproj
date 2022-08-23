@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AggregateModels\TaskAggregate\" />
+    <Folder Include="AggregateModels\UserAggregate\" />
   </ItemGroup>
 
 </Project>

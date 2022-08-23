@@ -13,9 +13,9 @@ namespace Infrastructure.Repositories
         {
         }
 
-        public async void CreateProject(Project project)
+        public void CreateProject(Project project)
         {
-            await DbSet.AddAsync(project);
+            AddAsync(project);
         }
 
         public async Task<Project> FindByIdAsync(int projectId)
@@ -34,5 +34,6 @@ namespace Infrastructure.Repositories
                         .SelectMany(lt => lt.ListTasks)
                         .ToListAsync();
         }
+
     }
 }

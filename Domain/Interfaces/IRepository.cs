@@ -8,7 +8,7 @@ namespace Domain
 {
     public interface IRepository<T> where T : class
     {
-        void Add(T entity);
+        void AddAsync(T entity);
         void Delete(T entity);
         IQueryable<T> List(Expression<Func<T, bool>> expression);
         void Update(T entity);

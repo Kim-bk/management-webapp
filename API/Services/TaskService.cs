@@ -92,12 +92,8 @@ namespace Service
                 Domain.Entities.Task task = await _taskRepository.FindByIdAsync(request.TaskId);
 
                 // 3. Update task with new label 
-                task.Labels.Add(new Label 
-                { 
-                    Title = request.Title,
-                    Color = request.Color
-                });
-                
+                task.AddLabel(request.Title, request.Color);
+
                 // 4. Commit changes
                 await _unitOfWork.CommitTransaction();
 
@@ -109,11 +105,8 @@ namespace Service
             }
             catch (Exception e)
             {
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true,
-                };
+                await _unitOfWork.RollbackTransaction();
+                throw e;
             }
         }
 
@@ -123,33 +116,24 @@ namespace Service
             {
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Find label by Id
-                var label = await _labelRepository.FindByIdAsync(request.Id);
-
-                // 2. Find task by Id
+                // 1. Find task by Id
                 var task = await _taskRepository.FindByIdAsync(request.TaskId);
 
-                // 3. Remove label in task then update
-                task.Labels.Remove(label);
+                // 2. Remove label in task
+                task.RemoveLabel(request.Id);
 
-                // 4. Commit
                 await _unitOfWork.CommitTransaction();
 
-                // 5. Return message
                 return new UserManagerResponse
                 {
-                    Message = "Remove label " + label.Title + " in task " + task.Title,
+                    Message = "Remove label " + request.Id + " in task " + task.Title,
                     IsSuccess = true
                 };
             }
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true
-                };
+                throw e;
             }
         }
         public async Task<TaskManagerResponse> AddToDoToTask(ToDoRequest request)
@@ -176,13 +160,7 @@ namespace Service
                 var task = await _taskRepository.FindByIdAsync(request.TaskId);
 
                 // 3. Add new todo to task
-                task.Todos.Add(new Todo 
-                {
-                    Title = request.Title,
-                    IsDone = false,
-                    ParentId = request.ParentId,
-                    Task = task,
-                });
+                task.AddTodo(request.Title, request.ParentId);
 
                 // 4. Commit
                 await _unitOfWork.CommitTransaction();
@@ -196,11 +174,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new TaskManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true,
-                };
+                throw e;
             }
         }
         public async Task<TaskManagerResponse> ManageToDoItems(ToDoRequest request)
@@ -210,7 +184,8 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find to do item by id and task id
-                var todoItem = _todoRepository.FindToDoItems(request.TaskId, request.Id);
+                var task = await _taskRepository.FindByIdAsync(request.TaskId);
+                var todoItem = task.GetToDoItemInTask(request.Id);
 
                 // 2. Validate whether todo is parent or not
                 if (todoItem.ParentId == null)
@@ -222,15 +197,8 @@ namespace Service
                     };
                 }
 
-                // 3. Update status check / uncheck of todo item
-                if (Convert.ToBoolean(todoItem.IsDone))
-                {
-                    todoItem.IsDone = false;
-                }
-                else
-                {
-                    todoItem.IsDone = true;
-                }
+                // 3. Update status IsDone check / uncheck of todo item
+                task.UpdateStatusTodoItem(todoItem);
 
                 // 4. Commit changes
                 await _unitOfWork.CommitTransaction();
@@ -244,11 +212,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new TaskManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true
-                };
+                throw e;
             }
         }
 
@@ -275,8 +239,7 @@ namespace Service
                 var task = await _taskRepository.FindByIdAsync(taskId);
 
                 // 4. Update member into task and assign user
-                task.Users.Add(user);
-                task.DoingId = userId;
+                task.AssignMember(user);
 
                 // 5. Commit changes
                 await _unitOfWork.CommitTransaction();
@@ -290,11 +253,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new TaskManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true
-                };
+                throw e;
             }
         }
 
@@ -318,16 +277,6 @@ namespace Service
                     };
                 }
 
-                // 3. Swap and update
-                var tempPos = firstTask.Position;
-                var tempList = firstTask.ListTaskId;
-
-                firstTask.Position = secondTask.Position;
-                firstTask.ListTaskId = secondTask.ListTaskId;
-
-                secondTask.Position = tempPos;
-                secondTask.ListTaskId = tempList;
-
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse
@@ -339,11 +288,8 @@ namespace Service
 
             catch (Exception e)
             {
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true,
-                };
+                await _unitOfWork.RollbackTransaction();
+                throw e;
             }
         }
         private int FindMaxPosition(ICollection<Domain.Entities.Task> list)
@@ -375,20 +321,10 @@ namespace Service
                 var positon = FindMaxPosition(listTask.Tasks) + 1;
 
                 // 3. Init object Task
-                var task = new Domain.Entities.Task
-                {
-                    Title = request.Title,
-                    ListTask = listTask,
-                    Position = positon
-                };
-
-                // 4. Add the task to list task found
-                listTask.Tasks.Add(task);
-
-                // 5. Commit 
+                var task = new Domain.Entities.Task(request.Title, listTask, positon);
+                _taskRepository.CreateTask(task);
                 await _unitOfWork.CommitTransaction();
 
-                // 6. Return message 
                 return new UserManagerResponse
                 {
                     Message = "Add task " + task.Title.ToString() + " to " + "list task " + task.ListTask.Title.ToString(),
@@ -398,11 +334,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = false,
-                };
+                throw e;
             }
         }
     }

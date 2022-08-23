@@ -23,5 +23,10 @@ namespace Infrastructure.Repositories
                     where t.Id == taskId && t.ListTaskId == listTaskId
                     select t).FirstOrDefault();
         }
+
+        public void CreateTask(Domain.Entities.Task task)
+        {
+            AddAsync(task);
+        }
     }
 }

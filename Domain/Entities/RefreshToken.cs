@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 #nullable disable
 namespace Domain.Entities
 {
-
     [Table("RefreshToken")]
     public partial class RefreshToken
     {

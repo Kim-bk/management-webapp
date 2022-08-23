@@ -29,9 +29,9 @@ namespace Infrastructure
             DbContext = dbContext;
         }
 
-        public void Add(T entity)
+        public async void AddAsync(T entity)
         {
-            DbSet.Add(entity);
+            await DbSet.AddAsync(entity);
         }
 
         public void Delete(T entity)
@@ -51,6 +51,5 @@ namespace Infrastructure
         {
             return await DbSet.ToListAsync();
         }
-
     }
 }

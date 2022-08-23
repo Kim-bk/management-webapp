@@ -24,13 +24,16 @@ namespace API.Services.Mapping
                 .ForMember(des => des.Members, act => act.Ignore());
 
             // Label -> LabelDTO
-            CreateMap<Label, LabelDTO>();
+            CreateMap<Label, LabelDTO>()
+                .ForMember(des => des.LabelId, o => o.MapFrom(l => l.Id));
 
             // Todo -> TodoDTO
-            CreateMap<Todo, TodoDTO>();
+            CreateMap<Todo, TodoDTO>()
+                .ForMember(des => des.TodoId, o => o.MapFrom(t => t.Id));
 
             // ApplicationUser -> MemberDTO
-            CreateMap<ApplicationUser, MemberDTO>();
+            CreateMap<ApplicationUser, MemberDTO>()
+                .ForMember(des => des.UserId, o => o.MapFrom(u => u.Id));
 
         }
     }

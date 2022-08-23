@@ -43,7 +43,7 @@ namespace Service
                 var project = await _projectRepository.FindByIdAsync(projectId);
 
                 // 3. Add member to project then update
-                project.Users.Add(user);
+                project.AddMember(user);
 
                 await _unitOfWork.CommitTransaction();
 
@@ -57,11 +57,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = false
-                };
+                throw e;
             }
         }
         public async Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model)
@@ -93,12 +89,8 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 3. Create list task in the project then update
-                project.ListTasks.Add(new ListTask
-                {
-                    Title = model.Title,
-                    Project = project
-                });
-
+                project.CreateListTask(model.Title);
+                
                 await _unitOfWork.CommitTransaction();
 
                 // 4. Return message
@@ -111,11 +103,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true
-                };
+                throw e;
             }
         }
 
@@ -141,11 +129,11 @@ namespace Service
 
                 await _unitOfWork.BeginTransaction();
 
-                // 4. Create Project then add to user
-                user.Projects.Add(new Project
-                {
-                    Name = model.Name,
-                });
+                // 4. Create Project then add member
+                var newProject = new Project(model.Name);
+                newProject.AddMember(user);
+
+                 _projectRepository.CreateProject(newProject);
 
                 // 5. Commit transaction if not catch exception
                 await _unitOfWork.CommitTransaction();
@@ -160,11 +148,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true
-                };
+                throw e;
             }
         }
 

@@ -95,5 +95,21 @@ namespace API.Controllers
             }
             return BadRequest("Invalid some properties!");
         }
+
+        [Authorize]
+        [HttpDelete("{projectId:int}/list-task/{listTaskId:int}")]
+        // api/project/{projectId}/list-task
+        public async Task<IActionResult> DeleteListTask(int projectId, int listTaskId)
+        {
+            if (ModelState.IsValid)
+            {
+                var rs = await _projectService.DeleteListTask(projectId, listTaskId);
+                if (rs.IsSuccess)
+                {
+                    return Ok(rs.Message);
+                }
+            }
+            return BadRequest("Invalid some properties!");
+        }
     }
 }

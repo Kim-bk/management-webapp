@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using System.Threading.Tasks;
-using API.DTOs.Requests;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -17,23 +15,6 @@ namespace API.Controllers
             _listTaskService = listTaskService;
         }
         
-        [Authorize]
-        [HttpPost("{listTaskId:int}/task")]
-        // api/listtask-management/task
-        public async Task<IActionResult> CreateTask([FromBody] CommonRequest model, int listTaskId)
-        {
-            if (ModelState.IsValid)
-            {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var rs = await _listTaskService.AddTaskToList(listTaskId, model, userId);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Some properties is not valid!");
-        }
-
         [Authorize]
         [HttpGet("{listTaskId:int}/task")]
         // api/listtask/{listTaskId}/task

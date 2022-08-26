@@ -3,7 +3,7 @@ using API.Context;
 using API.Services.Interfaces;
 using Domain;
 using Domain.Accounts;
-using Domain.Entities;
+using Domain.AggregateModels.UserAggregate;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Infrastructure;

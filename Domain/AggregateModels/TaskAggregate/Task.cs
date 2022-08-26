@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.UserAggregate;
 
-namespace Domain.Entities
+namespace Domain.AggregateModels.TaskAggregate
 {
     public partial class Task
     {

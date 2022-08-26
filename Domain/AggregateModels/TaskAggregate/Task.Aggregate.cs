@@ -1,39 +1,78 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.UserAggregate;
+using Domain.Base;
 
-namespace Domain.Entities
+namespace Domain.AggregateModels.TaskAggregate
 {
-    public partial class Task
+    public partial class Task : IAggregateRoot
     {
         public Task(string name, ListTask listTask, int position) : this()
         {
-            this.Update(name, listTask, position);
+            Update(name, listTask, position);
         }
-        public void Update([NotNull] string name, ListTask listTask, int position)
+        public void Update(string name, ListTask listTask, int position)
         {
             if (String.IsNullOrWhiteSpace(name) || position == 0 || listTask == null)
             {
                 throw new ArgumentNullException("Input can not be null or white space");
             }
+
             Title = name;
             ListTask = listTask;
             Position = position;
         }
-        public void AddLabel([NotNull] string nameLabel, string color)
+        public void AddLabel(string nameLabel, string color)
         {
             if (String.IsNullOrWhiteSpace(nameLabel) || String.IsNullOrWhiteSpace(color))
             {
                 throw new ArgumentNullException("Input can not be null or white space");
             }
-            this.Labels.Add(new Label { 
+
+            Labels.Add(new Label 
+            { 
                 Title = nameLabel,
                 Color = color
             });
         }
         public void RemoveLabel(int labelId)
         {
-            this.Labels.Remove(this.Labels.FirstOrDefault(l => l.Id == labelId));
+            Labels.Remove(Labels.FirstOrDefault(l => l.Id == labelId));
+        }
+        public void RemoveTodo(int todoId)
+        {
+            Todos.Remove(Todos.FirstOrDefault(td => td.Id == todoId));
+        }
+        public void RemoveMember(string userId)
+        {
+            Users.Remove(Users.FirstOrDefault(u => u.Id == userId));
+        }
+
+        public void DeleteTask()
+        {
+            Todos.Clear();
+            Labels.Clear();
+            Users.Clear();
+
+            // 1. Remove all todos
+           /* foreach(var todo in Todos)
+            {
+                Todos.Remove(todo);
+            }
+
+            // 2. Remove all labels
+            foreach(var label in Labels)
+            {
+                Labels.Remove(label);
+            }
+
+            // 3. Remove all members
+            foreach(var user in Users)
+            {
+                Users.Remove(user);
+            }
+           */
         }
         public void AddTodo(string nameTodo, int? parentId)
         {
@@ -42,7 +81,8 @@ namespace Domain.Entities
                 throw new ArgumentNullException("Input can not be null or white space");
             }
 
-            this.Todos.Add(new Todo { 
+            Todos.Add(new Todo 
+            { 
                 Title = nameTodo,
                 IsDone = false,
                 ParentId = parentId
@@ -51,7 +91,7 @@ namespace Domain.Entities
 
         public Todo GetToDoItemInTask(int todoId)
         {
-            return this.Todos.FirstOrDefault(t => t.Id == todoId);
+            return Todos.FirstOrDefault(t => t.Id == todoId);
         }
         public void UpdateStatusTodoItem(Todo todoItem)
         {
@@ -64,17 +104,17 @@ namespace Domain.Entities
         }
         public void AssignMember(ApplicationUser user)
         {
-            this.Users.Add(user);
+            Users.Add(user);
             DoingId = user.Id;
         }
         public void Swap(Task taskToSwap)
         {
             // 1. Swap and update
-            var tempPos = this.Position;
-            var tempList = this.ListTaskId;
+            var tempPos = Position;
+            var tempList = ListTaskId;
 
-            this.Position = taskToSwap.Position;
-            this.ListTaskId = taskToSwap.ListTaskId;
+            Position = taskToSwap.Position;
+            ListTaskId = taskToSwap.ListTaskId;
 
             taskToSwap.Position = tempPos;
             taskToSwap.ListTaskId = tempList;

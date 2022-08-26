@@ -4,9 +4,12 @@ using API.DTOs.Requests;
 using API.DTOs.Responses;
 using API.Services;
 using API.Services.Interfaces;
-using Domain.Entities;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.UserAggregate;
+using Domain.DomainEvents;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
 
@@ -14,16 +17,21 @@ namespace Service
 {
     public class ProjectService : BaseService, IProjectService
     {
+        private readonly IMediator _mediator;
         private readonly IProjectRepository _projectRepository;
         private readonly IListTaskRepository _listTaskRepository;
+        private readonly ITaskRepository _taskRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         public ProjectService(IProjectRepository projectRepository, IListTaskRepository listTaskRepository,
-                            IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper)
+                            IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper,
+                            ITaskService taskService, ITaskRepository taskRepository, IMediator mediator)
                             : base(unitOfWork, mapper)
         {
             _projectRepository = projectRepository;
             _listTaskRepository = listTaskRepository;
+            _taskRepository = taskRepository;
             _userManager = userManager;
+            _mediator = mediator;
         }
         ~ProjectService()
         {
@@ -163,6 +171,21 @@ namespace Service
                 IsSuccess = true,
                 Message = "Get all list task of project",
                 ListTasks = _mapper.MapListTasks(listTasks),
+            };
+        }
+        public async Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId)
+        {
+            // 1. Find project
+            var project = await _projectRepository.FindByIdAsync(projectId);
+
+            // 2. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
+            // this will be handled in ListTaskDeletedDomainEvenHandler
+            await _mediator.Publish(new ListTaskDeletedDomainEvent(listTaskId));
+
+            return new UserManagerResponse
+            {
+                Message = "List Task " + " have been deleted!",
+                IsSuccess = true,
             };
         }
     }

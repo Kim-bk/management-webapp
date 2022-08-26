@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
@@ -9,6 +8,7 @@ using System.Linq;
 using API.DTOs.Requests;
 using API.Services;
 using API.Services.Interfaces;
+using Domain.AggregateModels.UserAggregate;
 
 namespace Service
 {

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using API.DTOs;
-using Domain.Entities;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.TaskAggregate;
+using Domain.AggregateModels.UserAggregate;
 
 namespace API.Services.Interfaces
 {

@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Domain.AggregateModels.TaskAggregate;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.UserAggregate;
 
 namespace API.Context
 {

@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Domain.AggregateModels.TaskAggregate;
 
 namespace Infrastructure.Repositories
 {

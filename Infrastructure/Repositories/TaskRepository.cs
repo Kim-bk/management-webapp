@@ -1,32 +1,35 @@
 ﻿using System.Threading.Tasks;
 using Domain.Interfaces.Repositories;
 using System.Linq;
-using Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class TaskRepository : Repository<Domain.Entities.Task>, ITaskRepository
+    public class TaskRepository : Repository<Domain.AggregateModels.TaskAggregate.Task>, ITaskRepository
     {
         public TaskRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
 
-        public async Task<Domain.Entities.Task> FindByIdAsync(int taskId)
+        public async Task<Domain.AggregateModels.TaskAggregate.Task> FindByIdAsync(int taskId)
         {
             return await DbSet.FindAsync(taskId);
         }
 
-        public Domain.Entities.Task FindByIdAndListTask(int taskId, int listTaskId)
+        public Domain.AggregateModels.TaskAggregate.Task FindByIdAndListTask(int taskId, int listTaskId)
         {
             return (from t in DbSet 
                     where t.Id == taskId && t.ListTaskId == listTaskId
                     select t).FirstOrDefault();
         }
 
-        public void CreateTask(Domain.Entities.Task task)
+        public void CreateTask(Domain.AggregateModels.TaskAggregate.Task task)
         {
             AddAsync(task);
+        }
+
+        public void DeleteTask(Domain.AggregateModels.TaskAggregate.Task task)
+        {
+            DbSet.Remove(task);
         }
     }
 }

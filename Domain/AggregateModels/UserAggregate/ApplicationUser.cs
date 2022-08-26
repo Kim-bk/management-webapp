@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.TaskAggregate;
 using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Entities
+
+namespace Domain.AggregateModels.UserAggregate
 {
-    [Table("User")]
     public class ApplicationUser : IdentityUser
     {
         public ApplicationUser()

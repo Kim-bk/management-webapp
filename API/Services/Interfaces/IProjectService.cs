@@ -10,5 +10,6 @@ namespace Service.Interfaces
         Task<UserManagerResponse> AddMemberToProject(int projectId, ProjectRequest model);
         Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model);
         Task<ProjectManagerResponse> GetListTasks(int projectId);
+        Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId);
     }
 }

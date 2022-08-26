@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace Domain.Entities
-{
+namespace Domain.AggregateModels.TaskAggregate
+{ 
     public partial class Todo
     {
         public int Id { get; set; }

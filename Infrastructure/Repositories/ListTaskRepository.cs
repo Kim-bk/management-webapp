@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Domain.Entities;
+using Domain.AggregateModels.ProjectAggregate;
 using Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +17,11 @@ namespace Infrastructure.Repositories
             await DbSet.AddAsync(listTask);
         }
 
+        public void DelteListTask(ListTask listTask)
+        {
+            DbSet.Remove(listTask);
+        }
+
         public async Task<ListTask> FindByNameAsync(string nameListTask)
         {
             return await DbSet.Where(lt => lt.Title == nameListTask).FirstOrDefaultAsync();
@@ -26,7 +31,7 @@ namespace Infrastructure.Repositories
         {
             return await DbSet.FindAsync(listTaskId);
         }
-        public async Task<List<Domain.Entities.Task>> GetTasksInList(int listTaskId)
+        public async Task<List<Domain.AggregateModels.TaskAggregate.Task>> GetTasksInList(int listTaskId)
         {
             return await DbSet.Where(lt => lt.ListTaskId == listTaskId)
                 .SelectMany(t => t.Tasks)

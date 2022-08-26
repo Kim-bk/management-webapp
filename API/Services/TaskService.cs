@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using API.DTOs.Requests;
 using API.DTOs.Responses;
-using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +11,7 @@ using API.Services.Interfaces;
 using API.DTOs;
 using System.Collections.Generic;
 using API.Services;
+using Domain.AggregateModels.UserAggregate;
 
 namespace Service
 {
@@ -32,17 +32,23 @@ namespace Service
             _listTaskRepository = listTaskRepository;
             _userManager = userManager;
         } 
-        ~TaskService()
-        {
-            _userManager.Dispose();
-        }
-      
         public async Task<TaskManagerResponse> GetTask(int taskId)
         {
             try
             {
                 // 1. Get all information of task by id
                 var task = await _taskRepository.FindByIdAsync(taskId);
+
+                // 2. Check
+                if (task == null)
+                {
+                    return new TaskManagerResponse
+                    {
+                        Message = "Can not find the task !",
+                        IsSuccess = true
+                    };
+
+                }
 
                 // 2. Map Task to Task DTO
                 var taskDTO = new TaskDTO
@@ -64,11 +70,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                return new TaskManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = true
-                };
+                throw e;
             }
         }
         public async Task<UserManagerResponse> AddLabelToTask(LabelRequest request)
@@ -89,7 +91,7 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 2. Find task by id 
-                Domain.Entities.Task task = await _taskRepository.FindByIdAsync(request.TaskId);
+                Domain.AggregateModels.TaskAggregate.Task task = await _taskRepository.FindByIdAsync(request.TaskId);
 
                 // 3. Update task with new label 
                 task.AddLabel(request.Title, request.Color);
@@ -192,7 +194,7 @@ namespace Service
                 {
                     return new TaskManagerResponse
                     {
-                        Message = "Todo Parent can not check or uncheck!",
+                        Message = "Todo Parent can not checked or unchecked!",
                         IsSuccess = true
                     };
                 }
@@ -292,7 +294,7 @@ namespace Service
                 throw e;
             }
         }
-        private int FindMaxPosition(ICollection<Domain.Entities.Task> list)
+        private int FindMaxPosition(List<Domain.AggregateModels.TaskAggregate.Task> list)
         {
             if (list.Count == 0)
             {
@@ -316,12 +318,24 @@ namespace Service
 
                 // 1. Find list task by ID
                 var listTask = await _listTaskRepository.FindListTaskByIdAsync(request.ListTaskId);
+                
+                // 2. Validate
+                if (listTask != null && listTask.Tasks.Contains(
+                    listTask.Tasks.FirstOrDefault(t => t.Title == request.Title)))
+                {
+                    return new UserManagerResponse
+                    { 
+                        Message = "Task is duplicated !",
+                        IsSuccess = true
+                    };
 
-                // 2. Set max position for task in list
-                var positon = FindMaxPosition(listTask.Tasks) + 1;
+                }
 
-                // 3. Init object Task
-                var task = new Domain.Entities.Task(request.Title, listTask, positon);
+                // 3. Set max position (default) for task in list
+                var positon = FindMaxPosition(listTask.Tasks.ToList()) + 1;
+
+                // 4. Init object Task
+                var task = new Domain.AggregateModels.TaskAggregate.Task(request.Title, listTask, positon);
                 _taskRepository.CreateTask(task);
                 await _unitOfWork.CommitTransaction();
 

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using Domain.Entities;
+using Domain.AggregateModels.TaskAggregate;
 
-#nullable disable
-
-namespace Domain.Entities
+namespace Domain.AggregateModels.ProjectAggregate
 {
     public partial class ListTask
     {

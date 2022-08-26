@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Domain.Entities;
+using Domain.AggregateModels.ProjectAggregate;
 
 namespace Domain.Interfaces.Repositories
 {
@@ -8,7 +8,8 @@ namespace Domain.Interfaces.Repositories
     {
         void Create(ListTask listTask);
         Task<ListTask> FindListTaskByIdAsync(int listTaskId);
-        Task<List<Domain.Entities.Task>> GetTasksInList(int listTaskId);
+        Task<List<AggregateModels.TaskAggregate.Task>> GetTasksInList(int listTaskId);
         Task<ListTask> FindByNameAsync(string nameListTask);
+        void DelteListTask(ListTask listTask);
     }
 }

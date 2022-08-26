@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Domain.Entities;
+using Domain.AggregateModels.ProjectAggregate;
 
 namespace API.DTOs.Responses
 {

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using System.Threading.Tasks;
 using API.DTOs.Responses;
+using Domain.AggregateModels.UserAggregate;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;

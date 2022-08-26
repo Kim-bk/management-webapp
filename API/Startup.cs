@@ -4,7 +4,7 @@ using API.Context;
 using API.Extensions;
 using API.Services.Mapping;
 using AutoMapper;
-using Domain.Entities;
+using Domain.AggregateModels.UserAggregate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,7 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Service;
+using MediatR;
+using API.DomainEventHandlers;
 
 namespace API
 {
@@ -28,6 +29,10 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Regist Domain Event Handler
+            services.AddMediatR(typeof(ListTaskDeletedDomainEventHandler).Assembly);
+            //                     typeof(SomeOtherHandler).Assembly);
+
             // Auto Mapper Configurations
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -73,6 +78,7 @@ namespace API
                     ClockSkew = TimeSpan.Zero
                 };
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

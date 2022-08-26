@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Domain.Accounts;
 using API.DTOs.Responses;
 using API.DTOs.Requests;
-using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +10,8 @@ using Service.Interfaces;
 using AutoMapper;
 using System.Collections.Generic;
 using API.DTOs;
-using API.Services;
+using Domain.AggregateModels.ProjectAggregate;
+using Domain.AggregateModels.UserAggregate;
 
 namespace Service
 {
@@ -34,10 +34,6 @@ namespace Service
             _mapper = mapper;
         }
 
-        private void Dispose()
-        {
-            _userManager.Dispose();
-        }
         public async Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model)
         {
             // 1. Validate input
@@ -105,11 +101,9 @@ namespace Service
                 var password = await _userManager.CheckPasswordAsync(user, model.Password);
                 if (password)
                 {
-                    Dispose();
                     return user;
                 }
             }
-            Dispose();
             return null;
         }
 
@@ -133,12 +127,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
-           /*     return new ProjectManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = false
-                };*/
+                throw e;
             }
         }
 
@@ -159,11 +148,7 @@ namespace Service
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = e.ToString(),
-                    IsSuccess = false,
-                };
+                throw e;
             }
         }
     }

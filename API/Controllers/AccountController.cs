@@ -1,9 +1,8 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using API.DTOs.Requests;
 using API.DTOs.Responses;
-using Domain.Entities;
+using Domain.AggregateModels.UserAggregate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

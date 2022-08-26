@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Domain.Entities;
+using Domain.AggregateModels.TaskAggregate;
 using Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 

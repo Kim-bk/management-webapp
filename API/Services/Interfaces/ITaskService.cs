@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using API.DTOs.Requests;
 using API.DTOs.Responses;
-
+using Domain.AggregateModels.TaskAggregate;
+using Domain.AggregateModels.UserAggregate;
 
 namespace Service.Interfaces
 {

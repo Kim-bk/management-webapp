@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 #nullable disable
 
-namespace Domain.Entities
+namespace Domain.AggregateModels.TaskAggregate
 {
     public partial class Label
     {

@@ -4,6 +4,9 @@ using Domain.Entities;
 using API.Services.Interfaces;
 using System.Linq;
 using AutoMapper;
+using Domain.AggregateModels.TaskAggregate;
+using Domain.AggregateModels.UserAggregate;
+using Domain.AggregateModels.ProjectAggregate;
 
 namespace Service
 {

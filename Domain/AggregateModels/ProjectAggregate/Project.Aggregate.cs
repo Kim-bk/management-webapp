@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Domain.AggregateModels.UserAggregate;
+using Domain.Base;
+using System.Linq;
 
-namespace Domain.Entities
+namespace Domain.AggregateModels.ProjectAggregate
 {
-    public partial class Project
+    public partial class Project : IAggregateRoot
     {
         public Project(string name) : this()
         {
-            this.Update(name);
+            Update(name);
         }
 
         public void Update([NotNull] string name)
@@ -21,7 +24,7 @@ namespace Domain.Entities
 
         public void CreateListTask(string name)
         {
-            this.ListTasks.Add(new ListTask
+            ListTasks.Add(new ListTask
             {
                 Title = name
             });
@@ -29,7 +32,11 @@ namespace Domain.Entities
 
         public void AddMember(ApplicationUser user)
         {
-            this.Users.Add(user);
+            Users.Add(user);
+        }
+        public void RemoveListTask(int listTaskId)
+        {
+            ListTasks.Remove(ListTasks.FirstOrDefault(lt => lt.ListTaskId == listTaskId));
         }
     }
 }

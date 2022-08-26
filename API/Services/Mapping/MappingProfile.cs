@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using API.DTOs;
-using Domain.Entities;
+using Domain.AggregateModels.TaskAggregate;
+using Domain.AggregateModels.UserAggregate;
+using Domain.AggregateModels.ProjectAggregate;
 
 namespace API.Services.Mapping
 {
@@ -10,7 +12,8 @@ namespace API.Services.Mapping
         {
             // Project -> ProjectDTO
             CreateMap<Project, ProjectDTO>()
-                .ForMember(des => des.ListTasks, act => act.Ignore());
+                .ForMember(des => des.ListTasks, act => act.Ignore())
+                .ForMember(s => s.ProjectId, o => o.MapFrom(p => p.Id));
 
             // ListTask -> ListTaskDTO
             CreateMap<ListTask, ListTaskDTO>()

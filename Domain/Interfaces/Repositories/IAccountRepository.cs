@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Domain.Entities;
+using Domain.AggregateModels.ProjectAggregate;
 
 namespace Domain.Accounts
 {

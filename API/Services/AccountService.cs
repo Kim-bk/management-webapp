@@ -22,13 +22,15 @@ namespace Service
         private readonly IAccountRepository _accountRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IProjectRepository _projectRepository;
 
         public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork,
                     UserManager<ApplicationUser> userManager, IMapper mapper,
-                    IRefreshTokenRepository refreshTokenRepository) 
+                    IRefreshTokenRepository refreshTokenRepository, IProjectRepository projectRepository) 
         {
             _refreshTokenRepository = refreshTokenRepository;
             _accountRepository = accountRepository;
+            _projectRepository = projectRepository;
             _unitOfWork = uniOfWork;
             _userManager = userManager;
             _mapper = mapper;
@@ -66,7 +68,14 @@ namespace Service
 
             if (rs.Succeeded)
             {
-                await _unitOfWork.CommitTransaction();
+                // 4. Create default Project
+                var project = await _projectRepository
+                            .CreateProject(new Project("Default Project"));
+
+                // 5. Add default project to user
+                project.AddMember(user);
+                await _unitOfWork.SaveEntitiesAsync();
+
                 return new UserManagerResponse
                 {
                     Message = "User created successfully!",

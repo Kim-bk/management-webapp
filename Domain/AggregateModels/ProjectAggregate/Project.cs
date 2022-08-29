@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Domain.AggregateModels.UserAggregate;
+using Domain.SeedWork;
 
 #nullable disable
 

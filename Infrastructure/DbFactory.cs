@@ -1,5 +1,5 @@
 ﻿using System;
-using API.Context;
+using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure

@@ -11,5 +11,6 @@ namespace Service.Interfaces
         Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model);
         Task<ProjectManagerResponse> GetListTasks(int projectId);
         Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId);
+        Task<ProjectManagerResponse> GetAllProjects();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Domain.AggregateModels.TaskAggregate;
+using Domain.SeedWork;
 
 namespace Domain.AggregateModels.ProjectAggregate
 {

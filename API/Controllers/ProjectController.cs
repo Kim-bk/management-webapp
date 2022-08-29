@@ -111,5 +111,21 @@ namespace API.Controllers
             }
             return BadRequest("Invalid some properties!");
         }
+
+        [Authorize]
+        [HttpGet]
+        // api/project
+        public async Task<IActionResult> GetAllProjects()
+        {
+            if (ModelState.IsValid)
+            {
+                var rs = await _projectService.GetAllProjects();
+                if (rs.IsSuccess)
+                {
+                    return Ok(rs);
+                }
+            }
+            return BadRequest("Invalid some properties!");
+        }
     }
 }

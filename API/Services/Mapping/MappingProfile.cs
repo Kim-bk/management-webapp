@@ -37,7 +37,6 @@ namespace API.Services.Mapping
             // ApplicationUser -> MemberDTO
             CreateMap<ApplicationUser, MemberDTO>()
                 .ForMember(des => des.UserId, o => o.MapFrom(u => u.Id));
-
         }
     }
 }

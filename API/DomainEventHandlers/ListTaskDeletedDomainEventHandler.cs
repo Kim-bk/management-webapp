@@ -11,36 +11,24 @@ namespace API.DomainEventHandlers
     public class ListTaskDeletedDomainEventHandler : INotificationHandler<ListTaskDeletedDomainEvent>
     {
         private readonly IListTaskRepository _listTaskRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        public ListTaskDeletedDomainEventHandler(IListTaskRepository listTaskRepository, IUnitOfWork unitOfWork)
+        public ListTaskDeletedDomainEventHandler(IListTaskRepository listTaskRepository)
         {
             _listTaskRepository = listTaskRepository;
-            _unitOfWork = unitOfWork;
         }
         public async Task Handle(ListTaskDeletedDomainEvent notification, CancellationToken cancellationToken)
         {
-            try
+            // 1. Find list task to handle
+            var listTask = await _listTaskRepository.FindListTaskByIdAsync(notification.ListTaskId);
+
+            // 2. Delete all components (todo, member, label)
+            // of each tasks in the list
+            foreach (var task in listTask.Tasks)
             {
-                await _unitOfWork.BeginTransaction();
-
-                // 1. Find list task to handle
-                var listTask = await _listTaskRepository.FindListTaskByIdAsync(notification.ListTaskId);
-
-                // 2. Delete all tasks in it
-                foreach (var task in listTask.Tasks)
-                {
-                    task.DeleteTask();
-                }
-
-                // 3. Delete list task
-                _listTaskRepository.DelteListTask(listTask);
-                await _unitOfWork.CommitTransaction();
+                task.DeleteTask();
             }
-            catch (Exception e)
-            {
-                await _unitOfWork.RollbackTransaction();
-                throw e;
-            }
+
+            // 3. Delete list task
+            _listTaskRepository.DelteListTask(listTask);
         }
     }
 }

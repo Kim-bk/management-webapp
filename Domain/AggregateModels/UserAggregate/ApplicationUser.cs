@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.TaskAggregate;
+using Domain.Base;
+using Domain.SeedWork;
 using Microsoft.AspNetCore.Identity;
 
 
 namespace Domain.AggregateModels.UserAggregate
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser, IAggregateRoot
     {
         public ApplicationUser()
         {

@@ -12,26 +12,25 @@ using Domain.Interfaces.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
+using System.Linq;
 
 namespace Service
 {
     public class ProjectService : BaseService, IProjectService
     {
-        private readonly IMediator _mediator;
         private readonly IProjectRepository _projectRepository;
         private readonly IListTaskRepository _listTaskRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         public ProjectService(IProjectRepository projectRepository, IListTaskRepository listTaskRepository,
                             IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper,
-                            ITaskService taskService, ITaskRepository taskRepository, IMediator mediator)
+                            ITaskService taskService, ITaskRepository taskRepository)
                             : base(unitOfWork, mapper)
         {
             _projectRepository = projectRepository;
             _listTaskRepository = listTaskRepository;
             _taskRepository = taskRepository;
             _userManager = userManager;
-            _mediator = mediator;
         }
         ~ProjectService()
         {
@@ -141,8 +140,6 @@ namespace Service
                 var newProject = new Project(model.Name);
                 newProject.AddMember(user);
 
-                 _projectRepository.CreateProject(newProject);
-
                 // 5. Commit transaction if not catch exception
                 await _unitOfWork.CommitTransaction();
 
@@ -175,18 +172,62 @@ namespace Service
         }
         public async Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId)
         {
-            // 1. Find project
-            var project = await _projectRepository.FindByIdAsync(projectId);
-
-            // 2. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
-            // this will be handled in ListTaskDeletedDomainEvenHandler
-            await _mediator.Publish(new ListTaskDeletedDomainEvent(listTaskId));
-
-            return new UserManagerResponse
+            try
             {
-                Message = "List Task " + " have been deleted!",
-                IsSuccess = true,
+                await _unitOfWork.BeginTransaction();
+                // 1. Find project
+                var project = await _projectRepository.FindByIdAsync(projectId);
+
+                // 2. Validate if the list task is in project
+                if (project == null)
+                {
+                    return new UserManagerResponse
+                    {
+                        Message = "Project is not found in the project !",
+                        IsSuccess = true,
+                    };
+                }
+
+                if (!project.ListTasks.Contains(
+                    project.ListTasks.FirstOrDefault(lt => lt.ListTaskId == listTaskId)))
+                {
+                    // Return error cant find list task in the project
+                    return new UserManagerResponse
+                    {
+                        Message = "List Task is not found in the project !",
+                        IsSuccess = true,
+                    };
+                }
+
+                // 2. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
+                // this will be handled in ListTaskDeletedDomainEvenHandler
+                project.DeleteListTask(listTaskId);
+
+                await _unitOfWork.SaveEntitiesAsync();
+
+                return new UserManagerResponse
+                {
+                    Message = "List Task " + " have been deleted!",
+                    IsSuccess = true,
+                };
+            }
+            catch(Exception e)
+            {
+                await _unitOfWork.RollbackTransaction();
+                throw e;
+            }
+           
+        }
+
+        public async Task<ProjectManagerResponse> GetAllProjects()
+        {
+            var listProject = await _projectRepository.GetAll();
+            return new ProjectManagerResponse
+            { 
+                Projects = _mapper.MapProject(listProject),
+                IsSuccess = true
             };
+
         }
     }
 }

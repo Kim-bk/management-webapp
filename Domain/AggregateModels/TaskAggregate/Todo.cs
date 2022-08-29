@@ -1,4 +1,5 @@
 ﻿using System;
+using Domain.SeedWork;
 
 namespace Domain.AggregateModels.TaskAggregate
 { 

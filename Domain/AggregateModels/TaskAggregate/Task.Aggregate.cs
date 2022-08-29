@@ -3,10 +3,11 @@ using System.Linq;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.UserAggregate;
 using Domain.Base;
+using Domain.SeedWork;
 
 namespace Domain.AggregateModels.TaskAggregate
 {
-    public partial class Task : IAggregateRoot
+    public partial class Task : Entity, IAggregateRoot
     {
         public Task(string name, ListTask listTask, int position) : this()
         {
@@ -51,28 +52,10 @@ namespace Domain.AggregateModels.TaskAggregate
 
         public void DeleteTask()
         {
+            // 1. Clear all components in the task
             Todos.Clear();
             Labels.Clear();
             Users.Clear();
-
-            // 1. Remove all todos
-           /* foreach(var todo in Todos)
-            {
-                Todos.Remove(todo);
-            }
-
-            // 2. Remove all labels
-            foreach(var label in Labels)
-            {
-                Labels.Remove(label);
-            }
-
-            // 3. Remove all members
-            foreach(var user in Users)
-            {
-                Users.Remove(user);
-            }
-           */
         }
         public void AddTodo(string nameTodo, int? parentId)
         {
@@ -109,7 +92,7 @@ namespace Domain.AggregateModels.TaskAggregate
         }
         public void Swap(Task taskToSwap)
         {
-            // 1. Swap and update
+            // 1. Swap and update position
             var tempPos = Position;
             var tempList = ListTaskId;
 

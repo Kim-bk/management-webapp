@@ -5,7 +5,7 @@ using Domain.AggregateModels.TaskAggregate;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.UserAggregate;
 
-namespace API.Context
+namespace Infrastructure.Context
 {
     public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {

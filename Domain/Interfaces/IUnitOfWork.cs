@@ -32,6 +32,6 @@ namespace Domain.Interfaces
         /// Rolls back the current transaction (does nothing when none exists).
         /// </summary>
         Task RollbackTransaction();
-
+        Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default);
     }
 }

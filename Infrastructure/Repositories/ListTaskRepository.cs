@@ -21,7 +21,6 @@ namespace Infrastructure.Repositories
         {
             DbSet.Remove(listTask);
         }
-
         public async Task<ListTask> FindByNameAsync(string nameListTask)
         {
             return await DbSet.Where(lt => lt.Title == nameListTask).FirstOrDefaultAsync();
@@ -29,7 +28,7 @@ namespace Infrastructure.Repositories
 
         public async Task<ListTask> FindListTaskByIdAsync(int listTaskId)
         {
-            return await DbSet.FindAsync(listTaskId);
+            return await DbSet.Where(lt => lt.ListTaskId == listTaskId).FirstOrDefaultAsync();
         }
         public async Task<List<Domain.AggregateModels.TaskAggregate.Task>> GetTasksInList(int listTaskId)
         {

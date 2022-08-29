@@ -39,7 +39,7 @@ namespace Service
                 // 1. Get all information of task by id
                 var task = await _taskRepository.FindByIdAsync(taskId);
 
-                // 2. Check
+                // 2. Check if task is existed
                 if (task == null)
                 {
                     return new TaskManagerResponse
@@ -328,7 +328,6 @@ namespace Service
                         Message = "Task is duplicated !",
                         IsSuccess = true
                     };
-
                 }
 
                 // 3. Set max position (default) for task in list

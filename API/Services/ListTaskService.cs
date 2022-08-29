@@ -6,6 +6,7 @@ using System.Linq;
 using API.DTOs.Responses;
 using API.Services.Interfaces;
 using API.Services;
+using System;
 
 namespace Service
 {
@@ -21,36 +22,43 @@ namespace Service
        
         public async Task<ListTaskManagerResponse> GetAllTasks(int listTaskId)
         {
-            // 1. Validate
-            if (listTaskId == 0)
+            try
             {
+                // 1. Validate
+                if (listTaskId == 0)
+                {
+                    return new ListTaskManagerResponse
+                    {
+                        Message = "List Task Id is null",
+                        IsSuccess = true,
+                    };
+                }
+
+                var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
+                if (listTask == null)
+                {
+                    return new ListTaskManagerResponse
+                    {
+                        Message = "List Task Id is not found!",
+                        IsSuccess = true,
+                    };
+                }
+
+                // 2. Get all tasks in list task
+                var tasks = await _listTaskRepository.GetTasksInList(listTaskId);
+
+                // 3. Return result
                 return new ListTaskManagerResponse
                 {
-                    Message = "List Task Id is null",
+                    Message = "Get all tasks in list success!",
                     IsSuccess = true,
+                    Task = _mapper.MapTasks(tasks).OrderBy(t => t.Position).ToList()
                 };
             }
-
-            var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
-            if (listTask == null)
+            catch (Exception e)
             {
-                return new ListTaskManagerResponse
-                {
-                    Message = "List Task Id is not found!",
-                    IsSuccess = true,
-                };
+                throw e;
             }
-
-            // 2. Get all tasks in list task
-            var tasks = await _listTaskRepository.GetTasksInList(listTaskId);
-
-            // 3. Return result
-            return new ListTaskManagerResponse
-            {
-                Message = "Get all tasks in list success!",
-                IsSuccess = true,
-                Task = _mapper.MapTasks(tasks).OrderBy(t => t.Position).ToList()
-            };
         }
     }
 }

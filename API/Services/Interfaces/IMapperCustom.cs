@@ -13,5 +13,6 @@ namespace API.Services.Interfaces
         List<TodoDTO> MapTodos(List<Todo> todos);
         List<TaskDTO> MapTasks(List<Task> tasks);
         List<ListTaskDTO> MapListTasks(List<ListTask> lisTasks);
+        List<ProjectDTO> MapProject(List<Project> projects);
     }
 }

@@ -68,5 +68,10 @@ namespace Service
             // 2. Return result
             return storeTasks;
         }
+
+        public List<ProjectDTO> MapProject(List<Project> projects)
+        {
+            return _autoMapper.Map<List<Project>, List<ProjectDTO>>(projects);
+        }
     }
 }

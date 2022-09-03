@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
 using System.Linq;
+using System.Data.Entity.Core;
 
 namespace Service
 {
@@ -43,13 +44,13 @@ namespace Service
             {
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Find user in Database
-                var user = await _userManager.FindByIdAsync(model.UserId);
-
-                // 2. Find project in Database
+                // 1. Find project in Database
                 var project = await _projectRepository.FindByIdAsync(projectId);
 
-                // 3. Add member to project then update
+                // 2. Find user
+                var user = await _userManager.FindByIdAsync(model.UserId);
+
+                // 3. Add project default to user then update
                 project.AddMember(user);
 
                 await _unitOfWork.CommitTransaction();
@@ -75,22 +76,14 @@ namespace Service
                 var project = await _projectRepository.FindByIdAsync(projectId);
                 if (project == null)
                 {
-                    return new UserManagerResponse
-                    {
-                        Message = "The Project is not found!",
-                        IsSuccess = true,
-                    };
+                    throw new ObjectNotFoundException("The project is not found!");
                 }
 
                 // 2. Check if list task is duplicated
                 var listTask = await _listTaskRepository.FindByNameAsync(model.Title);
                 if (listTask != null && listTask.ProjectId == projectId)
                 {
-                    return new UserManagerResponse
-                    {
-                        Message = "The List Task already exists in the project",
-                        IsSuccess = true,
-                    };
+                    throw new ArgumentException("Project already exists!");
                 }
 
                 await _unitOfWork.BeginTransaction();
@@ -120,30 +113,27 @@ namespace Service
             {
                 // 1. Find project by name
                 var project = await _projectRepository.FindByNameAsync(model.Name);
-
-                // 2. Find user
-                var user = await _userManager.FindByIdAsync(userId);
-
-                // 3. Check if name project is exist in user projects
-                if (project != null && project.Users.Contains(user))
+             
+                // 2. Check if name project is exist in user projects
+                if (project != null && project.Users
+                    .Contains(project.Users.FirstOrDefault(u => u.Id == userId)))
                 {
-                    return new UserManagerResponse
-                    {
-                        Message = "The project already exists",
-                        IsSuccess = true,
-                    };
+                    throw new ArgumentException("Project already exists!");
                 }
 
                 await _unitOfWork.BeginTransaction();
 
                 // 4. Create Project then add member
-                var newProject = new Project(model.Name);
-                newProject.AddMember(user);
+                var createProject =  _projectRepository.CreateProject(new Project(model.Name));
 
-                // 5. Commit transaction if not catch exception
+                // 5. Find user by id
+                var user = await _userManager.FindByIdAsync(userId);
+                createProject.AddMember(user);
+
+                // 6. Commit transaction if not catch exception
                 await _unitOfWork.CommitTransaction();
 
-                // 6. Return message create success
+                // 7. Return message create success
                 return new UserManagerResponse
                 {
                     Message = "Create new project to user!",
@@ -181,29 +171,21 @@ namespace Service
                 // 2. Validate if the list task is in project
                 if (project == null)
                 {
-                    return new UserManagerResponse
-                    {
-                        Message = "Project is not found in the project !",
-                        IsSuccess = true,
-                    };
+                    throw new ObjectNotFoundException("The project is not found!");
                 }
 
                 if (!project.ListTasks.Contains(
                     project.ListTasks.FirstOrDefault(lt => lt.ListTaskId == listTaskId)))
                 {
                     // Return error cant find list task in the project
-                    return new UserManagerResponse
-                    {
-                        Message = "List Task is not found in the project !",
-                        IsSuccess = true,
-                    };
+                    throw new ObjectNotFoundException("List task is not found in project!");
                 }
 
                 // 2. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
                 // this will be handled in ListTaskDeletedDomainEvenHandler
                 project.DeleteListTask(listTaskId);
 
-                await _unitOfWork.SaveEntitiesAsync();
+                await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse
                 {
@@ -216,7 +198,6 @@ namespace Service
                 await _unitOfWork.RollbackTransaction();
                 throw e;
             }
-           
         }
 
         public async Task<ProjectManagerResponse> GetAllProjects()
@@ -227,7 +208,39 @@ namespace Service
                 Projects = _mapper.MapProject(listProject),
                 IsSuccess = true
             };
+        }
 
+        public async Task<ProjectManagerResponse> DeleteProject(int projectId)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransaction();
+
+                // 1. Find project
+                var project = await _projectRepository.FindByIdAsync(projectId);
+                if (project == null)
+                {
+                    throw new ObjectNotFoundException("The project is not found!");
+                }
+
+                // 2. Delete all components in it
+                project.DeleteProject();
+                _projectRepository.DeleteProject(project);
+
+                // 3. Save changes
+                await _unitOfWork.CommitTransaction();
+                return new ProjectManagerResponse
+                {
+                    IsSuccess = true,
+                    Message = "Delete project " + project.Name,
+                };
+            }
+            catch (Exception e)
+            {
+                await _unitOfWork.RollbackTransaction();
+                throw e;
+            }
+          
         }
     }
 }

@@ -7,6 +7,7 @@ using API.DTOs.Responses;
 using API.Services.Interfaces;
 using API.Services;
 using System;
+using System.Data.Entity.Core;
 
 namespace Service
 {
@@ -27,21 +28,13 @@ namespace Service
                 // 1. Validate
                 if (listTaskId == 0)
                 {
-                    return new ListTaskManagerResponse
-                    {
-                        Message = "List Task Id is null",
-                        IsSuccess = true,
-                    };
+                    throw new NullReferenceException("Input is null!");
                 }
 
                 var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
                 if (listTask == null)
                 {
-                    return new ListTaskManagerResponse
-                    {
-                        Message = "List Task Id is not found!",
-                        IsSuccess = true,
-                    };
+                    throw new ObjectNotFoundException("The list task is not found!");
                 }
 
                 // 2. Get all tasks in list task

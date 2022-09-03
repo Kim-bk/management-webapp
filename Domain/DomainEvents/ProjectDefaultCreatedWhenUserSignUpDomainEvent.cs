@@ -6,12 +6,12 @@ namespace Domain.DomainEvents
 {
     public class ProjectDefaultCreatedWhenUserSignUpDomainEvent : INotification
     {
-        public ProjectDefaultCreatedWhenUserSignUpDomainEvent(Project project, ApplicationUser user)
+        public ProjectDefaultCreatedWhenUserSignUpDomainEvent(Project project, string userId)
         {
-            User = user;
+            UserId = userId;
             Project = project;
         }
-        public ApplicationUser User { get; set; }
-        public Project Project { get; set; }
+        public string UserId { get; private set; }
+        public Project Project { get; private set; }
     }
 }

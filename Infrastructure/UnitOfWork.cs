@@ -15,7 +15,6 @@ namespace Infrastructure
     public class UnitOfWork : IUnitOfWork
     {
         public DbContext DbContext { get; private set; }
-        private Dictionary<string, object> Repositories { get; }
         private IDbContextTransaction _transaction;
         private IsolationLevel? _isolationLevel;
         private readonly IMediator _mediator;
@@ -26,14 +25,7 @@ namespace Infrastructure
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             DbContext = dbFactory.DbContext;
-            Repositories = new Dictionary<string, dynamic>();
         }
-
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            return await DbContext.SaveChangesAsync(cancellationToken);
-        }
-
         private async Task StartNewTransactionIfNeeded()
         {
             if (_transaction == null)
@@ -50,6 +42,14 @@ namespace Infrastructure
 
         public async Task CommitTransaction()
         {
+            // Dispatch Domain Events collection. 
+            // Choices:
+            // A) Right BEFORE committing data (EF SaveChanges) into the DB will make a single transaction including  
+            // side effects from the domain event handlers which are using the same DbContext with "InstancePerLifetimeScope" or "scoped" lifetime
+            // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
+            // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
+            await _mediator.DispatchDomainEventsAsync(DbContext);
+
             /*
              do not open transaction here, because if during the request
              nothing was changed(only select queries were run), we don't
@@ -59,26 +59,11 @@ namespace Infrastructure
             await DbContext.SaveChangesAsync();
 
             if (_transaction == null) return;
+
             await _transaction.CommitAsync();
 
             await _transaction.DisposeAsync();
             _transaction = null;
-        }
-        public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
-        {
-            // Dispatch Domain Events collection. 
-            // Choices:
-            // A) Right BEFORE committing data (EF SaveChanges) into the DB will make a single transaction including  
-            // side effects from the domain event handlers which are using the same DbContext with "InstancePerLifetimeScope" or "scoped" lifetime
-            // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
-            // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
-           await _mediator.DispatchDomainEventsAsync(DbContext);
-
-            // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
-            // performed through the DbContext will be committed
-            await CommitTransaction();
-
-            return true;
         }
         public async Task RollbackTransaction()
         {
@@ -104,27 +89,5 @@ namespace Infrastructure
 
             DbContext = null;
         }
-
-        public IRepository<TEntity> Repository<TEntity>() where TEntity : class
-        {
-            var type = typeof(TEntity);
-            var typeName = type.Name;
-
-            lock (Repositories)
-            {
-                if (Repositories.ContainsKey(typeName))
-                {
-                    return (IRepository<TEntity>)Repositories[typeName];
-                }
-
-                var repository = new Repository<TEntity>(DbContext);
-
-                Repositories.Add(typeName, repository);
-                return repository;
-            }
-
-           
-        }
-        
     }
 }

@@ -8,7 +8,7 @@ using Domain.DomainEvents;
 
 namespace Domain.AggregateModels.ProjectAggregate
 {
-    public partial class Project : Entity, IAggregateRoot
+    public partial class Project : EntityBase, IAggregateRoot
     {
         public Project(string name) : this()
         {
@@ -31,18 +31,25 @@ namespace Domain.AggregateModels.ProjectAggregate
                 Title = name
             });   
         }
-        public void AddMember(ApplicationUser user)
-        {
-            AddDomainEvent(new ProjectDefaultCreatedWhenUserSignUpDomainEvent(this, user));
-        }
         public void RemoveListTask(int listTaskId)
         {
             ListTasks.Remove(ListTasks.FirstOrDefault(lt => lt.ListTaskId == listTaskId));
         }
-
+        public void AddMember(ApplicationUser user)
+        {
+            Users.Add(user);
+        }
+        public void AddProjectDefault(string userId)
+        {
+            AddDomainEvent(new ProjectDefaultCreatedWhenUserSignUpDomainEvent(this, userId));
+        }
         public void DeleteListTask(int listTaskId)
         {
             AddDomainEvent(new ListTaskDeletedDomainEvent(listTaskId));
+        }
+        public void DeleteProject()
+        {
+            AddDomainEvent(new ProjectDeletedDomainEvent(Id));
         }
     }
 }

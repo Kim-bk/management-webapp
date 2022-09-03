@@ -45,7 +45,7 @@ namespace Service.TokenGenratorServices
             try
             {
                 await _refreshTokenRepository.Delete(tokenId);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransaction();
             }
             catch 
             {

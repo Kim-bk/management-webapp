@@ -23,12 +23,6 @@ namespace Service
             _roleManager = roleManager;
             _userManager = userManager;
         }
-        private void Dispose()
-        {
-            _roleManager.Dispose();
-            _userManager.Dispose();
-        }
-
         public async Task<IdentityResult> CreateRole(string nameRole)
         {
             // 1. Create role
@@ -101,18 +95,15 @@ namespace Service
                 var rs = await _roleManager.DeleteAsync(role);
                 if (rs.Succeeded)
                 {
-                    Dispose();
                     await _unitOfWork.CommitTransaction();
                     return true;
                 }
 
-                Dispose();
                 await _unitOfWork.RollbackTransaction();
                 return false;
             }
             catch
             {
-                Dispose();
                 await _unitOfWork.RollbackTransaction();
                 return false;
             }

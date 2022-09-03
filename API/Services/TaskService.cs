@@ -12,6 +12,7 @@ using API.DTOs;
 using System.Collections.Generic;
 using API.Services;
 using Domain.AggregateModels.UserAggregate;
+using System.Data.Entity.Core;
 
 namespace Service
 {
@@ -42,11 +43,7 @@ namespace Service
                 // 2. Check if task is existed
                 if (task == null)
                 {
-                    return new TaskManagerResponse
-                    {
-                        Message = "Can not find the task !",
-                        IsSuccess = true
-                    };
+                    throw new ObjectNotFoundException("Task is not found!");
 
                 }
 
@@ -81,11 +78,7 @@ namespace Service
                 var label = await _labelRepository.FindByNameAsync(request.Title);
                 if (label != null)
                 {
-                    return new UserManagerResponse
-                    {
-                        Message = "The Label already exists!",
-                        IsSuccess = true,
-                    };
+                    throw new ArgumentException("Duplicate label!");
                 }
 
                 await _unitOfWork.BeginTransaction();
@@ -148,11 +141,7 @@ namespace Service
                     var parenTodo = await _todoRepository.FindByNameAsync(request.Title);
                     if (parenTodo != null && parenTodo.TaskId == request.TaskId)
                     {
-                        return new TaskManagerResponse
-                        {
-                            Message = "The To-do already exists in the task!",
-                            IsSuccess = true
-                        };
+                        throw new ArgumentException("Duplicate to-do!");
                     }
                 }
 
@@ -192,11 +181,7 @@ namespace Service
                 // 2. Validate whether todo is parent or not
                 if (todoItem.ParentId == null)
                 {
-                    return new TaskManagerResponse
-                    {
-                        Message = "Todo Parent can not checked or unchecked!",
-                        IsSuccess = true
-                    };
+                    throw new ArgumentException("To-do parent cant not checked or unchecked!");
                 }
 
                 // 3. Update status IsDone check / uncheck of todo item

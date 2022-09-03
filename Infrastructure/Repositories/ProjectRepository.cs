@@ -13,7 +13,7 @@ namespace Infrastructure.Repositories
         {
         }
 
-        public async Task<Project> CreateProject(Project project)
+        public Project CreateProject(Project project)
         {
             AddAsync(project);
             return project;
@@ -40,5 +40,9 @@ namespace Infrastructure.Repositories
                         .ToListAsync();
         }
 
+        public void DeleteProject(Project project)
+        {
+            DbSet.Remove(project);
+        }
     }
 }

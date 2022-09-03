@@ -46,11 +46,7 @@ namespace Service
 
             if(model.Password != model.ConfirmPassword)
             {
-                return new UserManagerResponse
-                {
-                    Message = "Confirm password not match!",
-                    IsSuccess = false,
-                };
+                throw new ArgumentException("Confirm password not match!");
             }
            
             // 2. Begin a transaction
@@ -68,13 +64,10 @@ namespace Service
 
             if (rs.Succeeded)
             {
-                // 4. Create default Project
-                var project = await _projectRepository
-                            .CreateProject(new Project("Default Project"));
+               /* // 4. Add Project Default to User
+                user.AddProjectDefault();*/
 
-                // 5. Add default project to user
-                project.AddMember(user);
-                await _unitOfWork.SaveEntitiesAsync();
+                await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse
                 {
@@ -86,11 +79,7 @@ namespace Service
             else
             {
                 await _unitOfWork.RollbackTransaction();
-                return new UserManagerResponse
-                {
-                    Message = "User created failed!",
-                    IsSuccess = false,
-                };
+                throw new ArgumentException("User created faile!");
             }
         }
 

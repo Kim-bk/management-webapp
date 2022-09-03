@@ -12,5 +12,6 @@ namespace Service.Interfaces
         Task<ProjectManagerResponse> GetListTasks(int projectId);
         Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId);
         Task<ProjectManagerResponse> GetAllProjects();
+        Task<ProjectManagerResponse> DeleteProject(int projectId);
     }
 }

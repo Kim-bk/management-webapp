@@ -8,7 +8,6 @@ namespace Domain.Interfaces.Repositories
     {
         void Create(ListTask listTask);
         Task<ListTask> FindListTaskByIdAsync(int listTaskId);
-        Task<List<AggregateModels.TaskAggregate.Task>> GetTasksInList(int listTaskId);
         Task<ListTask> FindByNameAsync(string nameListTask);
         void DelteListTask(ListTask listTask);
     }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using API.DTOs;
-using Domain.Entities;
 using API.Services.Interfaces;
 using System.Linq;
 using AutoMapper;

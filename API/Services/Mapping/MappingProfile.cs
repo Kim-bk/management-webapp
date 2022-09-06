@@ -18,7 +18,6 @@ namespace API.Services.Mapping
             // ListTask -> ListTaskDTO
             CreateMap<ListTask, ListTaskDTO>()
                 .ForMember(des => des.Tasks, act => act.Ignore());
-
             // Task -> TaskDTO
             CreateMap<Task, TaskDTO>()
                 .ForMember(s => s.TaskId, o => o.MapFrom(t => t.Id))

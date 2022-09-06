@@ -65,7 +65,6 @@ namespace API.Extensions
                 .AddScoped<AccessTokenService>()
                 .AddScoped<RefreshTokenService>()
                 .AddScoped<IProjectService, ProjectService>()
-                .AddScoped<IListTaskService, ListTaskService>()
                 .AddScoped<ITaskService, TaskService>()
                 .AddScoped<IRoleService, RoleService>()
                 .AddScoped<TokenGenerator>()

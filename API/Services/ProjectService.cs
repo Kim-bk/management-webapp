@@ -6,14 +6,13 @@ using API.Services;
 using API.Services.Interfaces;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.UserAggregate;
-using Domain.DomainEvents;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Service.Interfaces;
 using System.Linq;
 using System.Data.Entity.Core;
+using API.DTOs;
 
 namespace Service
 {
@@ -32,10 +31,6 @@ namespace Service
             _listTaskRepository = listTaskRepository;
             _taskRepository = taskRepository;
             _userManager = userManager;
-        }
-        ~ProjectService()
-        {
-            _userManager.Dispose();
         }
         
         public async Task<UserManagerResponse> AddMemberToProject(int projectId, ProjectRequest model)
@@ -68,6 +63,37 @@ namespace Service
                 throw e;
             }
         }
+        public async Task<ListTaskManagerResponse> GetListTask(int listTaskId)
+        {
+            try
+            {
+                // 1. Validate
+                if (listTaskId == 0)
+                {
+                    throw new NullReferenceException("List Task Id is null!");
+                }
+
+                var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
+                if (listTask == null)
+                {
+                    throw new ObjectNotFoundException("The list task is not found!");
+                }
+
+                // 2. Return result
+                return new ListTaskManagerResponse
+                {
+                    Message = "Get all tasks in list success!", 
+                    IsSuccess = true,
+                    ProjectId = Convert.ToInt32(listTask.ProjectId),
+                    Task = _mapper.MapTasks(listTask.Tasks.ToList()).OrderBy(t => t.Position).ToList()
+                };
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public async Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model)
         {
             try
@@ -147,7 +173,7 @@ namespace Service
             }
         }
 
-        public async Task<ProjectManagerResponse> GetListTasks(int projectId)
+        public async Task<ProjectManagerResponse> GetProject(int projectId)
         {
             // 1. Find list task by id project
             var listTasks = await _projectRepository.GetListTasksByProjectId(projectId);

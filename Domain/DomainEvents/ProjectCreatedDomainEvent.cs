@@ -1,5 +1,4 @@
 ﻿using Domain.AggregateModels.ProjectAggregate;
-using Domain.AggregateModels.UserAggregate;
 using MediatR;
 
 namespace Domain.DomainEvents

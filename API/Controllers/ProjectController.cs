@@ -20,13 +20,13 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpGet("{projectId:int}/list-task")]
-        // api/project/{projectId}/list-task
-        public async Task<IActionResult> GetListTasks(int projectId)
+        [HttpGet("{projectId:int}")]
+        // api/project/{projectId}
+        public async Task<IActionResult> GetProject(int projectId)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _projectService.GetListTasks(projectId);
+                var rs = await _projectService.GetProject(projectId);
                 if (rs.IsSuccess)
                 {
                     return new OkObjectResult(new
@@ -60,7 +60,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpPost("{projectId:int}/user")]
-        // api/project/{projectId}/member
+        // api/project/{projectId}/user
         public async Task<IActionResult> AddMemberToProject(int projectId, [FromBody] ProjectRequest model)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -78,6 +78,27 @@ namespace API.Controllers
                 return BadRequest("Invalid some properties!");
             }
             return Forbid();
+        }
+
+        [Authorize]
+        [HttpGet("list-task/{listTaskId:int}")]
+        // api/project/list-task/{listTaskId}
+        public async Task<IActionResult> GetListTask(int listTaskId)
+        {
+            if (ModelState.IsValid)
+            {
+                var rs = await _projectService.GetListTask(listTaskId);
+                if (rs.IsSuccess)
+                {
+                    return Ok(new OkObjectResult(new
+                    {
+                        rs.Message,
+                        rs.ProjectId,
+                        rs.Task,
+                    }));
+                }
+            }
+            return BadRequest("Some properties is not valid!");
         }
 
         [Authorize]

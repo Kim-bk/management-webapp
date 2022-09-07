@@ -19,7 +19,6 @@ using Service.Authenticators;
 using Service.Interfaces;
 using Service.TokenGenratorServices;
 using Service.TokenValidators;
-using Domain.Base;
 
 namespace API.Extensions
 {

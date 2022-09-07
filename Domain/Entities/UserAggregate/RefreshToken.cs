@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Domain.AggregateModels.UserAggregate;
 
 #nullable disable
-namespace Domain.Entities
+namespace Domain.AggregateModels.UserAggregate
 {
     [Table("RefreshToken")]
     public partial class RefreshToken

@@ -36,14 +36,13 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model)
+        public async Task<UserManagerResponse> Register(RegisterRequest model)
         {
             // 1. Validate input
             if (model == null)
             {
                 throw new NullReferenceException("Register Model is null");
             }
-
             if(model.Password != model.ConfirmPassword)
             {
                 throw new ArgumentException("Confirm password not match!");
@@ -64,9 +63,6 @@ namespace Service
 
             if (rs.Succeeded)
             {
-               /* // 4. Add Project Default to User
-                user.AddProjectDefault();*/
-
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse
@@ -79,16 +75,16 @@ namespace Service
             else
             {
                 await _unitOfWork.RollbackTransaction();
-                throw new ArgumentException("User created faile!");
+                throw new ArgumentException("User created fail!");
             }
         }
 
-        public async Task<ApplicationUser> UserLoginAsync(LoginRequest model)
+        public async Task<ApplicationUser> Login(LoginRequest model)
         {
             // 1. Validate input
             if (model == null)
             {
-                throw new NullReferenceException("Login Model is null");
+                throw new ArgumentNullException("Login Model is null");
             }
             
             // 2. Check username exists

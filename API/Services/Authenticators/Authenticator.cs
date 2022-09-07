@@ -14,16 +14,13 @@ namespace Service.Authenticators
     {
         private readonly AccessTokenService _accessTokenGenerator;
         private readonly RefreshTokenService _refreshTokenGenerator;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public Authenticator(AccessTokenService accessTokenGenerator, IUnitOfWork unitOfWork,
-                        RefreshTokenService refreshTokenGenerator, 
-                        IRefreshTokenRepository refreshTokenRepository)
+                        RefreshTokenService refreshTokenGenerator)
         {
             _accessTokenGenerator = accessTokenGenerator;
             _refreshTokenGenerator = refreshTokenGenerator;
-            _refreshTokenRepository = refreshTokenRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -31,32 +28,30 @@ namespace Service.Authenticators
         {
             try
             {
-                await _unitOfWork.BeginTransaction();
+                // 1. Generate access vs refresh token
                 var accessToken = _accessTokenGenerator.Generate(user);
                 var refreshToken = _refreshTokenGenerator.Generate();
 
-                RefreshToken refreshTokenDTO = new RefreshToken()
-                {
-                    Token = new JwtSecurityTokenHandler().WriteToken(refreshToken),
-                    UserId = user.Id
-                };
+                // 2. Init refresh token properties
+                string refreshTokenId = Guid.NewGuid().ToString();
+                string refreshTokenHandler = new JwtSecurityTokenHandler().WriteToken(refreshToken);
 
-                await _refreshTokenRepository.Create(refreshTokenDTO);
+                // 3. Create user refresh token
+                user.CreateRefreshToken(refreshTokenId, refreshTokenHandler);
+
                 await _unitOfWork.CommitTransaction();
 
+                // 3. Return two tokens
                 return new AuthenticatedUserResponse()
                 {
                     AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
-                    RefreshToken = new JwtSecurityTokenHandler().WriteToken(refreshToken),
+                    RefreshToken = refreshTokenHandler
                 };
             }
             catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return new AuthenticatedUserResponse()
-                {
-                    AccessToken = e.ToString(),
-                };
+                throw e;
             }
         }
     }

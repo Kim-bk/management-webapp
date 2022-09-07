@@ -4,14 +4,20 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Domain.AggregateModels.TaskAggregate;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.UserAggregate;
+using Domain.Entities.Histories;
+using System.Collections.Generic;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Context
 {
     public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
             : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Label> Labels { get; set; }
@@ -21,70 +27,56 @@ namespace Infrastructure.Context
         public virtual DbSet<Todo> Todos { get; set; }
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
-      /*  protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public void OnBeforeSaveChanges()
         {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
-
-
-            modelBuilder.Entity<History>(entity =>
+            string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ChangeTracker.DetectChanges();
+            var auditEntries = new List<HistoryEntry>();
+            foreach (var entry in ChangeTracker.Entries())
             {
-                entity.ToTable("History");
+                if (entry.Entity is History || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                    continue;
+                var auditEntry = new HistoryEntry();
+                auditEntry.TableName = entry.Entity.GetType().Name;
+                auditEntry.UserId = userId;
+                auditEntries.Add(auditEntry);
+                foreach (var property in entry.Properties)
+                {
+                    string propertyName = property.Metadata.Name;
+                    if (property.Metadata.IsPrimaryKey())
+                    {
+                        auditEntry.KeyValues[propertyName] = property.CurrentValue;
+                        continue;
+                    }
 
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            });
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            auditEntry.AuditType = HistoryType.Create;
+                            auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            break;
 
-            modelBuilder.Entity<Label>(entity =>
+                        case EntityState.Deleted:
+                            auditEntry.AuditType = HistoryType.Delete;
+                            auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            break;
+
+                        case EntityState.Modified:
+                            if (property.IsModified)
+                            {
+                                auditEntry.ChangedColumns.Add(propertyName);
+                                auditEntry.AuditType = HistoryType.Update;
+                                auditEntry.OldValues[propertyName] = property.OriginalValue;
+                                auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            }
+                            break;
+                    }
+                }
+            }
+            foreach (var auditEntry in auditEntries)
             {
-                entity.ToTable("Label");
-            });
-
-            modelBuilder.Entity<ListTask>(entity =>
-            {
-                entity.ToTable("ListTask");
-
-                entity.HasIndex(e => e.ProjectId, "IX_ListTask_ProjectId");
-
-                entity.HasOne(d => d.Project)
-                    .WithMany(p => p.ListTasks)
-                    .HasForeignKey(d => d.ProjectId)
-                    .HasConstraintName("FK__ListTask__Projec__123EB7A3");
-            });
-
-            modelBuilder.Entity<Project>(entity =>
-            {
-                entity.ToTable("Project");
-            });
-
-            modelBuilder.Entity<Task>(entity =>
-            {
-                entity.ToTable("Task");
-
-                entity.HasIndex(e => e.ListTaskId, "IX_Task_ListTaskId");
-
-                entity.HasIndex(e => e.DoingId, "IX_Task_UserId");
-
-                entity.HasOne(d => d.ListTask)
-                    .WithMany(p => p.Tasks)
-                    .HasForeignKey(d => d.ListTaskId)
-                    .HasConstraintName("FK__Task__ListTaskId__151B244E");
-            });
-
-            modelBuilder.Entity<Todo>(entity =>
-            {
-                entity.ToTable("Todo");
-
-                entity.HasIndex(e => e.TaskId, "IX_Todo_TaskId");
-
-                entity.HasOne(d => d.Task)
-                    .WithMany(p => p.Todos)
-                    .HasForeignKey(d => d.TaskId)
-                    .HasConstraintName("FK__Todo__TaskId__18EBB532");
-            });
-
-            OnModelCreatingPartial(modelBuilder);
+                Histories.Add(auditEntry.ToHistory());
+            }
         }
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);*/
     }
 }

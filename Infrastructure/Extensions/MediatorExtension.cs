@@ -14,10 +14,6 @@ namespace Infrastructure.Context
                   .Entries<EntityBase>()
                   .Where(x => x.Entity != null && x.Entity.DomainEvents.Any());
 
-            // if there are no domain events added
-        /*    if (domainEntities == null)
-                return;
-*/
             var domainEvents = domainEntities
                 .SelectMany(x => x.Entity.DomainEvents)
                 .ToList();

@@ -16,7 +16,7 @@ namespace Service.TokenValidators
         }
         public bool Validate(string refreshToken)
         {
-          
+            // 1. Create parameter to valid refresh token
             TokenValidationParameters validationParameters = new TokenValidationParameters()
             {
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:RefreshTokenSecret"])),
@@ -28,6 +28,7 @@ namespace Service.TokenValidators
                 ClockSkew = TimeSpan.Zero
             };
 
+            // 2. Check if valid refresh token
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
             try
@@ -39,7 +40,6 @@ namespace Service.TokenValidators
             {
                 return false;
             }
-            
         }
     }
 }

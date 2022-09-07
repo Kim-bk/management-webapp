@@ -4,11 +4,7 @@ using Domain.AggregateModels.ProjectAggregate;
 
 namespace Domain.Interfaces.Repositories
 {
-    public interface IListTaskRepository
+    public interface IListTaskRepository : IRepository<ListTask>
     {
-        void Create(ListTask listTask);
-        Task<ListTask> FindListTaskByIdAsync(int listTaskId);
-        Task<ListTask> FindByNameAsync(string nameListTask);
-        void DelteListTask(ListTask listTask);
     }
 }

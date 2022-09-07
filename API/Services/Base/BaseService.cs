@@ -3,7 +3,7 @@ using Domain.Interfaces;
 
 namespace API.Services
 {
-    public class BaseService
+    public abstract class BaseService
     {
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IMapperCustom _mapper;

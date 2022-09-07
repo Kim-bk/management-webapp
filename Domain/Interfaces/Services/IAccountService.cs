@@ -7,8 +7,8 @@ namespace Service.Interfaces
 {
     public interface IAccountService
     {
-        Task<UserManagerResponse> RegisterUserAsync(RegisterRequest model);
-        Task<ApplicationUser> UserLoginAsync(LoginRequest model);
+        Task<UserManagerResponse> Register(RegisterRequest model);
+        Task<ApplicationUser> Login(LoginRequest model);
         Task<ProjectManagerResponse> GetUserProjects(string userId);
         Task<UserManagerResponse> Logout(string userId);
     }

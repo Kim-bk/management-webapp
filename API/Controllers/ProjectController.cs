@@ -102,13 +102,13 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpPost("{projectId:int}/list-task")]
-        // api/project/{projectId}/list-task
-        public async Task<IActionResult> CreateListTask(int projectId, [FromBody] CommonRequest model)
+        [HttpPost("list-task")]
+        // api/project/list-task
+        public async Task<IActionResult> CreateListTask([FromBody] ListTaskRequest request)
         {
             if (ModelState.IsValid)
             {
-                var rs = await _projectService.CreateListTask(projectId, model);
+                var rs = await _projectService.CreateListTask(request);
                 if (rs.IsSuccess)
                 {
                     return Ok(rs.Message);

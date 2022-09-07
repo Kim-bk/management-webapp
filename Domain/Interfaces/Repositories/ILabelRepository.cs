@@ -3,9 +3,7 @@ using Domain.AggregateModels.TaskAggregate;
 
 namespace Domain.Interfaces.Repositories
 {
-    public interface ILabelRepository
+    public interface ILabelRepository : IRepository<Label>
     {
-        Task<Label> FindByIdAsync(int labelId);
-        Task<Label> FindByNameAsync(string title);
     }
 }

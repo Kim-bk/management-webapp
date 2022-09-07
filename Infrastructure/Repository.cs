@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Domain;
@@ -23,33 +21,31 @@ namespace Infrastructure
         {
             _dbFactory = dbFactory;
         }
-
         public Repository(DbContext dbContext)
         {
             DbContext = dbContext;
         }
-
         public async void AddAsync(T entity)
         {
             await DbSet.AddAsync(entity);
         }
 
+        public async void DeleteExp(Expression<Func<T, bool>> expression)
+        {
+            T entity = await FindAsync(expression);
+            DbSet.Remove(entity);
+        }
         public void Delete(T entity)
         {
             DbSet.Remove(entity);
         }
         public void Update(T entity)
         {
-
             DbSet.Update(entity);
         }
-        public IQueryable<T> List(Expression<Func<T, bool>> expression)
+        public async Task<T> FindAsync(Expression<Func<T, bool>> expression)
         {
-            return DbSet.Where(expression);
-        }
-        public async Task<IList<T>> GetAllAsync()
-        {
-            return await DbSet.ToListAsync();
+            return await DbSet.FirstOrDefaultAsync(expression);
         }
     }
 }

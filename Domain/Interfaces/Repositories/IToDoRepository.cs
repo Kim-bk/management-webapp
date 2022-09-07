@@ -3,9 +3,8 @@ using Domain.AggregateModels.TaskAggregate;
 
 namespace Domain.Interfaces.Repositories
 {
-    public interface IToDoRepository
+    public interface IToDoRepository : IRepository<Todo>
     {
         Todo FindToDoItems(int taskId, int todoId);
-        Task<Todo> FindByNameAsync(string title);
     }
 }

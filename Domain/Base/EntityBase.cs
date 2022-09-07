@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using MediatR;
-using Domain.Shared;
-using Domain.Base;
 
 namespace Domain.SeedWork
 {

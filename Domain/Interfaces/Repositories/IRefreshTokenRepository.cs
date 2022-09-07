@@ -1,14 +1,10 @@
-﻿using Domain.Entities;
+﻿using Domain.AggregateModels.UserAggregate;
 using System.Threading.Tasks;
 
 namespace Domain.Interfaces.Repositories
 {
-    public interface IRefreshTokenRepository
+    public interface IRefreshTokenRepository : IRepository<RefreshToken>
     {
-        System.Threading.Tasks.Task Create(RefreshToken refreshToken);
-        System.Threading.Tasks.Task DeleteAll(string userId);
-        Task<RefreshToken> FindByIdAsync(string refreshTokenId);
-        System.Threading.Tasks.Task Delete(string tokenId);
-        Task<RefreshToken> FindByToken(string token);
+        Task DeleteAll(string userId);
     }
 }

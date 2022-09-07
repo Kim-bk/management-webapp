@@ -2,7 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Entities;
+using Domain.AggregateModels.UserAggregate;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -34,17 +34,16 @@ namespace Service.TokenGenratorServices
 
             return _tokenGenerator.GenerateToken(key, issuer, audience, expires);
         }
-
         public async Task<RefreshToken> GetByToken(string token)
         {
-            return await _refreshTokenRepository.FindByToken(token);
+            return await _refreshTokenRepository.FindAsync(tk => tk.Token == token);
         }
-        public async System.Threading.Tasks.Task Delete(string tokenId)
+        public async Task Delete(string tokenId)
         {
             await _unitOfWork.BeginTransaction();
             try
             {
-                await _refreshTokenRepository.Delete(tokenId);
+                _refreshTokenRepository.DeleteExp(tk => tk.Id == tokenId);
                 await _unitOfWork.CommitTransaction();
             }
             catch 

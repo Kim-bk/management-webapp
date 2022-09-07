@@ -1,22 +1,17 @@
-﻿using System.Collections.Generic;
-using Domain.AggregateModels.ProjectAggregate;
-using Domain.AggregateModels.TaskAggregate;
-using Domain.Base;
-using Domain.DomainEvents;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Domain.Shared;
+﻿using Domain.Base;
 
 namespace Domain.AggregateModels.UserAggregate
 {
-    public class ApplicationUser : IdentityUser, IAggregateRoot
+    public partial class ApplicationUser : IAggregateRoot
     {
-        public ApplicationUser()
+        public void CreateRefreshToken(string tokenId, string token)
         {
-            Tasks = new HashSet<Task>();
-            Projects = new HashSet<Project>();
+            var refreshToken = new RefreshToken
+            {
+                Id = tokenId,
+                Token = token,
+            };
+            RefreshToken = refreshToken;
         }
-        public virtual ICollection<Task> Tasks { get; set; }
-        public virtual ICollection<Project> Projects { get; set; }  
     }
 }

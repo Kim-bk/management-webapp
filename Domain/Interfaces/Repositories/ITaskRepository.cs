@@ -1,12 +1,10 @@
 ﻿using System.Threading.Tasks;
+using TaskEntity = Domain.AggregateModels.TaskAggregate.Task;
 
 namespace Domain.Interfaces.Repositories
 {
-    public interface ITaskRepository
+    public interface ITaskRepository : IRepository<TaskEntity>
     {
-        void CreateTask(AggregateModels.TaskAggregate.Task task);
-        Task<AggregateModels.TaskAggregate.Task> FindByIdAsync(int taskId);
-        AggregateModels.TaskAggregate.Task FindByIdAndListTask(int taskId, int listTaskId);
-        void DeleteTask(AggregateModels.TaskAggregate.Task task);
+        TaskEntity FindByIdAndListTask(int taskId, int listTaskId);
     }
 }

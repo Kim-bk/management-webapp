@@ -38,10 +38,10 @@ namespace Service
             try
             {
                 // 1. Get all information of task by id
-                var task = await _taskRepository.FindByIdAsync(taskId);
+                var task = await _taskRepository.FindAsync(t => t.Id == taskId);
 
                 // 2. Check if task is existed
-                if (task == null)
+                if (task == null || task.ListTaskId == null)
                 {
                     throw new ObjectNotFoundException("Task is not found!");
 
@@ -75,7 +75,7 @@ namespace Service
            try
             {
                 // 1. Check if duplicate name label
-                var label = await _labelRepository.FindByNameAsync(request.Title);
+                var label = await _labelRepository.FindAsync(lb => lb.Title == request.Title);
                 if (label != null)
                 {
                     throw new ArgumentException("Duplicate label!");
@@ -84,7 +84,7 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 2. Find task by id 
-                Domain.AggregateModels.TaskAggregate.Task task = await _taskRepository.FindByIdAsync(request.TaskId);
+                var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
 
                 // 3. Update task with new label 
                 task.AddLabel(request.Title, request.Color);
@@ -112,7 +112,7 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find task by Id
-                var task = await _taskRepository.FindByIdAsync(request.TaskId);
+                var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
 
                 // 2. Remove label in task
                 task.RemoveLabel(request.Id);
@@ -138,7 +138,7 @@ namespace Service
                 // 1. Check duplicate title todo parent
                 if (request.ParentId != null)
                 {
-                    var parenTodo = await _todoRepository.FindByNameAsync(request.Title);
+                    var parenTodo = await _todoRepository.FindAsync(td => td.Title == request.Title);
                     if (parenTodo != null && parenTodo.TaskId == request.TaskId)
                     {
                         throw new ArgumentException("Duplicate to-do!");
@@ -148,7 +148,7 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 2. Find task by ID
-                var task = await _taskRepository.FindByIdAsync(request.TaskId);
+                var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
 
                 // 3. Add new todo to task
                 task.AddTodo(request.Title, request.ParentId);
@@ -175,7 +175,14 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find to do item by id and task id
-                var task = await _taskRepository.FindByIdAsync(request.TaskId);
+                var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
+
+                // 2. Validate
+                if (task == null || task.ListTaskId == null)
+                {
+                    throw new ObjectNotFoundException("Task not found!");
+                }
+
                 var todoItem = task.GetToDoItemInTask(request.Id);
 
                 // 2. Validate whether todo is parent or not
@@ -208,11 +215,7 @@ namespace Service
             // 1. Validate input
             if (taskId == 0 || userId == null)
             {
-                return new TaskManagerResponse
-                {
-                    Message = "Empty input!!",
-                    IsSuccess = true,
-                };
+                throw new ArgumentNullException("Input can not be null!");
             }
 
             try
@@ -223,12 +226,23 @@ namespace Service
                 var user = await _userManager.FindByIdAsync(userId);
 
                 // 3. Find task by id
-                var task = await _taskRepository.FindByIdAsync(taskId);
+                var task = await _taskRepository.FindAsync(t => t.Id == taskId);
 
-                // 4. Update member into task and assign user
+                // 4. Validate
+                if (task == null || task.ListTaskId == null)
+                {
+                    throw new ObjectNotFoundException("Task cant be found!");
+                }
+
+                if (user == null)
+                {
+                    throw new ObjectNotFoundException("User cant be found!");
+                }
+
+                // 5. Update member into task and assign user
                 task.AssignMember(user);
 
-                // 5. Commit changes
+                // 6. Commit changes
                 await _unitOfWork.CommitTransaction();
 
                 return new TaskManagerResponse
@@ -257,12 +271,10 @@ namespace Service
                 // 2. Validate
                 if (firstTask == null || secondTask == null)
                 {
-                    return new UserManagerResponse
-                    {
-                        Message = "Can not find one of the task by id and list task id!",
-                        IsSuccess = false,
-                    };
+                    throw new ObjectNotFoundException("Cant find one of these task!");
                 }
+
+                // 3. Swap position of both
                 firstTask.Swap(secondTask);
                 await _unitOfWork.CommitTransaction();
 
@@ -279,21 +291,21 @@ namespace Service
                 throw e;
             }
         }
-        private int FindMaxPosition(List<Domain.AggregateModels.TaskAggregate.Task> list)
+        private int FindMaxPosition(List<Domain.AggregateModels.TaskAggregate.Task> tasks)
         {
-            if (list.Count == 0)
+            if (tasks.Count == 0)
             {
                 return 0;
             }
-            int maxPos = int.MinValue;
-            foreach (var type in list)
+            int currentPos = int.MinValue;
+            foreach (var task in tasks)
             {
-                if (type.Position > maxPos)
+                if (task.Position > currentPos)
                 {
-                    maxPos = Convert.ToInt32(type.Position);
+                    currentPos = Convert.ToInt32(task.Position);
                 }
             }
-            return maxPos;
+            return currentPos + 1; // this is max pos
         }
         public async Task<UserManagerResponse> CreateTask(TaskRequest request, string userId)
         {
@@ -302,25 +314,21 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find list task by ID
-                var listTask = await _listTaskRepository.FindListTaskByIdAsync(request.ListTaskId);
+                var listTask = await _listTaskRepository.FindAsync(lt => lt.ListTaskId == request.ListTaskId);
                 
                 // 2. Validate
                 if (listTask != null && listTask.Tasks.Contains(
                     listTask.Tasks.FirstOrDefault(t => t.Title == request.Title)))
                 {
-                    return new UserManagerResponse
-                    { 
-                        Message = "Task is duplicated !",
-                        IsSuccess = true
-                    };
+                    throw new ArgumentException("Duplicate list task!");
                 }
 
                 // 3. Set max position (default) for task in list
-                var positon = FindMaxPosition(listTask.Tasks.ToList()) + 1;
+                var positon = FindMaxPosition(listTask.Tasks.ToList());
 
                 // 4. Init object Task
                 var task = new Domain.AggregateModels.TaskAggregate.Task(request.Title, listTask, positon);
-                _taskRepository.CreateTask(task);
+                _taskRepository.AddAsync(task);
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse

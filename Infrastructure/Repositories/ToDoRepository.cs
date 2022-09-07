@@ -17,10 +17,5 @@ namespace Infrastructure.Repositories
                     where todo.Id == todoId && todo.TaskId == taskId
                     select todo).FirstOrDefault();
         }
-
-        public async Task<Todo> FindByNameAsync(string title)
-        {
-            return await DbSet.Where(td => td.Title == title).FirstOrDefaultAsync();
-        }
     }
 }

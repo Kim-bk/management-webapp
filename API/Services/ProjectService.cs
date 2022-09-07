@@ -20,16 +20,13 @@ namespace Service
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IListTaskRepository _listTaskRepository;
-        private readonly ITaskRepository _taskRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         public ProjectService(IProjectRepository projectRepository, IListTaskRepository listTaskRepository,
-                            IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper,
-                            ITaskService taskService, ITaskRepository taskRepository)
+                            IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapperCustom mapper)
                             : base(unitOfWork, mapper)
         {
             _projectRepository = projectRepository;
             _listTaskRepository = listTaskRepository;
-            _taskRepository = taskRepository;
             _userManager = userManager;
         }
         
@@ -40,7 +37,7 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find project in Database
-                var project = await _projectRepository.FindByIdAsync(projectId);
+                var project = await _projectRepository.FindAsync(p => p.Id == projectId);
 
                 // 2. Find user
                 var user = await _userManager.FindByIdAsync(model.UserId);
@@ -73,7 +70,7 @@ namespace Service
                     throw new NullReferenceException("List Task Id is null!");
                 }
 
-                var listTask = await _listTaskRepository.FindListTaskByIdAsync(listTaskId);
+                var listTask = await _listTaskRepository.FindAsync(lt => lt.ListTaskId == listTaskId);
                 if (listTask == null)
                 {
                     throw new ObjectNotFoundException("The list task is not found!");
@@ -94,20 +91,20 @@ namespace Service
             }
         }
 
-        public async Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model)
+        public async Task<UserManagerResponse> CreateListTask(ListTaskRequest model)
         {
             try
             {
                 // 1.Find project by it ID
-                var project = await _projectRepository.FindByIdAsync(projectId);
+                var project = await _projectRepository.FindAsync(p => p.Id == model.ProjectId);
                 if (project == null)
                 {
                     throw new ObjectNotFoundException("The project is not found!");
                 }
 
                 // 2. Check if list task is duplicated
-                var listTask = await _listTaskRepository.FindByNameAsync(model.Title);
-                if (listTask != null && listTask.ProjectId == projectId)
+                var listTask = await _listTaskRepository.FindAsync(lt => lt.Title == model.Title);
+                if (listTask != null && listTask.ProjectId == model.ProjectId)
                 {
                     throw new ArgumentException("Project already exists!");
                 }
@@ -138,7 +135,7 @@ namespace Service
             try
             {
                 // 1. Find project by name
-                var project = await _projectRepository.FindByNameAsync(model.Name);
+                var project = await _projectRepository.FindAsync(p => p.Name == model.Name);
              
                 // 2. Check if name project is exist in user projects
                 if (project != null && project.Users
@@ -150,9 +147,10 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 4. Create Project then add member
-                var createProject =  _projectRepository.CreateProject(new Project(model.Name));
+                var createProject = new Project(model.Name);
+                _projectRepository.AddAsync(createProject);
 
-                // 5. Find user by id
+                // 5. Find user by id then add project to user
                 var user = await _userManager.FindByIdAsync(userId);
                 createProject.AddMember(user);
 
@@ -175,15 +173,20 @@ namespace Service
 
         public async Task<ProjectManagerResponse> GetProject(int projectId)
         {
-            // 1. Find list task by id project
-            var listTasks = await _projectRepository.GetListTasksByProjectId(projectId);
+            // 1. Find project
+            var project = await _projectRepository.FindAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                throw new ObjectNotFoundException("Project cant be found!");
+            }
 
             // 2. Return message
             return new ProjectManagerResponse
             {
                 IsSuccess = true,
                 Message = "Get all list task of project",
-                ListTasks = _mapper.MapListTasks(listTasks),
+                ListTasks = _mapper.MapListTasks(project.ListTasks.ToList()),
             };
         }
         public async Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId)
@@ -191,8 +194,9 @@ namespace Service
             try
             {
                 await _unitOfWork.BeginTransaction();
+
                 // 1. Find project
-                var project = await _projectRepository.FindByIdAsync(projectId);
+                var project = await _projectRepository.FindAsync(p => p.Id == projectId);
 
                 // 2. Validate if the list task is in project
                 if (project == null)
@@ -203,11 +207,11 @@ namespace Service
                 if (!project.ListTasks.Contains(
                     project.ListTasks.FirstOrDefault(lt => lt.ListTaskId == listTaskId)))
                 {
-                    // Return error cant find list task in the project
+                    // 3. Return error cant find list task in the project
                     throw new ObjectNotFoundException("List task is not found in project!");
                 }
 
-                // 2. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
+                // 4. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
                 // this will be handled in ListTaskDeletedDomainEvenHandler
                 project.DeleteListTask(listTaskId);
 
@@ -243,15 +247,15 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find project
-                var project = await _projectRepository.FindByIdAsync(projectId);
+                var project = await _projectRepository.FindAsync(p => p.Id == projectId);
                 if (project == null)
                 {
                     throw new ObjectNotFoundException("The project is not found!");
                 }
 
-                // 2. Delete all components in it
+                // 2. Delete project
                 project.DeleteProject();
-                _projectRepository.DeleteProject(project);
+                _projectRepository.Delete(project);
 
                 // 3. Save changes
                 await _unitOfWork.CommitTransaction();
@@ -266,7 +270,6 @@ namespace Service
                 await _unitOfWork.RollbackTransaction();
                 throw e;
             }
-          
         }
     }
 }

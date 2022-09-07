@@ -8,7 +8,7 @@ namespace Service.Interfaces
     {
         Task<UserManagerResponse> CreateUserProject(string userId, ProjectRequest model);
         Task<UserManagerResponse> AddMemberToProject(int projectId, ProjectRequest model);
-        Task<UserManagerResponse> CreateListTask(int projectId, CommonRequest model);
+        Task<UserManagerResponse> CreateListTask(ListTaskRequest model);
         Task<ProjectManagerResponse> GetProject(int projectId);
         Task<UserManagerResponse> DeleteListTask(int projectId, int listTaskId);
         Task<ProjectManagerResponse> GetAllProjects();

@@ -8,10 +8,10 @@ namespace Domain
 {
     public interface IRepository<T> where T : class
     {
+        Task<T> FindAsync(Expression<Func<T, bool>> expression);
         void AddAsync(T entity);
-        void Delete(T entity);
-        IQueryable<T> List(Expression<Func<T, bool>> expression);
+        void DeleteExp(Expression<Func<T, bool>> expression);
         void Update(T entity);
-        Task<IList<T>> GetAllAsync();
+        void Delete(T entity);
     }
 }

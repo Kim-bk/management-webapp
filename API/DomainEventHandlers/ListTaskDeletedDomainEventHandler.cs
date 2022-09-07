@@ -18,7 +18,7 @@ namespace API.DomainEventHandlers
         public async Task Handle(ListTaskDeletedDomainEvent notification, CancellationToken cancellationToken)
         {
             // 1. Find list task to handle
-            var listTask = await _listTaskRepository.FindListTaskByIdAsync(notification.ListTaskId);
+            var listTask = await _listTaskRepository.FindAsync(lt => lt.ListTaskId == notification.ListTaskId);
 
             // 2. Delete all components (todo, member, label)
             // of each tasks in the list
@@ -28,7 +28,7 @@ namespace API.DomainEventHandlers
             }
 
             // 3. Delete list task
-            _listTaskRepository.DelteListTask(listTask);
+            _listTaskRepository.Delete(listTask);
         }
     }
 }

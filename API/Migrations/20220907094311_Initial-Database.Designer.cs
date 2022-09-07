@@ -5,18 +5,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220729042516_Database")]
-    partial class Database
+    [Migration("20220907094311_Initial-Database")]
+    partial class InitialDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -36,7 +36,127 @@ namespace API.Migrations
                     b.ToTable("ApplicationUserProject");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("ApplicationUserTask", b =>
+                {
+                    b.Property<int>("TasksId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("TasksId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("ApplicationUserTask");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.ProjectAggregate.ListTask", b =>
+                {
+                    b.Property<int>("ListTaskId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ListTaskId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ListTasks");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.ProjectAggregate.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.TaskAggregate.Label", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Color")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Labels");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.TaskAggregate.Task", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("DoingId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ListTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListTaskId");
+
+                    b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.TaskAggregate.Todo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool?>("IsDone")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Todos");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.UserAggregate.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -101,175 +221,73 @@ namespace API.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.History", b =>
+            modelBuilder.Entity("Domain.AggregateModels.UserAggregate.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Action")
+                    b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AtTable")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<int?>("ReferenceId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("History");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("RefreshToken");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Label", b =>
+            modelBuilder.Entity("Domain.Entities.Histories.History", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Color")
+                    b.Property<string>("AffectedColumn")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PrimaryKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TableName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Label");
+                    b.ToTable("Histories");
                 });
 
-            modelBuilder.Entity("Domain.Entities.LabelTask", b =>
+            modelBuilder.Entity("LabelTask", b =>
                 {
-                    b.Property<int?>("LabelId")
+                    b.Property<int>("LabelsId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TaskId")
+                    b.Property<int>("TasksId")
                         .HasColumnType("int");
 
-                    b.HasIndex(new[] { "LabelId" }, "IX_LabelTask_LabelId");
+                    b.HasKey("LabelsId", "TasksId");
 
-                    b.HasIndex(new[] { "TaskId" }, "IX_LabelTask_TaskId");
+                    b.HasIndex("TasksId");
 
                     b.ToTable("LabelTask");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ListTask", b =>
-                {
-                    b.Property<int>("ListTaskId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ListTaskId");
-
-                    b.HasIndex(new[] { "ProjectId" }, "IX_ListTask_ProjectId");
-
-                    b.ToTable("ListTask");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Project", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Project");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Task", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ListTaskId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Position")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "ListTaskId" }, "IX_Task_ListTaskId");
-
-                    b.HasIndex(new[] { "UserId" }, "IX_Task_UserId");
-
-                    b.ToTable("Task");
-                });
-
-            modelBuilder.Entity("Domain.Entities.TaskMember", b =>
-                {
-                    b.Property<int?>("TaskId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("TaskId1")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("TaskId");
-
-                    b.HasIndex("TaskId1");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TaskMember");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Todo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool?>("IsDone")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "TaskId" }, "IX_Todo_TaskId");
-
-                    b.ToTable("Todo");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -405,86 +423,83 @@ namespace API.Migrations
 
             modelBuilder.Entity("ApplicationUserProject", b =>
                 {
-                    b.HasOne("Domain.Entities.Project", null)
+                    b.HasOne("Domain.AggregateModels.ProjectAggregate.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.LabelTask", b =>
+            modelBuilder.Entity("ApplicationUserTask", b =>
                 {
-                    b.HasOne("Domain.Entities.Label", "Label")
+                    b.HasOne("Domain.AggregateModels.TaskAggregate.Task", null)
                         .WithMany()
-                        .HasForeignKey("LabelId")
-                        .HasConstraintName("FK__LabelTask__Label__1DB06A4F");
+                        .HasForeignKey("TasksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Domain.Entities.Task", "Task")
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", null)
                         .WithMany()
-                        .HasForeignKey("TaskId")
-                        .HasConstraintName("FK__LabelTask__TaskI__32E0915F");
-
-                    b.Navigation("Label");
-
-                    b.Navigation("Task");
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.ListTask", b =>
+            modelBuilder.Entity("Domain.AggregateModels.ProjectAggregate.ListTask", b =>
                 {
-                    b.HasOne("Domain.Entities.Project", "Project")
+                    b.HasOne("Domain.AggregateModels.ProjectAggregate.Project", "Project")
                         .WithMany("ListTasks")
-                        .HasForeignKey("ProjectId")
-                        .HasConstraintName("FK__ListTask__Projec__123EB7A3");
+                        .HasForeignKey("ProjectId");
 
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Task", b =>
+            modelBuilder.Entity("Domain.AggregateModels.TaskAggregate.Task", b =>
                 {
-                    b.HasOne("Domain.Entities.ListTask", "ListTask")
+                    b.HasOne("Domain.AggregateModels.ProjectAggregate.ListTask", "ListTask")
                         .WithMany("Tasks")
-                        .HasForeignKey("ListTaskId")
-                        .HasConstraintName("FK__Task__ListTaskId__151B244E");
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "User")
-                        .WithMany("Tasks")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK__Task__UserId__160F4887");
+                        .HasForeignKey("ListTaskId");
 
                     b.Navigation("ListTask");
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.TaskMember", b =>
+            modelBuilder.Entity("Domain.AggregateModels.TaskAggregate.Todo", b =>
                 {
-                    b.HasOne("Domain.Entities.Task", "Task")
-                        .WithMany()
-                        .HasForeignKey("TaskId1");
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Todo", b =>
-                {
-                    b.HasOne("Domain.Entities.Task", "Task")
+                    b.HasOne("Domain.AggregateModels.TaskAggregate.Task", "Task")
                         .WithMany("Todos")
-                        .HasForeignKey("TaskId")
-                        .HasConstraintName("FK__Todo__TaskId__18EBB532");
+                        .HasForeignKey("TaskId");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.UserAggregate.RefreshToken", b =>
+                {
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("Domain.AggregateModels.UserAggregate.RefreshToken", "UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LabelTask", b =>
+                {
+                    b.HasOne("Domain.AggregateModels.TaskAggregate.Label", null)
+                        .WithMany()
+                        .HasForeignKey("LabelsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.AggregateModels.TaskAggregate.Task", null)
+                        .WithMany()
+                        .HasForeignKey("TasksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -498,7 +513,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -507,7 +522,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -522,7 +537,7 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -531,31 +546,31 @@ namespace API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
+                    b.HasOne("Domain.AggregateModels.UserAggregate.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("Domain.AggregateModels.ProjectAggregate.ListTask", b =>
                 {
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ListTask", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Project", b =>
+            modelBuilder.Entity("Domain.AggregateModels.ProjectAggregate.Project", b =>
                 {
                     b.Navigation("ListTasks");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Task", b =>
+            modelBuilder.Entity("Domain.AggregateModels.TaskAggregate.Task", b =>
                 {
                     b.Navigation("Todos");
+                });
+
+            modelBuilder.Entity("Domain.AggregateModels.UserAggregate.ApplicationUser", b =>
+                {
+                    b.Navigation("RefreshToken");
                 });
 #pragma warning restore 612, 618
         }

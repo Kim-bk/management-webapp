@@ -40,7 +40,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                var res = await _accountService.RegisterUserAsync(model);
+                var res = await _accountService.Register(model);
                 if (res.IsSuccess)
                 {
                     return Ok(res);
@@ -56,7 +56,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _accountService.UserLoginAsync(model);
+                var user = await _accountService.Login(model);
                 if (user != null)
                 {
                     // 1. Get user access token and refresh token

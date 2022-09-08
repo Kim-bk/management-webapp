@@ -30,25 +30,29 @@ namespace Service.TokenGenratorServices
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:RefreshTokenSecret"]));
             var issuer = _configuration["AuthSettings:Issuer"];
             var audience = _configuration["AuthSettings:Audience"];
-            var expires = DateTime.UtcNow.AddHours(256); // expire in 256 hours later
+            var expires = DateTime.UtcNow.AddHours(256); // expires in 256 hours later
 
             return _tokenGenerator.GenerateToken(key, issuer, audience, expires);
         }
         public async Task<RefreshToken> GetByToken(string token)
         {
-            return await _refreshTokenRepository.FindAsync(tk => tk.Token == token);
+            var refreshToken =  await _refreshTokenRepository.FindAsync(tk => tk.Token == token);
+            if (refreshToken == null)
+            {
+                throw new ArgumentNullException("Invalid refresh token.");
+            }
+            return refreshToken;
         }
         public async Task Delete(string tokenId)
         {
-            await _unitOfWork.BeginTransaction();
             try
             {
                 _refreshTokenRepository.DeleteExp(tk => tk.Id == tokenId);
                 await _unitOfWork.CommitTransaction();
             }
-            catch 
+            catch (Exception e)
             {
-                await _unitOfWork.RollbackTransaction();
+                throw e;
             }
         }
     }

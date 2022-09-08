@@ -15,21 +15,15 @@ namespace Infrastructure
         {
             get => _dbSet ?? (_dbSet = _dbFactory.DbContext.Set<T>());
         }
-        public DbContext DbContext { get; }
 
         public Repository(DbFactory dbFactory)
         {
             _dbFactory = dbFactory;
         }
-        public Repository(DbContext dbContext)
-        {
-            DbContext = dbContext;
-        }
         public async void AddAsync(T entity)
         {
             await DbSet.AddAsync(entity);
         }
-
         public async void DeleteExp(Expression<Func<T, bool>> expression)
         {
             T entity = await FindAsync(expression);

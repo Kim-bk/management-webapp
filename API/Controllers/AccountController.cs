@@ -38,33 +38,19 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var res = await _accountService.Register(model);
-                if (res.IsSuccess)
-                {
-                    return Ok(res);
-                }
-            }
-
-            return BadRequest("Some properties is not valid!"); // status code : 400
+            var res = await _accountService.Register(model);
+            return Ok(res);
         }
 
         // api/account/login 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var user = await _accountService.Login(model);
-                if (user != null)
-                {
-                    // 1. Get user access token and refresh token
-                    var res = await _authenticator.Authenticate(user);
-                    return Ok(res);
-                }
-            }
-            return BadRequest("Some properties is not valid!"); // error code 400
+             var user = await _accountService.Login(model);
+               
+            // 1. Get user access token and refresh token
+            var res = await _authenticator.Authenticate(user);
+            return Ok(res);
         }
         
         [Authorize]
@@ -74,15 +60,11 @@ namespace API.Controllers
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var res = await _accountService.GetUserProjects(userId);
-            if (res.IsSuccess)
+            return new OkObjectResult(new
             {
-                return new OkObjectResult(new
-                {
-                    res.Message,
-                    res.Projects
-                });
-            }
-            return BadRequest(res); // error code 400
+                res.Message,
+                res.Projects
+            });
         }
 
         [Authorize]
@@ -92,11 +74,7 @@ namespace API.Controllers
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var rs = await _accountService.Logout(userId);
-            if (rs.IsSuccess)
-            {
-                return Ok(rs.Message);
-            }
-            return BadRequest(rs.Message);
+            return Ok(rs.Message);
         }
 
         [Authorize]
@@ -110,29 +88,18 @@ namespace API.Controllers
             }
 
             // 1. Check if refresh token is valid
-            bool isValidRefreshToken = _refreshTokenValidator.Validate(refreshRequest.RefreshToken);
-            if (!isValidRefreshToken)
-            {
-                return BadRequest("Invalid refresh token.");
-            }
+            _refreshTokenValidator.Validate(refreshRequest.RefreshToken);
 
             // 2. Get refresh token by token
             var refreshTokenDTO = await _refreshTokenService.GetByToken(refreshRequest.RefreshToken);
-            if (refreshTokenDTO == null)
-            {
-                return NotFound("Invalid refresh token.");
-            }
 
             // 3. Delete that refresh token
             await _refreshTokenService.Delete(refreshTokenDTO.Id);
 
+            // 4. Find user have that refresh token
             var user = await _userManager.FindByIdAsync(refreshTokenDTO.UserId);
-            if (user == null)
-            {
-                return NotFound("User not found.");
-            }
 
-            // 4. Generate new access token and refresh token
+            // 5. Generate new access token and refresh token to the user
             AuthenticatedUserResponse response = await _authenticator.Authenticate(user);
 
             return Ok(response);

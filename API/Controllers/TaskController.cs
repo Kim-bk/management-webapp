@@ -22,19 +22,11 @@ namespace API.Controllers
         // api/task/{id}
         public async Task<IActionResult> GetTask(int id)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.GetTask(id);
-                if (rs.IsSuccess)
-                {
-                    return Ok(new OkObjectResult(new { 
-                        rs.Message,
-                        rs.Task,
-                    }));
-                }
-            }
-
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.GetTask(id);
+            return Ok(new OkObjectResult(new { 
+                rs.Message,
+                rs.Task,
+            }));
         }
 
         [Authorize]
@@ -42,15 +34,8 @@ namespace API.Controllers
         // api/task/label
         public async Task<IActionResult> AddLabelToTask([FromBody] LabelRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.AddLabelToTask(model);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.AddLabelToTask(model);
+            return Ok(rs.Message);
         }
 
         [Authorize]
@@ -58,15 +43,8 @@ namespace API.Controllers
         // api/task/label
         public async Task<IActionResult> RemoveLabelInTask([FromBody] LabelRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.RemoveLabelInTask(model);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.RemoveLabelInTask(model);
+            return Ok(rs.Message);
         }
 
         [Authorize]
@@ -74,33 +52,17 @@ namespace API.Controllers
         // api/task/to-do
         public async Task<IActionResult> AddToDoToTask([FromBody] ToDoRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.AddToDoToTask(model);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.AddToDoToTask(model);
+            return Ok(rs.Message);
         }
 
         [Authorize]
-        [HttpPost("todo/todo-items")]
-        // api/task/todo/todo-items
-        public async Task<IActionResult> ManageToDoItems([FromBody] ToDoRequest model)
+        [HttpPut("todo")]
+        // api/task/todo
+        public async Task<IActionResult> UpdateTodoItems([FromBody] ToDoRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.ManageToDoItems(model);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.UpdateTodoItems(model);
+            return Ok(rs.Message);
         }
 
         [Authorize]
@@ -108,32 +70,17 @@ namespace API.Controllers
         // api/task/{taskId}/member
         public async Task<IActionResult> AssignMember(int taskId, [FromBody] CommonRequest model)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.AssignMember(taskId, model.UserId);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.AssignMember(taskId, model.UserId);
+            return Ok(rs.Message);
         }
 
-        // api/task/{taskId:int}
         [Authorize]
         [HttpPut("{taskId:int}")]
+        // api/task/{taskId:int}
         public async Task<IActionResult> MoveTask(int taskId, [FromBody] MoveTaskRequest request)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _taskService.MoveTask(taskId, request);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs);
-                }
-            }
-            return BadRequest("Some properties is not valid!");
+            var rs = await _taskService.MoveTask(taskId, request);
+            return Ok(rs);
         }
         
         [Authorize]
@@ -141,16 +88,9 @@ namespace API.Controllers
         // api/task
         public async Task<IActionResult> AddTask(TaskRequest request)
         {
-            if (ModelState.IsValid)
-            {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var rs = await _taskService.CreateTask(request, userId);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Some properties is not valid!");
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var rs = await _taskService.CreateTask(request, userId);
+            return Ok(rs.Message);
         }
     }
 }

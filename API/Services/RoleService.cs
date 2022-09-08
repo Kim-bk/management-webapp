@@ -9,6 +9,7 @@ using API.DTOs.Requests;
 using API.Services;
 using API.Services.Interfaces;
 using Domain.AggregateModels.UserAggregate;
+using System;
 
 namespace Service
 {
@@ -25,23 +26,27 @@ namespace Service
         }
         public async Task<IdentityResult> CreateRole(string nameRole)
         {
-            // 1. Create role
-            await _unitOfWork.BeginTransaction();
-            var result = await _roleManager.CreateAsync(
-                            new IdentityRole
-                            {
-                                Name = nameRole
-                            });
-
-            if (result.Succeeded)
+            try
             {
-                await _unitOfWork.CommitTransaction();
+                // 1. Valid input
+                if (String.IsNullOrEmpty(nameRole) || String.IsNullOrWhiteSpace(nameRole))
+                {
+                    throw new ArgumentNullException("Empty input!");
+                }
 
-                // 2. Return result
+                // 2. Create role
+                var result = await _roleManager.CreateAsync(
+                                new IdentityRole
+                                {
+                                    Name = nameRole
+                                });
+                await _unitOfWork.CommitTransaction();
                 return result;
             }
-            await _unitOfWork.RollbackTransaction();
-            return null;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public async Task<IdentityResult> AddRoleToUser(RoleRequest request)
@@ -93,19 +98,14 @@ namespace Service
 
                 // 4. Delete role
                 var rs = await _roleManager.DeleteAsync(role);
-                if (rs.Succeeded)
-                {
-                    await _unitOfWork.CommitTransaction();
-                    return true;
-                }
-
-                await _unitOfWork.RollbackTransaction();
-                return false;
+               
+                await _unitOfWork.CommitTransaction();
+                return true;
             }
-            catch
+            catch (Exception e)
             {
                 await _unitOfWork.RollbackTransaction();
-                return false;
+                throw e;
             }
         }
     }

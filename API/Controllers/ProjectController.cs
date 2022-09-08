@@ -24,19 +24,12 @@ namespace API.Controllers
         // api/project/{projectId}
         public async Task<IActionResult> GetProject(int projectId)
         {
-            if (ModelState.IsValid)
+            var rs = await _projectService.GetProject(projectId);
+            return new OkObjectResult(new
             {
-                var rs = await _projectService.GetProject(projectId);
-                if (rs.IsSuccess)
-                {
-                    return new OkObjectResult(new
-                    {
-                        rs.Message,
-                        rs.ListTasks
-                    });
-                }
-            }
-            return BadRequest("Invalid some properties!");
+                rs.Message,
+                rs.ListTasks
+            });
         }
 
         [Authorize]
@@ -49,11 +42,7 @@ namespace API.Controllers
             if (access)
             {
                 var res = await _projectService.CreateUserProject(userId, model);
-                if (res.IsSuccess)
-                {
-                    return Ok(res.Message);
-                }
-                return BadRequest("Invalid some properties!");
+                return Ok(res.Message);
             }
             return Forbid();
         }
@@ -67,15 +56,8 @@ namespace API.Controllers
             var access = await _roleService.CheckUserRole(userId, "Admin");
             if (access)
             {
-                if (ModelState.IsValid)
-                {
-                    var rs = await _projectService.AddMemberToProject(projectId, model);
-                    if (rs.IsSuccess)
-                    {
-                        return Ok(rs.Message);
-                    }
-                }
-                return BadRequest("Invalid some properties!");
+                var rs = await _projectService.AddMemberToProject(projectId, model);
+                return Ok(rs.Message);
             }
             return Forbid();
         }
@@ -85,20 +67,13 @@ namespace API.Controllers
         // api/project/list-task/{listTaskId}
         public async Task<IActionResult> GetListTask(int listTaskId)
         {
-            if (ModelState.IsValid)
+            var rs = await _projectService.GetListTask(listTaskId);
+            return Ok(new OkObjectResult(new
             {
-                var rs = await _projectService.GetListTask(listTaskId);
-                if (rs.IsSuccess)
-                {
-                    return Ok(new OkObjectResult(new
-                    {
-                        rs.Message,
-                        rs.ProjectId,
-                        rs.Task,
-                    }));
-                }
-            }
-            return BadRequest("Some properties is not valid!");
+                rs.Message,
+                rs.ProjectId,
+                rs.Task,
+            }));
         }
 
         [Authorize]
@@ -106,31 +81,17 @@ namespace API.Controllers
         // api/project/list-task
         public async Task<IActionResult> CreateListTask([FromBody] ListTaskRequest request)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _projectService.CreateListTask(request);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Invalid some properties!");
+            var rs = await _projectService.CreateListTask(request);
+            return Ok(rs.Message);
         }
 
         [Authorize]
         [HttpDelete("{projectId:int}/list-task/{listTaskId:int}")]
-        // api/project/{projectId}/list-task
+        // api/project/{projectId}/list-task/{listTaskId}
         public async Task<IActionResult> DeleteListTask(int projectId, int listTaskId)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _projectService.DeleteListTask(projectId, listTaskId);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Invalid some properties!");
+            var rs = await _projectService.DeleteListTask(projectId, listTaskId);
+            return Ok(rs.Message);
         }
 
         [Authorize]
@@ -138,15 +99,8 @@ namespace API.Controllers
         // api/project
         public async Task<IActionResult> GetAllProjects()
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _projectService.GetAllProjects();
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs);
-                }
-            }
-            return BadRequest("Invalid some properties!");
+             var rs = await _projectService.GetAllProjects();
+             return Ok(rs);
         }
 
         [Authorize]
@@ -154,15 +108,8 @@ namespace API.Controllers
         // api/project/{projectId}
         public async Task<IActionResult> DeleteProject(int projectId)
         {
-            if (ModelState.IsValid)
-            {
-                var rs = await _projectService.DeleteProject(projectId);
-                if (rs.IsSuccess)
-                {
-                    return Ok(rs.Message);
-                }
-            }
-            return BadRequest("Invalid some properties!");
+            var rs = await _projectService.DeleteProject(projectId);
+            return Ok(rs.Message);
         }
     }
 }

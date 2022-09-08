@@ -28,15 +28,8 @@ namespace API.Controllers
             var access = await _roleService.CheckUserRole(userId, "Admin");
             if (access)
             {
-                if (ModelState.IsValid)
-                {
-                    var rs = await _roleService.GetAllRoles();
-                    if (rs != null)
-                    {
-                        return Ok(rs);
-                    }
-                }
-                return BadRequest("Some properties is not valid!");
+                var rs = await _roleService.GetAllRoles();
+                return Ok(rs);
             }
             return Forbid();
         }
@@ -50,15 +43,11 @@ namespace API.Controllers
             var access = await _roleService.CheckUserRole(userId, "Admin");
             if (access)
             {
-                if (ModelState.IsValid)
+                IdentityResult rs = await _roleService.CreateRole(request.RoleName);
+                if (rs.Succeeded)
                 {
-                    IdentityResult rs = await _roleService.CreateRole(request.RoleName);
-                    if (rs.Succeeded)
-                    {
-                        return Ok("Create role success!");
-                    }
+                    return Ok("Create role success!");
                 }
-                return BadRequest("Some properties is not valid!");
             }
             return Forbid();
         }
@@ -71,15 +60,11 @@ namespace API.Controllers
             var access = await _roleService.CheckUserRole(userId, "Admin");
             if (access)
             {
-                if (ModelState.IsValid)
+                IdentityResult rs = await _roleService.AddRoleToUser(request);
+                if (rs.Succeeded)
                 {
-                    IdentityResult rs = await _roleService.AddRoleToUser(request);
-                    if (rs.Succeeded)
-                    {
-                        return Ok("Add role to user success!");
-                    }
+                    return Ok("Add role to user success!");
                 }
-                return BadRequest("Some properties is not valid!");
             }
             return Forbid();
         }
@@ -92,15 +77,11 @@ namespace API.Controllers
             var access = await _roleService.CheckUserRole(userId, "Admin");
             if (access)
             {
-                if (ModelState.IsValid)
+                var rs = await _roleService.DeleteRole(userId, request.RoleName);
+                if (rs)
                 {
-                    var rs = await _roleService.DeleteRole(userId, request.RoleName);
-                    if (rs)
-                    {
-                        return Ok("Delete role success!");
-                    }
+                    return Ok("Delete role success!");
                 }
-                return BadRequest("Some properties is not valid!");
             }
             return Forbid();
         }

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.TaskAggregate;
-using Domain.SeedWork;
 using Microsoft.AspNetCore.Identity;
 
 namespace Domain.AggregateModels.UserAggregate

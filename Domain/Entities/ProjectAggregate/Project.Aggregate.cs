@@ -16,12 +16,8 @@ namespace Domain.AggregateModels.ProjectAggregate
             AddDomainEvent(new ProjectCreatedDomainEvent(this));
         }
 
-        public void Update([NotNull] string name)
+        public void Update(string name)
         {
-            if (String.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException("Name can not be null or white space");
-            }
             Name = name;
         }
 

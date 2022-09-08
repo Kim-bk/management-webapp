@@ -68,7 +68,6 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = "User created successfully!",
-                    IsSuccess = true,
                 };
             }
 
@@ -84,7 +83,7 @@ namespace Service
             // 1. Validate input
             if (model == null)
             {
-                throw new ArgumentNullException("Login Model is null");
+                throw new ArgumentNullException("Empty input");
             }
             
             // 2. Check username exists
@@ -98,7 +97,8 @@ namespace Service
                     return user;
                 }
             }
-            return null;
+
+            throw new NullReferenceException("Cant login!");
         }
 
         public async Task<ProjectManagerResponse> GetUserProjects(string userId)
@@ -116,7 +116,6 @@ namespace Service
                 {
                     Message = "Get user projects success!",
                     Projects = mapProject,
-                    IsSuccess = true
                 };
             }
             catch (Exception e)
@@ -127,21 +126,17 @@ namespace Service
 
         public async Task<UserManagerResponse> Logout(string userId)
         {
-            await _unitOfWork.BeginTransaction();
-
             try
             {
                 await _refreshTokenRepository.DeleteAll(userId);
                 await _unitOfWork.CommitTransaction();
                 return new UserManagerResponse
                 {
-                    IsSuccess = true,
                     Message = "User logout success!"
                 };
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollbackTransaction();
                 throw e;
             }
         }

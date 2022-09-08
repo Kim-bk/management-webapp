@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +13,7 @@ namespace Service.TokenValidators
         {
             _configuration = configuration;
         }
-        public bool Validate(string refreshToken)
+        public void Validate(string refreshToken)
         {
             // 1. Create parameter to valid refresh token
             TokenValidationParameters validationParameters = new TokenValidationParameters()
@@ -34,11 +33,10 @@ namespace Service.TokenValidators
             try
             {
                 tokenHandler.ValidateToken(refreshToken, validationParameters, out SecurityToken validatedToken);
-                return true;
             }
             catch
             {
-                return false;
+                throw new ArgumentException("Invalid refresh token.");
             }
         }
     }

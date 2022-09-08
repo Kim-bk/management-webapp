@@ -184,7 +184,6 @@ namespace Service
             // 2. Return message
             return new ProjectManagerResponse
             {
-                IsSuccess = true,
                 Message = "Get all list task of project",
                 ListTasks = _mapper.MapListTasks(project.ListTasks.ToList()),
             };
@@ -195,32 +194,25 @@ namespace Service
             {
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Find project
-                var project = await _projectRepository.FindAsync(p => p.Id == projectId);
+                // 1. Validate if the list task is in project
+                var listTask = await _listTaskRepository.FindAsync(
+                    lt => lt.ListTaskId == listTaskId && lt.ProjectId == projectId);
 
-                // 2. Validate if the list task is in project
-                if (project == null)
-                {
-                    throw new ObjectNotFoundException("The project is not found!");
-                }
-
-                if (!project.ListTasks.Contains(
-                    project.ListTasks.FirstOrDefault(lt => lt.ListTaskId == listTaskId)))
+                if (listTask == null)
                 {
                     // 3. Return error cant find list task in the project
-                    throw new ObjectNotFoundException("List task is not found in project!");
+                    throw new ObjectNotFoundException("List task cant be found!");
                 }
 
                 // 4. Send event (ListTaskDeletedDomainEvent) to delete all tasks in list
                 // this will be handled in ListTaskDeletedDomainEvenHandler
-                project.DeleteListTask(listTaskId);
+                listTask.Project.DeleteListTask(listTaskId);
 
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse
                 {
-                    Message = "List Task " + " have been deleted!",
-                    IsSuccess = true,
+                    Message = "List Task " + listTask.Title + " have been deleted!",
                 };
             }
             catch(Exception e)
@@ -236,7 +228,6 @@ namespace Service
             return new ProjectManagerResponse
             { 
                 Projects = _mapper.MapProject(listProject),
-                IsSuccess = true
             };
         }
 
@@ -261,7 +252,6 @@ namespace Service
                 await _unitOfWork.CommitTransaction();
                 return new ProjectManagerResponse
                 {
-                    IsSuccess = true,
                     Message = "Delete project " + project.Name,
                 };
             }

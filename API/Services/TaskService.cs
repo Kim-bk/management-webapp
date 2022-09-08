@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using API.Services;
 using Domain.AggregateModels.UserAggregate;
 using System.Data.Entity.Core;
-
+using TaskEntity = Domain.AggregateModels.TaskAggregate.Task;
 namespace Service
 {
     public class TaskService : BaseService, ITaskService
@@ -43,8 +43,7 @@ namespace Service
                 // 2. Check if task is existed
                 if (task == null || task.ListTaskId == null)
                 {
-                    throw new ObjectNotFoundException("Task is not found!");
-
+                    throw new ArgumentNullException("Task is not found!");
                 }
 
                 // 2. Map Task to Task DTO
@@ -62,7 +61,6 @@ namespace Service
                 {
                     Message = "Get task",
                     Task = taskDTO,
-                    IsSuccess = true
                 };
             }
             catch (Exception e)
@@ -78,7 +76,7 @@ namespace Service
                 var label = await _labelRepository.FindAsync(lb => lb.Title == request.Title);
                 if (label != null)
                 {
-                    throw new ArgumentException("Duplicate label!");
+                    throw new ArgumentException("Duplicated label!");
                 }
 
                 await _unitOfWork.BeginTransaction();
@@ -95,7 +93,6 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = "Add label " + request.Title.ToString() + " to task " + task.Title.ToString(),
-                    IsSuccess = true,
                 };
             }
             catch (Exception e)
@@ -109,8 +106,6 @@ namespace Service
         {
             try
             {
-                await _unitOfWork.BeginTransaction();
-
                 // 1. Find task by Id
                 var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
 
@@ -122,12 +117,10 @@ namespace Service
                 return new UserManagerResponse
                 {
                     Message = "Remove label " + request.Id + " in task " + task.Title,
-                    IsSuccess = true
                 };
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollbackTransaction();
                 throw e;
             }
         }
@@ -168,31 +161,30 @@ namespace Service
                 throw e;
             }
         }
-        public async Task<TaskManagerResponse> ManageToDoItems(ToDoRequest request)
+        public async Task<TaskManagerResponse> UpdateTodoItems(ToDoRequest request)
         {
             try
             {
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find to do item by id and task id
-                var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
+                var todoItem = await _todoRepository.FindAsync(
+                    td => td.Id == request.Id && td.TaskId == request.TaskId);
 
                 // 2. Validate
-                if (task == null || task.ListTaskId == null)
+                if (todoItem == null)
                 {
-                    throw new ObjectNotFoundException("Task not found!");
+                    throw new ArgumentNullException("Todo not found!");
                 }
 
-                var todoItem = task.GetToDoItemInTask(request.Id);
-
-                // 2. Validate whether todo is parent or not
+                // 3. Validate whether todo is parent or not
                 if (todoItem.ParentId == null)
                 {
                     throw new ArgumentException("To-do parent cant not checked or unchecked!");
                 }
 
-                // 3. Update status IsDone check / uncheck of todo item
-                task.UpdateStatusTodoItem(todoItem);
+                // 3. Update Todo item
+                todoItem.Task.UpdateTodoItem(todoItem, request);
 
                 // 4. Commit changes
                 await _unitOfWork.CommitTransaction();
@@ -200,7 +192,6 @@ namespace Service
                 return new TaskManagerResponse
                 {
                     Message = "Success check/uncheck todo item",
-                    IsSuccess = true
                 };
             }
             catch (Exception e)
@@ -239,7 +230,7 @@ namespace Service
                     throw new ObjectNotFoundException("User cant be found!");
                 }
 
-                // 5. Update member into task and assign user
+                // 5. Assing user to task
                 task.AssignMember(user);
 
                 // 6. Commit changes
@@ -248,7 +239,6 @@ namespace Service
                 return new TaskManagerResponse
                 {
                     Message = "Assign user " + user.UserName + " to task " + task.Title,
-                    IsSuccess = true
                 };
             }
             catch (Exception e)
@@ -265,13 +255,14 @@ namespace Service
                 await _unitOfWork.BeginTransaction();
 
                 // 1. Find each task in list task by list task id and task id
-                var firstTask = _taskRepository.FindByIdAndListTask(taskId, request.CurrentListId);
-                var secondTask = _taskRepository.FindByIdAndListTask(request.TaskId, request.AfterListId);
+                var firstTask = await _taskRepository.FindAsync(t => t.Id == taskId);
+                var secondTask = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
 
                 // 2. Validate
-                if (firstTask == null || secondTask == null)
+                if (firstTask == null || secondTask == null
+                     || firstTask.ListTaskId == null || secondTask.ListTaskId == null)
                 {
-                    throw new ObjectNotFoundException("Cant find one of these task!");
+                    throw new ArgumentNullException("Cant find one of these task!");
                 }
 
                 // 3. Swap position of both
@@ -291,7 +282,7 @@ namespace Service
                 throw e;
             }
         }
-        private int FindMaxPosition(List<Domain.AggregateModels.TaskAggregate.Task> tasks)
+        private int FindMaxPosition(List<TaskEntity> tasks)
         {
             if (tasks.Count == 0)
             {
@@ -313,28 +304,26 @@ namespace Service
             {
                 await _unitOfWork.BeginTransaction();
 
-                // 1. Find list task by ID
+                // 1. Find list task
                 var listTask = await _listTaskRepository.FindAsync(lt => lt.ListTaskId == request.ListTaskId);
                 
                 // 2. Validate
-                if (listTask != null && listTask.Tasks.Contains(
-                    listTask.Tasks.FirstOrDefault(t => t.Title == request.Title)))
+                if (listTask != null)
                 {
-                    throw new ArgumentException("Duplicate list task!");
+                    throw new ArgumentException("List task cant be found!");
                 }
 
                 // 3. Set max position (default) for task in list
                 var positon = FindMaxPosition(listTask.Tasks.ToList());
 
                 // 4. Init object Task
-                var task = new Domain.AggregateModels.TaskAggregate.Task(request.Title, listTask, positon);
+                var task = new TaskEntity(request.Title, listTask, positon);
                 _taskRepository.AddAsync(task);
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse
                 {
                     Message = "Add task " + task.Title.ToString() + " to " + "list task " + task.ListTask.Title.ToString(),
-                    IsSuccess = true,
                 };
             }
             catch (Exception e)

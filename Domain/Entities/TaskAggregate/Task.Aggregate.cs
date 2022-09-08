@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using API.DTOs.Requests;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.UserAggregate;
 using Domain.Base;
@@ -15,22 +16,12 @@ namespace Domain.AggregateModels.TaskAggregate
         }
         public void Update(string name, ListTask listTask, int position)
         {
-            if (String.IsNullOrWhiteSpace(name) || position == 0 || listTask == null)
-            {
-                throw new ArgumentNullException("Input can not be null or white space");
-            }
-
             Title = name;
             ListTask = listTask;
             Position = position;
         }
         public void AddLabel(string nameLabel, string color)
         {
-            if (String.IsNullOrWhiteSpace(nameLabel) || String.IsNullOrWhiteSpace(color))
-            {
-                throw new ArgumentNullException("Input can not be null or white space");
-            }
-
             Labels.Add(new Label 
             { 
                 Title = nameLabel,
@@ -59,11 +50,6 @@ namespace Domain.AggregateModels.TaskAggregate
         }
         public void AddTodo(string nameTodo, int? parentId)
         {
-            if (String.IsNullOrWhiteSpace(nameTodo))
-            {
-                throw new ArgumentNullException("Input can not be null or white space");
-            }
-
             Todos.Add(new Todo 
             { 
                 Title = nameTodo,
@@ -72,12 +58,13 @@ namespace Domain.AggregateModels.TaskAggregate
             });
         }
 
-        public Todo GetToDoItemInTask(int todoId)
+        public Todo GetToDoItem(int todoId)
         {
             return Todos.FirstOrDefault(t => t.Id == todoId);
         }
-        public void UpdateStatusTodoItem(Todo todoItem)
+        public void UpdateTodoItem(Todo todoItem, ToDoRequest todoUpdate)
         {
+            todoItem.Title = todoUpdate.Title;
             if (Convert.ToBoolean(todoItem.IsDone))
             {
                 todoItem.IsDone = false;

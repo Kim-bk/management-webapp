@@ -5,6 +5,5 @@ namespace Domain.Interfaces.Repositories
 {
     public interface IToDoRepository : IRepository<Todo>
     {
-        Todo FindToDoItems(int taskId, int todoId);
     }
 }

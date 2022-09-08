@@ -10,12 +10,5 @@ namespace Infrastructure.Repositories
         public TaskRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
-
-        public TaskEntity FindByIdAndListTask(int taskId, int listTaskId)
-        {
-            return (from t in DbSet 
-                    where t.Id == taskId && t.ListTaskId == listTaskId
-                    select t).FirstOrDefault();
-        }
     }
 }

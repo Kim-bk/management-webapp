@@ -13,7 +13,7 @@ namespace Service.Interfaces
         Task<UserManagerResponse> AddLabelToTask(LabelRequest request);
         Task<UserManagerResponse> RemoveLabelInTask(LabelRequest request);
         Task<TaskManagerResponse> AddToDoToTask(ToDoRequest request);
-        Task<TaskManagerResponse> ManageToDoItems(ToDoRequest request);
+        Task<TaskManagerResponse> UpdateTodoItems(ToDoRequest request);
         Task<TaskManagerResponse> AssignMember(int taskId, string userId);
         Task<UserManagerResponse> MoveTask(int taskId, MoveTaskRequest request);
         Task<UserManagerResponse> CreateTask(TaskRequest request, string userId);

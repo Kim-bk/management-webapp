@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Domain.Interfaces;
 using Infrastructure.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -17,7 +15,6 @@ namespace Infrastructure
         private IDbContextTransaction _transaction;
         private readonly IsolationLevel? _isolationLevel;
         private readonly IMediator _mediator;
-        public IDbContextTransaction GetCurrentTransaction() => _transaction;
         public bool HasActiveTransaction => _transaction != null;
 
         public UnitOfWork(IMediator mediator, AppDbContext dbContext)
@@ -50,7 +47,7 @@ namespace Infrastructure
             await _mediator.DispatchDomainEventsAsync(_dbContext);
          
             // Save history before save changes
-              _dbContext.OnBeforeSaveChanges();
+            _dbContext.OnBeforeSaveChanges();
             await _dbContext.SaveChangesAsync();
 
             if (_transaction == null) return;
@@ -74,7 +71,6 @@ namespace Infrastructure
         {
             if (_dbContext == null)
                 return;
-            //
             // Close connection
             if (_dbContext.Database.GetDbConnection().State == ConnectionState.Open)
             {

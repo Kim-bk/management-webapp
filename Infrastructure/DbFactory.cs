@@ -8,8 +8,8 @@ namespace Infrastructure
     {
         private bool _disposed;
         private Func<AppDbContext> _instanceFunc;
-        private DbContext _dbContext;
-        public DbContext DbContext => _dbContext ?? (_dbContext = _instanceFunc.Invoke());
+        private AppDbContext _dbContext;
+        public AppDbContext DbContext => _dbContext ?? (_dbContext = _instanceFunc.Invoke());
 
         public DbFactory(Func<AppDbContext> dbContextFactory)
         {

@@ -14,14 +14,14 @@ namespace Infrastructure
         private readonly AppDbContext _dbContext;
         private IDbContextTransaction _transaction;
         private readonly IsolationLevel? _isolationLevel;
-        private readonly IMediator _mediator;
+
         public bool HasActiveTransaction => _transaction != null;
 
-        public UnitOfWork(IMediator mediator, AppDbContext dbContext)
+        public UnitOfWork(AppDbContext dbContext)
         {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _dbContext = dbContext;
         }
+      
         private async Task StartNewTransactionIfNeeded()
         {
             if (_transaction == null)
@@ -44,11 +44,12 @@ namespace Infrastructure
             // side effects from the domain event handlers which are using the same _dbContext with "InstancePerLifetimeScope" or "scoped" lifetime
             // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
             // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
-            await _mediator.DispatchDomainEventsAsync(_dbContext);
-         
+
             // Save history before save changes
             _dbContext.OnBeforeSaveChanges();
             await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveEntitiesAsync();
+
 
             if (_transaction == null) return;
 

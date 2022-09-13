@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Domain.DomainEvents;
-using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
 

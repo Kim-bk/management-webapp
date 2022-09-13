@@ -14,11 +14,13 @@ namespace Service.Authenticators
     {
         private readonly AccessTokenService _accessTokenGenerator;
         private readonly RefreshTokenService _refreshTokenGenerator;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public Authenticator(AccessTokenService accessTokenGenerator, IUnitOfWork unitOfWork,
-                        RefreshTokenService refreshTokenGenerator)
+                        RefreshTokenService refreshTokenGenerator, IRefreshTokenRepository refreshTokenRepository)
         {
+            _refreshTokenRepository = refreshTokenRepository;
             _accessTokenGenerator = accessTokenGenerator;
             _refreshTokenGenerator = refreshTokenGenerator;
             _unitOfWork = unitOfWork;
@@ -37,7 +39,8 @@ namespace Service.Authenticators
                 string refreshTokenHandler = new JwtSecurityTokenHandler().WriteToken(refreshToken);
 
                 // 3. Create user refresh token
-                user.CreateRefreshToken(refreshTokenId, refreshTokenHandler);
+                var userRefreshToken = user.CreateRefreshToken(refreshTokenId, refreshTokenHandler);
+                 _refreshTokenRepository.AddAsync(userRefreshToken);
 
                 await _unitOfWork.CommitTransaction();
 

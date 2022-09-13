@@ -20,9 +20,10 @@ namespace Infrastructure
         {
             _dbFactory = dbFactory;
         }
-        public async void AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             await DbSet.AddAsync(entity);
+            return entity;
         }
         public async void DeleteExp(Expression<Func<T, bool>> expression)
         {

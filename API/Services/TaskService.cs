@@ -108,6 +108,12 @@ namespace Service
             {
                 // 1. Find task by Id
                 var task = await _taskRepository.FindAsync(t => t.Id == request.TaskId);
+                // 2. Find label 
+                var label = await _labelRepository.FindAsync(t => t.Id == request.Id);
+                if (label == null || !label.Tasks.Contains(task))
+                {
+                    throw new ArgumentNullException("Label cant be found!");
+                }
 
                 // 2. Remove label in task
                 task.RemoveLabel(request.Id);
@@ -308,7 +314,7 @@ namespace Service
                 var listTask = await _listTaskRepository.FindAsync(lt => lt.ListTaskId == request.ListTaskId);
                 
                 // 2. Validate
-                if (listTask != null)
+                if (listTask == null)
                 {
                     throw new ArgumentException("List task cant be found!");
                 }
@@ -318,7 +324,7 @@ namespace Service
 
                 // 4. Init object Task
                 var task = new TaskEntity(request.Title, listTask, positon);
-                _taskRepository.AddAsync(task);
+                await _taskRepository.AddAsync(task);
                 await _unitOfWork.CommitTransaction();
 
                 return new UserManagerResponse

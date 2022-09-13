@@ -145,16 +145,16 @@ namespace Service
                 }
 
                 await _unitOfWork.BeginTransaction();
-
                 // 4. Create Project then add member
                 var createProject = new Project(model.Name);
-                _projectRepository.AddAsync(createProject);
-
+                await _projectRepository.AddAsync(createProject);
                 // 5. Find user by id then add project to user
                 var user = await _userManager.FindByIdAsync(userId);
                 createProject.AddMember(user);
+               
 
                 // 6. Commit transaction if not catch exception
+
                 await _unitOfWork.CommitTransaction();
 
                 // 7. Return message create success
@@ -166,7 +166,6 @@ namespace Service
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollbackTransaction();
                 throw e;
             }
         }

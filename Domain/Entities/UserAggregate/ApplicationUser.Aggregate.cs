@@ -4,14 +4,13 @@ namespace Domain.AggregateModels.UserAggregate
 {
     public partial class ApplicationUser : IAggregateRoot
     {
-        public void CreateRefreshToken(string tokenId, string token)
+        public RefreshToken CreateRefreshToken(string tokenId, string token)
         {
-            var refreshToken = new RefreshToken
+            return new RefreshToken
             {
                 Id = tokenId,
                 Token = token,
             };
-            RefreshToken = refreshToken;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Domain.AggregateModels.UserAggregate;
+﻿using Domain.AggregateModels.UserAggregate;
 using Domain.Base;
 using System.Linq;
 using Domain.SeedWork;
@@ -21,12 +19,16 @@ namespace Domain.AggregateModels.ProjectAggregate
             Name = name;
         }
 
-        public void CreateListTask(string name)
+        public void CreateListTask(string nameListTask)
         {
-            ListTasks.Add(new ListTask
+            // Check if list task already exists
+            if (ListTasks.FirstOrDefault(lt => lt.Title == nameListTask) == null)
             {
-                Title = name
-            });   
+                ListTasks.Add(new ListTask
+                {
+                    Title = nameListTask
+                });
+            }
         }
         public void RemoveListTask(int listTaskId)
         {

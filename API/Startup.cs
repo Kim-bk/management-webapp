@@ -31,6 +31,7 @@ namespace API
         {
             // Regist Domain Event Handler
             services.AddMediatR(typeof(ListTaskDeletedDomainEventHandler).Assembly);
+            services.AddMediatR(typeof(ProjectCreatedDomainEventHandler).Assembly);
             //                     typeof(SomeOtherHandler).Assembly);
 
             // Auto Mapper Configurations
@@ -42,6 +43,7 @@ namespace API
             IMapper mapper = mapperConfig.CreateMapper();
 
             services.AddSingleton(mapper);
+
             // Requirements in Password
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -49,6 +51,7 @@ namespace API
                 options.Password.RequiredLength = 5;
                 options.Password.RequireLowercase = true;
             })
+
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
@@ -94,7 +97,6 @@ namespace API
             app.UseRouting();
 
             app.UseAuthentication();
-
 
             app.UseAuthorization();
 

@@ -1,32 +1,42 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Domain.AggregateModels.TaskAggregate;
 using Domain.AggregateModels.ProjectAggregate;
 using Domain.AggregateModels.UserAggregate;
 using Domain.Entities.Histories;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using MediatR;
+using TaskEntity = Domain.AggregateModels.TaskAggregate.Task;
+using Domain.AggregateModels.TaskAggregate;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Infrastructure.Context
 {
     public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
+        private readonly IMediator _mediator;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor, IMediator mediator)
             : base(options)
         {
+            _mediator = mediator;
             _httpContextAccessor = httpContextAccessor;
         }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Label> Labels { get; set; }
         public virtual DbSet<ListTask> ListTasks { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
-        public virtual DbSet<Task> Tasks { get; set; }
+        public virtual DbSet<TaskEntity> Tasks { get; set; }
         public virtual DbSet<Todo> Todos { get; set; }
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-
+        public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            await _mediator.DispatchDomainEventsAsync(this);
+            var result = await base.SaveChangesAsync(cancellationToken);
+            return true;
+        }
         public void OnBeforeSaveChanges()
         {
             string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -54,7 +54,7 @@ namespace API.Extensions
                 .AddScoped<IProjectRepository, ProjectRepository>()
                 .AddScoped<IListTaskRepository, ListTaskRepository>()
                 .AddScoped<ITaskRepository, TaskRepository>()
-                .AddScoped<ILabelRepository, LabelRepostiory>()
+                .AddScoped<ILabelRepository, LabelRepository>()
                 .AddScoped<IToDoRepository, ToDoRepository>();
         }
 
@@ -73,12 +73,5 @@ namespace API.Extensions
                 .AddScoped<Authenticator>();
 
         }
-
-      /*  public static IServiceProvider AddEventBusServices(this IServiceProvider services)
-        {
-
-            services.AddScoped<IRabbitMQPersistentConnection>();
-
-        }*/
     }
 }

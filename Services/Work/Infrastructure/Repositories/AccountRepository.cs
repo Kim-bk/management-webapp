@@ -14,12 +14,5 @@ namespace Infrastructure.Repositories
         public AccountRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
-        public async Task<List<Project>> GetUserProjects(string userId)
-        {
-           // 1. Find all projects of user
-          return await DbSet.Where(u => u.Id == userId)
-                .SelectMany(p => p.Projects)
-                .ToListAsync();
-        }
     }
 }

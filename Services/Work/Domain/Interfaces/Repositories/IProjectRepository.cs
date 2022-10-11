@@ -6,6 +6,5 @@ namespace Domain.Interfaces.Repositories
 {
     public interface IProjectRepository : IRepository<Project>
     {
-        Task<List<Project>> GetAll();
     }
 }

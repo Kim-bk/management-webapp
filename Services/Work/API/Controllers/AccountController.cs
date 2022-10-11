@@ -26,7 +26,6 @@ namespace API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEventBus _eventBus;
 
-
         public AccountController(IAccountService accountSerivce, RefreshTokenValidator refreshTokenValidator,
                             Authenticator authenticator, RefreshTokenService refreshTokenService,
                             UserManager<ApplicationUser> userManager, IEventBus eventBus)

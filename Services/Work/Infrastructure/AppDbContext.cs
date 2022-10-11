@@ -83,6 +83,7 @@ namespace Infrastructure.Context
                     }
                 }
             }
+
             foreach (var auditEntry in auditEntries)
             {
                 Histories.Add(auditEntry.ToHistory());

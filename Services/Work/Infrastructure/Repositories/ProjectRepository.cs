@@ -12,9 +12,9 @@ namespace Infrastructure.Repositories
         public ProjectRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
-        public async Task<List<Project>> GetAll()
+
+        public void Get()
         {
-            return await DbSet.ToListAsync();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace API.DomainEventHandlers
         {
             _projectRepository = projectRepository;
         }
+
         public async Task Handle(ProjectCreatedDomainEvent notification, CancellationToken cancellationToken)
         {
             // 1. Get project

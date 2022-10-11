@@ -145,16 +145,16 @@ namespace Service
                 }
 
                 await _unitOfWork.BeginTransaction();
+
                 // 4. Create Project then add member
                 var createProject = new Project(model.Name);
                 await _projectRepository.AddAsync(createProject);
+
                 // 5. Find user by id then add project to user
                 var user = await _userManager.FindByIdAsync(userId);
                 createProject.AddMember(user);
-               
 
                 // 6. Commit transaction if not catch exception
-
                 await _unitOfWork.CommitTransaction();
 
                 // 7. Return message create success
@@ -169,7 +169,6 @@ namespace Service
                 throw e;
             }
         }
-
         public async Task<ProjectManagerResponse> GetProject(int projectId)
         {
             // 1. Find project
@@ -226,7 +225,7 @@ namespace Service
             var listProject = await _projectRepository.GetAll();
             return new ProjectManagerResponse
             { 
-                Projects = _mapper.MapProject(listProject),
+                Projects = _mapper.MapProject(listProject.ToList()),
             };
         }
 

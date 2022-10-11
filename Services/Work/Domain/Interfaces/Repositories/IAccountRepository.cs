@@ -7,6 +7,5 @@ namespace Domain.Accounts
 {
     public interface IAccountRepository : IRepository<ApplicationUser>
     {
-        Task<List<Project>> GetUserProjects(string userId);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EventBus.Abstractions;
 using EventBus.Events;
+using static EventBus.InMemoryEventBusSubscriptionsManager;
 
 namespace EventBus
 {
@@ -23,13 +24,13 @@ namespace EventBus
 
         bool HasSubscriptionsForEvent(string eventName);
 
-        Type? GetEventTypeByName(string eventName);
+        Type GetEventTypeByName(string eventName);
 
         void Clear();
 
-        IEnumerable<Type> GetHandlersForEvent<T>() where T : IntegrationEvent;
+        IEnumerable<SubscriptionInfo> GetHandlersForEvent<T>() where T : IntegrationEvent;
 
-        IEnumerable<Type> GetHandlersForEvent(string eventName);
+        IEnumerable<SubscriptionInfo> GetHandlersForEvent(string eventName);
 
         string GetEventKey<T>();
     }

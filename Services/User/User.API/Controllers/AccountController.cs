@@ -10,6 +10,7 @@ using EventBus.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Service.Interfaces;
 
 namespace API.Controllers
@@ -20,19 +21,13 @@ namespace API.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEventBus _eventBus;
         private readonly HttpClient _client;
 
-        public AccountController(IAccountService accountSerivce, UserManager<ApplicationUser> userManager
-                        , IEventBus eventBus)
+        public AccountController(IAccountService accountSerivce, UserManager<ApplicationUser> userManager)
         {
             _accountService = accountSerivce;
             _userManager = userManager;
-            _eventBus = eventBus;
             _client = new HttpClient();
-
-            // Update port # in the following line.
-           // _client.BaseAddress = new Uri("http://localhost:64195");
         }
 
         // api/account/register
@@ -49,20 +44,21 @@ namespace API.Controllers
         {
              var user = await _accountService.Login(model);
 
+            // 1. Call http to Auth Service
+            var httpRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri("http://localhost:5000/api/auth/" + user.Id)
+            };
 
-
-            // 1. Call http medthod to Auth Service
-            //var res = await _authenticator.Authenticate(user);
-
-            var httpRequestMessage = new HttpRequestMessage();
-            httpRequestMessage.Method = HttpMethod.Post;
-            httpRequestMessage.RequestUri = new Uri("http://localhost:5000/api/auth/" + user.Id);
             var response = await _client.SendAsync(httpRequestMessage);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            // return URI of the created resource.
+            // 2. Read file as json
+            var jsonContent = JsonConvert.DeserializeObject<object>(responseContent);
 
-            return Ok(responseContent);
+            // 3. Return access token vs refresh Token
+            return Ok(jsonContent);
         }
 
         [Authorize]
@@ -75,18 +71,13 @@ namespace API.Controllers
             return Ok(rs.Message);
         }
 
-       
+        [Authorize]
         [HttpPut]
         // api/account
         public async Task<IActionResult> Update([FromBody] UserRequest req)
         {
-            // 1. Call user service to update user
-            
-
-            // 2. Integration event raised before service has been used
-            var @event = new UserUpdatedIntegrationEvent(req.UserId, req.Email, req.PhoneNumber);
-            _eventBus.Publish(@event);
-            return NoContent();
+            var rs = await _accountService.Update(req);
+            return Ok(rs);
         }
 
         // Call http method to refresh access token

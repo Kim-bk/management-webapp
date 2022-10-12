@@ -19,16 +19,13 @@ namespace API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly RefreshTokenValidator _refreshTokenValidator;
-        private readonly Authenticator _authenticator;
         private readonly RefreshTokenService _refreshTokenService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public AuthController(IAuthService authService, RefreshTokenValidator refreshTokenValidator,
-                            Authenticator authenticator, RefreshTokenService refreshTokenService,
-                            UserManager<ApplicationUser> userManager)
+                            RefreshTokenService refreshTokenService,UserManager<ApplicationUser> userManager)
         {
             _refreshTokenService = refreshTokenService;
-            _authenticator = authenticator;
             _refreshTokenValidator = refreshTokenValidator;
             _authService = authService;
             _userManager = userManager;
@@ -38,15 +35,13 @@ namespace API.Controllers
         // api/auth/{userId}
         [HttpPost("{userId}")]
         public async Task<IActionResult> Authenticate(string userId)
-        
         {
             var user = await _userManager.FindByIdAsync(userId);
              
-            // 1. Generate user access token and refresh token
-            var res = await _authenticator.Authenticate(user);
+            // 1. Generate user access token
+            var res = await _authService.Authenticate(user);
             return Ok(res);
         }
-
 
         [Authorize]
         [HttpPost("refresh")]
@@ -71,7 +66,7 @@ namespace API.Controllers
             var user = await _userManager.FindByIdAsync(refreshTokenDTO.UserId);
 
             // 5. Generate new access token and refresh token to the user
-            AuthenticatedUserResponse response = await _authenticator.Authenticate(user);
+            var response = await _authService.Authenticate(user);
 
             return Ok(response);
         }

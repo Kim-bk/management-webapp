@@ -2,16 +2,19 @@
 
 namespace EventBus
 {
-    public class SubscriptionInfo
+    public partial class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManager
     {
-        public Type HandlerType { get; }
-
-        private SubscriptionInfo(Type handlerType)
+        public class SubscriptionInfo
         {
-            HandlerType = handlerType;
-        }
+            public Type HandlerType { get; }
 
-        public static SubscriptionInfo Typed(Type handlerType) =>
-            new SubscriptionInfo(handlerType);
+            private SubscriptionInfo(bool isDynamic, Type handlerType)
+            {
+                HandlerType = handlerType;
+            }
+
+            public static SubscriptionInfo Typed(Type handlerType) =>
+                new SubscriptionInfo(false, handlerType);
+        }
     }
 }

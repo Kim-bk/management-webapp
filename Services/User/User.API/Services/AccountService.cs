@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using API.DTOs;
 using Domain.AggregateModels.UserAggregate;
 using System.Linq;
+using API.IntegrationEvents;
+using EventBus.Abstractions;
 
 namespace User.API.Services
 {
@@ -22,16 +24,19 @@ namespace User.API.Services
         private readonly IAccountRepository _accountRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEventBus _eventBus;
+
 
         public AccountService(IAccountRepository accountRepository, IUnitOfWork uniOfWork,
                     UserManager<ApplicationUser> userManager, IMapper mapper,
-                    IRefreshTokenRepository refreshTokenRepository)
+                    IRefreshTokenRepository refreshTokenRepository, IEventBus eventBus)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _accountRepository = accountRepository;
             _unitOfWork = uniOfWork;
             _userManager = userManager;
             _mapper = mapper;
+            _eventBus = eventBus;
         }
 
         public async Task<UserManagerResponse> Register(RegisterRequest model)
@@ -133,6 +138,32 @@ namespace User.API.Services
                 return new UserManagerResponse
                 {
                     Message = "User logout success!"
+                };
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<UserManagerResponse> Update(UserRequest request)
+        {
+            try
+            {
+                var findUser = await _userManager.FindByIdAsync(request.UserId);
+
+                // 1. Update user email, phone number
+                findUser.Update(request.Email, request.PhoneNumber);
+                await _userManager.UpdateAsync(findUser);
+
+                // 2. Send UserUpdatedIntegrationEvent
+                var eventMessage = new UserUpdatedIntegrationEvent(request.UserId, request.Email, request.PhoneNumber);
+                _eventBus.Publish(eventMessage);
+
+                return new UserManagerResponse
+                {
+                    Message = "Update user success!",
+                    //IsSuccess = true,
                 };
             }
             catch (Exception e)

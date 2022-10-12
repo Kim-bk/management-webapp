@@ -1,54 +1,64 @@
-﻿using System;
-using System.Threading.Tasks;
-using API.DTOs.Responses;
-using API.DTOs.Requests;
+﻿using API.DTOs.Responses;
+using Domain.AggregateModels.UserAggregate;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
-using Microsoft.AspNetCore.Identity;
-using AutoMapper;
-using Domain.AggregateModels.UserAggregate;
-using Auth.Domain.DTOs.Requests;
-using API.Services;
+using Service;
+using Service.TokenGenratorServices;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
 
 namespace Auth.API.Services
 {
-    public class AuthService : BaseService, IAuthService
+    public class AuthService : IAuthService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly AccessTokenService _accessTokenGenerator;
+        private readonly RefreshTokenService _refreshTokenGenerator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IUnitOfWork uniOfWork,
-                    UserManager<ApplicationUser> userManager,
-                    IRefreshTokenRepository refreshTokenRepository) : base(uniOfWork)
+        public AuthService(AccessTokenService accessTokenGenerator, IUnitOfWork unitOfWork,
+                        RefreshTokenService refreshTokenGenerator, IRefreshTokenRepository refreshTokenRepository)
         {
             _refreshTokenRepository = refreshTokenRepository;
-            _userManager = userManager;
+            _accessTokenGenerator = accessTokenGenerator;
+            _refreshTokenGenerator = refreshTokenGenerator;
+            _unitOfWork = unitOfWork;
         }
 
-
-
-        public async Task<ApplicationUser> Login(LoginRequest model)
+        public async Task<AuthenticatedUserResponse> Authenticate(ApplicationUser user)
         {
-            // 1. Validate input
-            if (model == null)
+            try
             {
-                throw new ArgumentNullException("Empty input");
-            }
+                await _unitOfWork.BeginTransaction();
 
-            // 2. Check username exists
-            var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user != null)
-            {
-                // 3. Check password
-                var password = await _userManager.CheckPasswordAsync(user, model.Password);
-                if (password)
+                // 1. Generate access vs refresh token
+                var accessToken = _accessTokenGenerator.Generate(user);
+                var refreshToken = _refreshTokenGenerator.Generate();
+
+                // 2. Init refresh token properties
+                string refreshTokenId = Guid.NewGuid().ToString();
+                string refreshTokenHandler = new JwtSecurityTokenHandler().WriteToken(refreshToken);
+
+                // 3. Create and save user refresh token
+                var userRefreshToken = user.CreateRefreshToken(refreshTokenId, refreshTokenHandler);
+                //await _refreshTokenRepository.AddAsync(userRefreshToken);
+
+                await _unitOfWork.CommitTransaction();
+
+                // 3. Return two tokens (AccessToken vs RefreshToken)
+                // return new JwtSecurityTokenHandler().WriteToken(accessToken);
+                return new AuthenticatedUserResponse()
                 {
-                    return user;
-                }
+                    AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
+                    RefreshToken = refreshTokenHandler
+                };
             }
-
-            throw new NullReferenceException("Cant login!");
+            catch (Exception e)
+            {
+                await _unitOfWork.RollbackTransaction();
+                throw new Exception(e.Message);
+            }
         }
-
     }
 }

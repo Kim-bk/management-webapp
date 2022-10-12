@@ -10,5 +10,6 @@ namespace Service.Interfaces
         Task<UserManagerResponse> Register(RegisterRequest model);
         Task<ApplicationUser> Login(LoginRequest model);
         Task<UserManagerResponse> Logout(string userId);
+        Task<UserManagerResponse> Update(UserRequest request);
     }
 }

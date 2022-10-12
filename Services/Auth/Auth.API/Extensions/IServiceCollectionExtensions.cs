@@ -56,8 +56,7 @@ namespace API.Extensions
                 .AddScoped<AccessTokenService>()
                 .AddScoped<RefreshTokenService>()
                 .AddScoped<TokenGenerator>()
-                .AddScoped<RefreshTokenValidator>()
-                .AddScoped<Authenticator>();
+                .AddScoped<RefreshTokenValidator>();
 
         }
     }

@@ -12,5 +12,11 @@ namespace Domain.AggregateModels.UserAggregate
                 Token = token,
             };
         }
+
+        public void Update(string email, string phoneNumber)
+        {
+            Email = email;
+            PhoneNumber = phoneNumber;
+        }
     }
 }

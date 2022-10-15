@@ -43,9 +43,8 @@ namespace API.Controllers
             return Ok(res);
         }
 
-        [Authorize]
         [HttpPost("refresh")]
-        // api/account/refresh
+        // api/auth/refresh
         public async Task<IActionResult> Refresh([FromBody] RefreshRequest refreshRequest)
         {
             if (!ModelState.IsValid)

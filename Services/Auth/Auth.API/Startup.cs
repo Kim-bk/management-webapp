@@ -77,7 +77,6 @@ namespace API
                 app.UseDeveloperExceptionPage();
             }
 
-
             app.UseRouting();
 
             app.UseAuthentication();

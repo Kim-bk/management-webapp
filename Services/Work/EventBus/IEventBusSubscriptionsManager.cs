@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using EventBus.Abstractions;
 using EventBus.Events;
-using static EventBus.InMemoryEventBusSubscriptionsManager;
 
 namespace EventBus
 {

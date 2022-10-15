@@ -33,7 +33,7 @@ namespace EventBusRabbitMQ
         public IModel CreateModel()
         {
             if (!IsConnected)
-            {     
+            {
                 throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
             }
 

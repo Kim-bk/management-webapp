@@ -105,30 +105,6 @@ namespace User.API.Services
             throw new NullReferenceException("Cant login!");
         }
 
-       /* public async Task<ProjectManagerResponse> GetUserProjects(string userId)
-        {
-            try
-            {
-                // 1. Get all projects of user
-                var user = await _accountRepository.FindAsync(u => u.Id == userId);
-                var userProjects = user.Projects.ToList();
-
-                // 2. Map List Project to List Project DTO
-                var mapProject = _mapper.Map<List<Project>, List<ProjectDTO>>(userProjects);
-
-                // 3. Return message
-                return new ProjectManagerResponse
-                {
-                    Message = "Get user projects success!",
-                    Projects = mapProject,
-                };
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }*/
-
         public async Task<UserManagerResponse> Logout(string userId)
         {
             try

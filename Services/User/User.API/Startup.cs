@@ -151,12 +151,14 @@ namespace API
 
                 var factory = new ConnectionFactory()
                 {
-                    /* Uri = new Uri("amqp://guest:guest@locahost:5672"),*/
+                    AutomaticRecoveryEnabled = true,
+                    NetworkRecoveryInterval = TimeSpan.FromSeconds(15),
                     UserName = "guest",
                     Password = "guest",
+                    //HostName = "host.docker.internal",
                     HostName = "localhost",
+                    Port = 5672,
                     DispatchConsumersAsync = true
-
                 };
 
                 var retryCount = 5;

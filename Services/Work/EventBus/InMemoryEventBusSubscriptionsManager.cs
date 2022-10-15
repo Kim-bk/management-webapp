@@ -49,9 +49,8 @@ namespace EventBus
                 throw new ArgumentException(
                     $"Handler Type {handlerType.Name} already registered for '{eventName}'", nameof(handlerType));
             }
-            
+
             _handlers[eventName].Add(SubscriptionInfo.Typed(handlerType));
-            
         }
 
         public void RemoveSubscription<T, TH>()
@@ -79,7 +78,6 @@ namespace EventBus
                     }
                     RaiseOnEventRemoved(eventName);
                 }
-
             }
         }
 
@@ -95,6 +93,8 @@ namespace EventBus
             var handler = OnEventRemoved;
             handler?.Invoke(this, eventName);
         }
+
+
         private SubscriptionInfo FindSubscriptionToRemove<T, TH>()
                 where T : IntegrationEvent
                 where TH : IIntegrationEventHandler<T>
@@ -113,7 +113,6 @@ namespace EventBus
             return _handlers[eventName].SingleOrDefault(s => s.HandlerType == handlerType);
 
         }
-
         public bool HasSubscriptionsForEvent<T>() where T : IntegrationEvent
         {
             var key = GetEventKey<T>();

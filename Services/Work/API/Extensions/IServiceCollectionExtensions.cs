@@ -15,11 +15,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service;
-using Service.Authenticators;
 using Service.Interfaces;
-using Service.TokenGenratorServices;
-using Service.TokenValidators;
 using EventBusRabbitMQ;
+using User.API.Services;
 
 namespace API.Extensions
 {
@@ -62,16 +60,10 @@ namespace API.Extensions
         {
             return services
                 .AddScoped<IAccountService, AccountService>()
-                .AddScoped<AccessTokenService>()
-                .AddScoped<RefreshTokenService>()
                 .AddScoped<IProjectService, ProjectService>()
                 .AddScoped<ITaskService, TaskService>()
                 .AddScoped<IRoleService, RoleService>()
-                .AddScoped<TokenGenerator>()
-                .AddScoped<RefreshTokenValidator>()
-                .AddScoped<IMapperCustom, Mapper>()
-                .AddScoped<Authenticator>();
-
+                .AddScoped<IMapperCustom, Mapper>();
         }
     }
 }

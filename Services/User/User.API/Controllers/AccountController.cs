@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using API.DTOs.Requests;
@@ -42,7 +43,7 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
-             var user = await _accountService.Login(model);
+            var user = await _accountService.Login(model);
 
             // 1. Call http to Auth Service
             var httpRequestMessage = new HttpRequestMessage
@@ -80,33 +81,27 @@ namespace API.Controllers
             return Ok(rs);
         }
 
-        // Call http method to refresh access token
-       /* [Authorize]
-        [HttpPost("refresh")]*/
+        [Authorize]
+        [HttpPost("refresh")]
         // api/account/refresh
-       /* public async Task<IActionResult> Refresh([FromBody] RefreshRequest refreshRequest)
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequest refreshRequest)
         {
-            if (!ModelState.IsValid)
+            // 1. Call http to Auth Service
+            var httpRequestMessage = new HttpRequestMessage
             {
-                return BadRequest("Some properties is not valid!");
-            }
+                Method = HttpMethod.Post,
+                RequestUri = new Uri("http://localhost:5000/api/auth/refresh"),
+                Content = JsonContent.Create(new RefreshRequest { RefreshToken = refreshRequest.RefreshToken})
+            };
+         
+            var response = await _client.SendAsync(httpRequestMessage);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
-            // 1. Check if refresh token is valid
-            _refreshTokenValidator.Validate(refreshRequest.RefreshToken);
+            // 2. Read file as json
+            var jsonContent = JsonConvert.DeserializeObject<object>(responseContent);
 
-            // 2. Get refresh token by token
-            var refreshTokenDTO = await _refreshTokenService.GetByToken(refreshRequest.RefreshToken);
-
-            // 3. Delete that refresh token
-            await _refreshTokenService.Delete(refreshTokenDTO.Id);
-
-            // 4. Find user have that refresh token
-            var user = await _userManager.FindByIdAsync(refreshTokenDTO.UserId);
-
-            // 5. Generate new access token and refresh token to the user
-            AuthenticatedUserResponse response = await _authenticator.Authenticate(user);
-
-            return Ok(response);
-        }*/
+            // 3. Return access token vs refresh Token
+            return Ok(jsonContent);
+        }
     }
 }

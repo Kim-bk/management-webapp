@@ -7,6 +7,7 @@ using Autofac;
 using EventBus;
 using EventBus.Abstractions;
 using EventBus.Events;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
@@ -18,27 +19,48 @@ namespace EventBusRabbitMQ
 {
     public class EventBusRabbitMQServices : IEventBus, IDisposable
     {
-        private const string BROKER_NAME = "test1";
+        const string AUTOFAC_SCOPE_NAME = "test_event_bus";
+        const string BROKER_NAME = "test1";
 
         private readonly IRabbitMQPersistentConnection _persistentConnection;
         private readonly ILogger<EventBusRabbitMQServices> _logger;
         private readonly IEventBusSubscriptionsManager _subsManager;
         private readonly int _retryCount;
         private readonly ILifetimeScope _autofac;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private IModel _consumerChannel;
         private string _queueName;
 
         public EventBusRabbitMQServices(IRabbitMQPersistentConnection persistentConnection, ILogger<EventBusRabbitMQServices> logger,
-       ILifetimeScope autofac, IEventBusSubscriptionsManager subsManager, string queueName = null, int retryCount = 5)
+         ILifetimeScope autofac, IEventBusSubscriptionsManager subsManager, string queueName = null, int retryCount = 5)
         {
             _persistentConnection = persistentConnection ?? throw new ArgumentNullException(nameof(persistentConnection));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _subsManager = subsManager ?? new InMemoryEventBusSubscriptionsManager();
             _queueName = queueName;
+            _consumerChannel = CreateConsumerChannel();
             _autofac = autofac;
             _retryCount = retryCount;
-            _consumerChannel = CreateConsumerChannel();
+            _subsManager.OnEventRemoved += SubsManager_OnEventRemoved;
+        }
+        private void SubsManager_OnEventRemoved(object sender, string eventName)
+        {
+            if (!_persistentConnection.IsConnected)
+            {
+                _persistentConnection.TryConnect();
+            }
+
+            using var channel = _persistentConnection.CreateModel();
+            channel.QueueUnbind(queue: _queueName,
+                exchange: BROKER_NAME,
+                routingKey: eventName);
+
+            if (_subsManager.IsEmpty)
+            {
+                _queueName = string.Empty;
+                _consumerChannel.Close();
+            }
         }
 
         private IModel CreateConsumerChannel()
@@ -116,7 +138,7 @@ namespace EventBusRabbitMQ
             }
 
             _consumerChannel.BasicAck(eventArgs.DeliveryTag, multiple: false);
-        }
+       }
 
         private async Task ProcessEvent(string eventName, string message)
         {
@@ -124,11 +146,10 @@ namespace EventBusRabbitMQ
 
             if (_subsManager.HasSubscriptionsForEvent(eventName))
             {
-                await using var scope = _autofac.BeginLifetimeScope("test_event_bus");
+                await using var scope = _autofac.BeginLifetimeScope(AUTOFAC_SCOPE_NAME);
                 var subscriptions = _subsManager.GetHandlersForEvent(eventName);
                 foreach (var subscription in subscriptions)
                 {
-                  
                     var handler = scope.ResolveOptional(subscription.HandlerType);
                     if (handler == null) continue;
                     var eventType = _subsManager.GetEventTypeByName(eventName);
@@ -159,7 +180,7 @@ namespace EventBusRabbitMQ
         {
             if (!_persistentConnection.IsConnected)
             {
-               _persistentConnection.TryConnect();
+                _persistentConnection.TryConnect();
             }
 
             var policy = RetryPolicy.Handle<BrokerUnreachableException>()
@@ -176,20 +197,8 @@ namespace EventBusRabbitMQ
             using var channel = _persistentConnection.CreateModel();
             _logger.LogTrace("Declaring RabbitMQ exchange to publish event: {EventId}", @event.Id);
 
-
-            // 1. Declare exchange to handle event
-            channel.ExchangeDeclare(exchange: BROKER_NAME, durable: true, autoDelete: true, type: "direct");
-
-            // 2. Declare queue to store event from exchange
-            channel.QueueDeclare(queue: _queueName,
-                                    durable: true,
-                                    exclusive: false,
-                                    autoDelete: true,
-                                    arguments: null);
-            
-            // 3. Bind queue with exchange by routing key
-            channel.QueueBind(_queueName, BROKER_NAME, eventName);
-
+             channel.ExchangeDeclare(exchange: BROKER_NAME, durable: true, autoDelete: true, type: "direct");
+     
             var body = JsonSerializer.SerializeToUtf8Bytes(@event, @event.GetType(), new JsonSerializerOptions
             {
                 WriteIndented = true
@@ -231,7 +240,7 @@ namespace EventBusRabbitMQ
             {
                 if (!_persistentConnection.IsConnected)
                 {
-                    _persistentConnection.TryConnect();
+                   _persistentConnection.TryConnect();
                 }
 
                 _consumerChannel.QueueBind(queue: _queueName,

@@ -8,6 +8,5 @@ namespace Domain.AggregateModels.UserAggregate
         public ApplicationUser()
         {
         }
-        public virtual RefreshToken RefreshToken { get; set; }
     }
 }

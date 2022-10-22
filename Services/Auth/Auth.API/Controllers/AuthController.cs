@@ -31,7 +31,6 @@ namespace API.Controllers
             _userManager = userManager;
         }
 
-
         // api/auth/{userId}
         [HttpPost("{userId}")]
         public async Task<IActionResult> Authenticate(string userId)

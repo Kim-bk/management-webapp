@@ -23,6 +23,8 @@ using API.IntegrationEvents.EventHandlers;
 using RabbitMQ.Client;
 using Microsoft.AspNetCore.Http;
 using Autofac;
+using Autofac.Core;
+using API.Controllers;
 
 namespace API
 {
@@ -89,6 +91,8 @@ namespace API
             services
             .AddCustomIntegrations(Configuration)
             .AddEventBus(Configuration);
+
+            services.AddHttpClient<AccountController>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -115,31 +119,6 @@ namespace API
     }
     static class CustomExtensionsMethods
     {
-
-        /* public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
-         {
-             var hcBuilder = services.AddHealthChecks();
-
-             hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
-
-             hcBuilder
-                 .AddSqlServer(
-                     configuration["ConnectionString"],
-                     name: "OrderingDB-check",
-                     tags: new string[] { "orderingdb" });
-
-
-
-             hcBuilder
-                 .AddRabbitMQ(
-                     $"amqp://{configuration["EventBusConnection"]}",
-                     name: "ordering-rabbitmqbus-check",
-                     tags: new string[] { "rabbitmqbus" });
-
-
-             return services;
-         }*/
-
         public static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -153,10 +132,9 @@ namespace API
                 {
                     AutomaticRecoveryEnabled = true,
                     NetworkRecoveryInterval = TimeSpan.FromSeconds(15),
-                    UserName = "guest",
-                    Password = "guest",
-                    //HostName = "host.docker.internal",
-                    HostName = "localhost",
+                    UserName = configuration["RabbitMQ:Username"],
+                    Password = configuration["RabbitMQ:Password"],
+                    HostName = configuration["RabbitMQ:DefaultHostname"],
                     Port = 5672,
                     DispatchConsumersAsync = true
                 };

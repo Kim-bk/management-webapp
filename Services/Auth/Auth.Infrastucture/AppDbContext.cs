@@ -9,6 +9,7 @@ using System.Threading;
 using Domain.Entities.Histories;
 using Domain.AggregateModels.UserAggregate;
 using RefreshToken = Domain.AggregateModels.UserAggregate.RefreshToken;
+using System;
 
 namespace Infrastructure.Context
 {
@@ -25,7 +26,16 @@ namespace Infrastructure.Context
        
         public void OnBeforeSaveChanges()
         {
-            string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string userId = "";
+            try
+            {
+                userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            }
+            catch (NullReferenceException)
+            {
+                // because we receive message from rabbitMQ so it dont have the id of the user                         
+                // who interact with the database
+            }
             ChangeTracker.DetectChanges();
             var auditEntries = new List<HistoryEntry>();
             foreach (var entry in ChangeTracker.Entries())

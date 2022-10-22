@@ -24,6 +24,7 @@ using RabbitMQ.Client;
 using Microsoft.AspNetCore.Http;
 using Autofac;
 using API.DomainEventHandlers;
+using System.Configuration;
 
 namespace API
 {
@@ -91,7 +92,6 @@ namespace API
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
             services
             .AddCustomIntegrations(Configuration)
             .AddEventBus(Configuration);
@@ -136,16 +136,13 @@ namespace API
             services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
-
-
                 var factory = new ConnectionFactory()
                 {
                     AutomaticRecoveryEnabled = true,
                     NetworkRecoveryInterval = TimeSpan.FromSeconds(15),
-                    UserName = "guest",
-                    Password = "guest",
-                    HostName = "host.docker.internal",
-                    //HostName = "localhost",
+                    UserName = configuration["RabbitMQ:Username"],
+                    Password = configuration["RabbitMQ:Password"],
+                    HostName = configuration["RabbitMQ:DefaultHostname"],
                     Port = 5672,
                     DispatchConsumersAsync = true
                 };

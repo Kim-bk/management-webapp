@@ -30,7 +30,7 @@ namespace Auth.API.Services
         {
             try
             {
-                await _unitOfWork.BeginTransaction();
+                //await _unitOfWork.BeginTransaction();
 
                 // 1. Generate access vs refresh token
                 var accessToken = _accessTokenGenerator.Generate(user);
@@ -42,7 +42,7 @@ namespace Auth.API.Services
 
                 // 3. Create and save user refresh token
                 var userRefreshToken = user.CreateRefreshToken(refreshTokenId, refreshTokenHandler);
-                //await _refreshTokenRepository.AddAsync(userRefreshToken);
+                await _refreshTokenRepository.AddAsync(userRefreshToken);
 
                 await _unitOfWork.CommitTransaction();
 
@@ -54,10 +54,10 @@ namespace Auth.API.Services
                     RefreshToken = refreshTokenHandler
                 };
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await _unitOfWork.RollbackTransaction();
-                throw new Exception(e.Message);
+                throw;
             }
         }
     }

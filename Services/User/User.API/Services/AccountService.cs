@@ -58,10 +58,10 @@ namespace User.API.Services
             {
                 Email = model.Email,
                 UserName = model.UserName,
+                // 3. Assign GUID to Id user
+                Id = Guid.NewGuid().ToString()
             };
 
-            // 3. Assign GUID to Id user
-            user.Id = Guid.NewGuid().ToString();
             var rs = await _userManager.CreateAsync(user, model.Password);
 
             if (rs.Succeeded)
@@ -126,11 +126,11 @@ namespace User.API.Services
         {
             try
             {
-                var findUser = await _userManager.FindByIdAsync(request.UserId);
+               /* var findUser = await _userManager.FindByIdAsync(request.UserId);
 
                 // 1. Update user email, phone number
                 findUser.Update(request.Email, request.PhoneNumber);
-                await _userManager.UpdateAsync(findUser);
+                await _userManager.UpdateAsync(findUser);*/
 
                 // 2. Send UserUpdatedIntegrationEvent
                 var eventMessage = new UserUpdatedIntegrationEvent(request.UserId, request.Email, request.PhoneNumber);
@@ -142,9 +142,9 @@ namespace User.API.Services
                     //IsSuccess = true,
                 };
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
     }

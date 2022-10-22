@@ -24,11 +24,12 @@ namespace API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly HttpClient _client;
 
-        public AccountController(IAccountService accountSerivce, UserManager<ApplicationUser> userManager)
+        public AccountController(IAccountService accountSerivce, UserManager<ApplicationUser> userManager
+                            , HttpClient client)
         {
             _accountService = accountSerivce;
             _userManager = userManager;
-            _client = new HttpClient();
+            _client = client;
         }
 
         // api/account/register
@@ -43,23 +44,30 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
-            var user = await _accountService.Login(model);
-
-            // 1. Call http to Auth Service
-            var httpRequestMessage = new HttpRequestMessage
+            try
             {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri("http://localhost:5000/api/auth/" + user.Id)
-            };
+                var user = await _accountService.Login(model);
 
-            var response = await _client.SendAsync(httpRequestMessage);
-            var responseContent = await response.Content.ReadAsStringAsync();
+                // 1. Call http to Auth Service
+                var httpRequestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri("http://host.docker.internal:5000/api/auth/" + user.Id)
+                };
 
-            // 2. Read file as json
-            var jsonContent = JsonConvert.DeserializeObject<object>(responseContent);
+                var response = await _client.SendAsync(httpRequestMessage);
+                var responseContent = await response.Content.ReadAsStringAsync();
 
-            // 3. Return access token vs refresh Token
-            return Ok(jsonContent);
+                // 2. Read file as json
+                var jsonContent = JsonConvert.DeserializeObject<object>(responseContent);
+
+                // 3. Return access token vs refresh Token
+                return Ok(jsonContent);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [Authorize]
@@ -90,8 +98,11 @@ namespace API.Controllers
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri("http://localhost:5000/api/auth/refresh"),
-                Content = JsonContent.Create(new RefreshRequest { RefreshToken = refreshRequest.RefreshToken})
+                RequestUri = new Uri("http://host.docker.internal:5000/api/auth/refresh"),
+                Content = JsonContent.Create(new RefreshRequest 
+                { 
+                    RefreshToken = refreshRequest.RefreshToken
+                })
             };
          
             var response = await _client.SendAsync(httpRequestMessage);

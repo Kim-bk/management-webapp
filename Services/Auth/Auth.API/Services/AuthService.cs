@@ -1,4 +1,5 @@
 ﻿using API.DTOs.Responses;
+using API.Services;
 using Domain.AggregateModels.UserAggregate;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
@@ -10,20 +11,19 @@ using System.Threading.Tasks;
 
 namespace Auth.API.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService : BaseService, IAuthService
     {
         private readonly AccessTokenService _accessTokenGenerator;
         private readonly RefreshTokenService _refreshTokenGenerator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
         public AuthService(AccessTokenService accessTokenGenerator, IUnitOfWork unitOfWork,
                         RefreshTokenService refreshTokenGenerator, IRefreshTokenRepository refreshTokenRepository)
+                        : base(unitOfWork)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _accessTokenGenerator = accessTokenGenerator;
             _refreshTokenGenerator = refreshTokenGenerator;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<AuthenticatedUserResponse> Authenticate(ApplicationUser user)

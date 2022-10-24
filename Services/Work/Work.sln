@@ -9,10 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastru
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{8F79648C-4F9B-4C05-AB11-D0F0A0038754}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus", "EventBus\EventBus.csproj", "{B9154B3B-A18D-42C2-B367-73805B7A2626}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBusRabbitMQ", "EventBusRabbitMQ\EventBusRabbitMQ.csproj", "{9CC5D33B-D2F1-43BC-A115-D5A4AD701973}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,14 +27,6 @@ Global
 		{8F79648C-4F9B-4C05-AB11-D0F0A0038754}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F79648C-4F9B-4C05-AB11-D0F0A0038754}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F79648C-4F9B-4C05-AB11-D0F0A0038754}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9154B3B-A18D-42C2-B367-73805B7A2626}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9154B3B-A18D-42C2-B367-73805B7A2626}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9154B3B-A18D-42C2-B367-73805B7A2626}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9154B3B-A18D-42C2-B367-73805B7A2626}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9CC5D33B-D2F1-43BC-A115-D5A4AD701973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CC5D33B-D2F1-43BC-A115-D5A4AD701973}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9CC5D33B-D2F1-43BC-A115-D5A4AD701973}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CC5D33B-D2F1-43BC-A115-D5A4AD701973}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

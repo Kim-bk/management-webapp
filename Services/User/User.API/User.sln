@@ -3,15 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.API", "User.API.csproj", "{318B0F94-F9F4-40C7-B82A-7882A2EA622B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "User.API", "User.API.csproj", "{318B0F94-F9F4-40C7-B82A-7882A2EA622B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Domain", "..\User.Domain\User.Domain.csproj", "{5B4FB44D-3854-490F-83F8-ADD5F47B63CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "User.Domain", "..\User.Domain\User.Domain.csproj", "{5B4FB44D-3854-490F-83F8-ADD5F47B63CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Infrastructure", "..\User.Infrastructure\User.Infrastructure.csproj", "{F6822C5C-385B-48F4-BB1C-EA1398325789}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "..\EventBus\EventBus.csproj", "{FA1032F5-EAC7-447B-87DD-2C57CAADB901}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBusRabbitMQ", "..\EventBusRabbitMQ\EventBusRabbitMQ.csproj", "{01A65292-1874-482B-828E-7AF8D8CA51EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "User.Infrastructure", "..\User.Infrastructure\User.Infrastructure.csproj", "{F6822C5C-385B-48F4-BB1C-EA1398325789}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +27,6 @@ Global
 		{F6822C5C-385B-48F4-BB1C-EA1398325789}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6822C5C-385B-48F4-BB1C-EA1398325789}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6822C5C-385B-48F4-BB1C-EA1398325789}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA1032F5-EAC7-447B-87DD-2C57CAADB901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA1032F5-EAC7-447B-87DD-2C57CAADB901}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA1032F5-EAC7-447B-87DD-2C57CAADB901}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA1032F5-EAC7-447B-87DD-2C57CAADB901}.Release|Any CPU.Build.0 = Release|Any CPU
-		{01A65292-1874-482B-828E-7AF8D8CA51EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{01A65292-1874-482B-828E-7AF8D8CA51EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{01A65292-1874-482B-828E-7AF8D8CA51EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{01A65292-1874-482B-828E-7AF8D8CA51EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
